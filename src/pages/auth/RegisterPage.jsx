@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import colors from "../../styles/colors";
 
 function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -33,19 +34,17 @@ function RegisterPage() {
     console.log("register:", formData);
   }
 
-  const inputStyle = {
-    backgroundColor: "#1E2A3A",
-  };
+  const inputStyle = { backgroundColor: colors.light };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 py-10"
-      style={{ backgroundColor: "#1A1A2E" }}>
+      style={{ backgroundColor: colors.primary }}>
 
       <div className="w-full max-w-sm flex flex-col gap-6">
 
         <div>
           <h1 className="text-2xl font-bold text-white">Регистрация</h1>
-          <p className="text-sm mt-1" style={{ color: "#A8B2C1" }}>
+          <p className="text-sm mt-1" style={{ color: colors.gray }}>
             Создайте аккаунт в BarberHub
           </p>
         </div>
@@ -114,8 +113,8 @@ function RegisterPage() {
                   onClick={() => setFormData({ ...formData, role: r })}
                   className="flex-1 py-2 rounded-xl text-sm font-medium transition-colors"
                   style={{
-                    backgroundColor: formData.role === r ? "#E94560" : "#1E2A3A",
-                    color: formData.role === r ? "#ffffff" : "#A8B2C1",
+                    backgroundColor: formData.role === r ? colors.accent : colors.light,
+                    color: formData.role === r ? "#ffffff" : colors.gray,
                   }}>
                   {r === "User" ? "Клиент" : "Барбершоп"}
                 </button>
@@ -124,7 +123,7 @@ function RegisterPage() {
           </div>
 
           {errorMessage && (
-            <p className="text-sm" style={{ color: "#E94560" }}>
+            <p className="text-sm" style={{ color: colors.accent }}>
               {errorMessage}
             </p>
           )}
@@ -132,14 +131,14 @@ function RegisterPage() {
           <button
             type="submit"
             className="w-full py-3 rounded-xl font-semibold text-white text-base mt-1 hover:opacity-90 transition-opacity"
-            style={{ backgroundColor: "#E94560" }}>
+            style={{ backgroundColor: colors.accent }}>
             Зарегистрироваться
           </button>
         </form>
 
-        <p className="text-sm text-center" style={{ color: "#A8B2C1" }}>
+        <p className="text-sm text-center" style={{ color: colors.gray }}>
           Уже есть аккаунт?{" "}
-          <Link to="/login" style={{ color: "#E94560" }}>
+          <Link to="/login" style={{ color: colors.accent }}>
             Войти
           </Link>
         </p>

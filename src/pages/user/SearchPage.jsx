@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import mockShops from "../../data/mockShops";
+import colors from "../../styles/colors";
 
 const services = [
   { label: "Все", value: "all" },
@@ -43,9 +44,8 @@ function SearchPage() {
 
   return (
     <div className="min-h-screen px-4 py-6 max-w-2xl mx-auto"
-      style={{ backgroundColor: "#1A1A2E" }}>
+      style={{ backgroundColor: colors.primary }}>
 
-      {/* поиск */}
       <form onSubmit={handleSearch} className="flex gap-2 mb-4">
         <input
           type="text"
@@ -53,17 +53,16 @@ function SearchPage() {
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Найти барбершоп..."
           className="flex-1 px-4 py-3 rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none"
-          style={{ backgroundColor: "#1E2A3A" }}
+          style={{ backgroundColor: colors.light }}
         />
         <button
           type="submit"
           className="px-4 py-3 rounded-xl text-sm font-medium text-white"
-          style={{ backgroundColor: "#E94560" }}>
+          style={{ backgroundColor: colors.accent }}>
           Найти
         </button>
       </form>
 
-      {/* фильтры */}
       <div className="flex gap-2 overflow-x-auto pb-1 mb-5">
         {services.map((s) => (
           <button
@@ -71,24 +70,22 @@ function SearchPage() {
             onClick={() => handleServiceClick(s.value)}
             className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors"
             style={{
-              backgroundColor: activeService === s.value ? "#E94560" : "#1E2A3A",
-              color: activeService === s.value ? "#ffffff" : "#A8B2C1",
+              backgroundColor: activeService === s.value ? colors.accent : colors.light,
+              color: activeService === s.value ? "#ffffff" : colors.gray,
             }}>
             {s.label}
           </button>
         ))}
       </div>
 
-      {/* счётчик */}
-      <p className="text-sm mb-4" style={{ color: "#A8B2C1" }}>
+      <p className="text-sm mb-4" style={{ color: colors.gray }}>
         Найдено: {filteredShops.length} барбершопов
       </p>
 
-      {/* список */}
       {filteredShops.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 gap-2">
           <p className="text-white font-semibold text-lg">Ничего не найдено</p>
-          <p className="text-sm" style={{ color: "#A8B2C1" }}>
+          <p className="text-sm" style={{ color: colors.gray }}>
             Попробуйте изменить запрос
           </p>
         </div>
@@ -98,12 +95,12 @@ function SearchPage() {
             <div
               key={shop.id}
               className="rounded-2xl p-4 flex flex-col gap-2"
-              style={{ backgroundColor: "#16213E" }}>
+              style={{ backgroundColor: colors.dark }}>
 
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="font-semibold text-white text-base">{shop.name}</h3>
-                  <p className="text-xs mt-0.5" style={{ color: "#A8B2C1" }}>
+                  <p className="text-xs mt-0.5" style={{ color: colors.gray }}>
                     {shop.address} · {shop.distance}
                   </p>
                 </div>
@@ -111,7 +108,7 @@ function SearchPage() {
                   className="text-xs px-2 py-1 rounded-full font-medium"
                   style={{
                     backgroundColor: shop.isOpen ? "#1a3a2a" : "#2a1a1a",
-                    color: shop.isOpen ? "#48BB78" : "#E94560",
+                    color: shop.isOpen ? colors.success : colors.accent,
                   }}>
                   {shop.isOpen ? "Открыто" : "Закрыто"}
                 </span>
@@ -119,13 +116,13 @@ function SearchPage() {
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1">
-                  <span style={{ color: "#F5A623" }}>★</span>
+                  <span style={{ color: colors.gold }}>★</span>
                   <span className="text-sm text-white font-medium">{shop.rating}</span>
-                  <span className="text-xs" style={{ color: "#A8B2C1" }}>
+                  <span className="text-xs" style={{ color: colors.gray }}>
                     ({shop.reviewCount})
                   </span>
                 </div>
-                <span className="text-sm" style={{ color: "#A8B2C1" }}>
+                <span className="text-sm" style={{ color: colors.gray }}>
                   от {shop.priceFrom} ₸
                 </span>
               </div>
@@ -133,7 +130,7 @@ function SearchPage() {
               <button
                 onClick={() => navigate(`/shops/${shop.id}`)}
                 className="w-full py-2 rounded-xl text-sm font-semibold text-white mt-1 hover:opacity-90 transition-opacity"
-                style={{ backgroundColor: "#E94560" }}>
+                style={{ backgroundColor: colors.accent }}>
                 Записаться
               </button>
             </div>
