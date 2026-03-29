@@ -42,7 +42,7 @@ function AppRouter() {
         <Route path="/home" element={<HomePage />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/shops/:id" element={<ShopDetailsPage />} />
-        <Route path="/booking" element={<BookingPage />} />
+        <Route path="/booking/:shopId" element={<BookingPage />} />
         <Route path="/booking-success" element={<BookingSuccessPage />} />
         <Route path="/appointments" element={<MyAppointmentsPage />} />
         <Route path="/profile" element={<ProfilePage />} />
