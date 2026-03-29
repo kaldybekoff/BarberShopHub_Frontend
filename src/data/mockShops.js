@@ -9,6 +9,21 @@ const mockShops = [
     priceFrom: 2500,
     isOpen: true,
     image: null,
+    services: [
+      { id: 1, name: "Классическая стрижка", duration: "30 мин", price: 2500 },
+      { id: 2, name: "Фейд + укладка", duration: "50 мин", price: 3500 },
+      { id: 3, name: "Стрижка бороды", duration: "25 мин", price: 1500 },
+      { id: 4, name: "Комплекс", duration: "60 мин", price: 4500 },
+    ],
+    masters: [
+      { id: 1, name: "Артём К.", rating: 4.9 },
+      { id: 2, name: "Данияр М.", rating: 4.7 },
+    ],
+    reviews: [
+      { id: 1, author: "Алибек", rating: 5, comment: "Отличное место, мастер Артём — огонь!", date: "12.03.2025" },
+      { id: 2, author: "Серик", rating: 4, comment: "Хорошая стрижка, но пришлось подождать минут 15.", date: "05.03.2025" },
+      { id: 3, author: "Максим", rating: 5, comment: "Уже третий раз сюда хожу, всегда доволен.", date: "28.02.2025" },
+    ],
   },
   {
     id: 2,
@@ -20,6 +35,21 @@ const mockShops = [
     priceFrom: 2000,
     isOpen: true,
     image: null,
+    services: [
+      { id: 1, name: "Классическая стрижка", duration: "30 мин", price: 2000 },
+      { id: 2, name: "Детская стрижка", duration: "25 мин", price: 1500 },
+      { id: 3, name: "Стрижка бороды", duration: "20 мин", price: 1200 },
+      { id: 4, name: "Комплекс", duration: "55 мин", price: 3200 },
+    ],
+    masters: [
+      { id: 1, name: "Нурлан А.", rating: 4.8 },
+      { id: 2, name: "Рустам Б.", rating: 4.5 },
+      { id: 3, name: "Иван С.", rating: 4.6 },
+    ],
+    reviews: [
+      { id: 1, author: "Тимур", rating: 5, comment: "Быстро и качественно, рекомендую!", date: "10.03.2025" },
+      { id: 2, author: "Даурен", rating: 4, comment: "Нормально, цена адекватная.", date: "01.03.2025" },
+    ],
   },
   {
     id: 3,
@@ -31,6 +61,18 @@ const mockShops = [
     priceFrom: 1800,
     isOpen: false,
     image: null,
+    services: [
+      { id: 1, name: "Классическая стрижка", duration: "35 мин", price: 1800 },
+      { id: 2, name: "Бритьё опасной бритвой", duration: "40 мин", price: 2200 },
+      { id: 3, name: "Стрижка + борода", duration: "60 мин", price: 3000 },
+    ],
+    masters: [
+      { id: 1, name: "Владимир П.", rating: 4.4 },
+    ],
+    reviews: [
+      { id: 1, author: "Азамат", rating: 4, comment: "Хорошая атмосфера, старая школа.", date: "20.02.2025" },
+      { id: 2, author: "Николай", rating: 5, comment: "Лучшее бритьё в городе!", date: "15.02.2025" },
+    ],
   },
   {
     id: 4,
@@ -42,6 +84,21 @@ const mockShops = [
     priceFrom: 3000,
     isOpen: true,
     image: null,
+    services: [
+      { id: 1, name: "Скин-фейд", duration: "45 мин", price: 3500 },
+      { id: 2, name: "Фейд + борода", duration: "65 мин", price: 5000 },
+      { id: 3, name: "Классическая стрижка", duration: "30 мин", price: 3000 },
+      { id: 4, name: "Детская стрижка", duration: "25 мин", price: 2000 },
+    ],
+    masters: [
+      { id: 1, name: "Ерлан Ж.", rating: 5.0 },
+      { id: 2, name: "Бекзат Т.", rating: 4.8 },
+    ],
+    reviews: [
+      { id: 1, author: "Олжас", rating: 5, comment: "Топ мастера, лучшие фейды в городе.", date: "18.03.2025" },
+      { id: 2, author: "Арман", rating: 5, comment: "Уже год хожу только сюда.", date: "11.03.2025" },
+      { id: 3, author: "Дмитрий", rating: 4, comment: "Хорошо, но дороговато.", date: "04.03.2025" },
+    ],
   },
 ];
 
