@@ -1,0 +1,48 @@
+const mockShops = [
+  {
+    id: 1,
+    name: "BarberKing",
+    rating: 4.8,
+    reviewCount: 124,
+    address: "ул. Абая, 12",
+    distance: "0.3 км",
+    priceFrom: 2500,
+    isOpen: true,
+    image: null,
+  },
+  {
+    id: 2,
+    name: "Chop Chop",
+    rating: 4.6,
+    reviewCount: 87,
+    address: "пр. Достык, 45",
+    distance: "0.8 км",
+    priceFrom: 2000,
+    isOpen: true,
+    image: null,
+  },
+  {
+    id: 3,
+    name: "OldSchool Barbershop",
+    rating: 4.4,
+    reviewCount: 63,
+    address: "ул. Толе би, 78",
+    distance: "1.2 км",
+    priceFrom: 1800,
+    isOpen: false,
+    image: null,
+  },
+  {
+    id: 4,
+    name: "Fade Masters",
+    rating: 4.9,
+    reviewCount: 201,
+    address: "ул. Байтурсынова, 5",
+    distance: "1.7 км",
+    priceFrom: 3000,
+    isOpen: true,
+    image: null,
+  },
+];
+
+export default mockShops;
