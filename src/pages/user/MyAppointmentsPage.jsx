@@ -5,7 +5,7 @@ import colors from "../../styles/colors";
 
 const statusConfig = {
   confirmed: { label: "Подтверждено", color: colors.success },
-  pending:   { label: "Ожидает",      color: "#F6AD55" },
+  pending:   { label: "Ожидает",      color: colors.warning },
   cancelled: { label: "Отменено",     color: colors.accent },
   completed: { label: "Завершено",    color: colors.gray },
 };
