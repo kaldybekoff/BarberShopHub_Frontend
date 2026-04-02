@@ -5,6 +5,7 @@ const colors = {
   accent: "#E94560",
   gold: "#F5A623",
   success: "#48BB78",
+  warning: "#F6AD55",
   gray: "#A8B2C1",
 };
 
