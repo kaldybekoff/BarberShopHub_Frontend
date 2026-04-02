@@ -35,6 +35,56 @@ export const revenueData = [
   { day: "Вс", amount: 14500 },
 ];
 
+export const scheduleData = {
+  Пн: [
+    { id: 1, time: "09:00", clientName: "Алибек Джаксыбеков", service: "Стрижка + борода", barber: "Марат", status: "confirmed" },
+    { id: 2, time: "10:00", clientName: null, service: null, barber: null, status: "free" },
+    { id: 3, time: "11:00", clientName: "Нурлан Сейткали", service: "Классическая стрижка", barber: "Дамир", status: "pending" },
+    { id: 4, time: "12:00", clientName: null, service: null, barber: null, status: "free" },
+    { id: 5, time: "13:00", clientName: "Темирлан Ахметов", service: "Fade", barber: "Марат", status: "confirmed" },
+    { id: 6, time: "14:00", clientName: null, service: null, barber: null, status: "free" },
+    { id: 7, time: "15:00", clientName: "Айдос Кенжебеков", service: "Стрижка + укладка", barber: "Руслан", status: "pending" },
+  ],
+  Вт: [
+    { id: 1, time: "09:00", clientName: null, service: null, barber: null, status: "free" },
+    { id: 2, time: "10:00", clientName: "Жандос Мухамедов", service: "Борода", barber: "Дамир", status: "confirmed" },
+    { id: 3, time: "11:00", clientName: null, service: null, barber: null, status: "free" },
+    { id: 4, time: "12:00", clientName: "Серик Омаров", service: "Стрижка", barber: "Марат", status: "confirmed" },
+    { id: 5, time: "13:00", clientName: null, service: null, barber: null, status: "free" },
+  ],
+  Ср: [
+    { id: 1, time: "10:00", clientName: "Данияр Касымов", service: "Fade + борода", barber: "Руслан", status: "confirmed" },
+    { id: 2, time: "11:30", clientName: null, service: null, barber: null, status: "free" },
+    { id: 3, time: "13:00", clientName: "Бауыржан Ержанов", service: "Классическая стрижка", barber: "Дамир", status: "pending" },
+    { id: 4, time: "15:00", clientName: null, service: null, barber: null, status: "free" },
+  ],
+  Чт: [
+    { id: 1, time: "09:00", clientName: null, service: null, barber: null, status: "free" },
+    { id: 2, time: "10:30", clientName: "Рустем Байжанов", service: "Стрижка", barber: "Марат", status: "confirmed" },
+    { id: 3, time: "12:00", clientName: null, service: null, barber: null, status: "free" },
+    { id: 4, time: "14:00", clientName: "Арман Токтаров", service: "Борода", barber: "Руслан", status: "pending" },
+  ],
+  Пт: [
+    { id: 1, time: "09:00", clientName: "Ерлан Жаксыбеков", service: "Fade", barber: "Дамир", status: "confirmed" },
+    { id: 2, time: "10:00", clientName: "Азамат Нуров", service: "Стрижка + борода", barber: "Марат", status: "confirmed" },
+    { id: 3, time: "11:30", clientName: null, service: null, barber: null, status: "free" },
+    { id: 4, time: "13:00", clientName: "Санжар Алиев", service: "Классическая стрижка", barber: "Руслан", status: "pending" },
+    { id: 5, time: "15:00", clientName: null, service: null, barber: null, status: "free" },
+  ],
+  Сб: [
+    { id: 1, time: "10:00", clientName: "Дамир Сатыбалды", service: "Стрижка", barber: "Марат", status: "confirmed" },
+    { id: 2, time: "11:00", clientName: "Нурбек Аскаров", service: "Fade + борода", barber: "Дамир", status: "confirmed" },
+    { id: 3, time: "12:00", clientName: "Тимур Ахметов", service: "Борода", barber: "Руслан", status: "pending" },
+    { id: 4, time: "14:00", clientName: null, service: null, barber: null, status: "free" },
+    { id: 5, time: "15:30", clientName: "Олжас Мусин", service: "Классическая стрижка", barber: "Марат", status: "confirmed" },
+  ],
+  Вс: [
+    { id: 1, time: "11:00", clientName: null, service: null, barber: null, status: "free" },
+    { id: 2, time: "12:00", clientName: "Бекзат Нурланов", service: "Стрижка + укладка", barber: "Дамир", status: "confirmed" },
+    { id: 3, time: "14:00", clientName: null, service: null, barber: null, status: "free" },
+  ],
+};
+
 export const appointmentList = [
   {
     id: 1,
