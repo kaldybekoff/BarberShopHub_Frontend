@@ -1,3 +1,4 @@
+import getStatusLabel from "../../utils/getStatusLabel";
 import colors from "../../styles/colors";
 
 function DashboardAppointments({ appointmentList }) {
@@ -12,9 +13,7 @@ function DashboardAppointments({ appointmentList }) {
 
       <div className="flex flex-col gap-3">
         {appointmentList.map((appointment) => {
-          const isConfirmed = appointment.status === "confirmed";
-          const statusLabel = isConfirmed ? "Подтверждено" : "Ожидает";
-          const statusColor = isConfirmed ? colors.success : colors.warning;
+          const { label: statusLabel, color: statusColor } = getStatusLabel(appointment.status);
 
           return (
             <div

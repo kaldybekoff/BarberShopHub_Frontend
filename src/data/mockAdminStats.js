@@ -23,10 +23,13 @@ export const barbershopList = [
   { id: 6, name: "Royal Cuts", address: "пр. Аль-Фараби, 17", rating: 4.7, status: "active" },
 ];
 
-export const pendingReviews = [
-  { id: 1, author: "Алибек Д.", barbershop: "BarberKing", text: "Отличное место, мастер очень профессиональный!", rating: 5 },
-  { id: 2, author: "Серик О.", barbershop: "Chop Chop", text: "Нормально, но пришлось долго ждать.", rating: 3 },
-  { id: 3, author: "Тимур Н.", barbershop: "Fade Masters", text: "Лучшие фейды в городе, однозначно рекомендую!", rating: 5 },
-  { id: 4, author: "Максим В.", barbershop: "OldSchool Barbershop", text: "Не понравилось обслуживание, грубый мастер.", rating: 2 },
-  { id: 5, author: "Даурен К.", barbershop: "CutZone", text: "Хорошее соотношение цены и качества.", rating: 4 },
+export const reviewList = [
+  { id: 1, author: "Алибек Д.", barbershop: "BarberKing", text: "Отличное место, мастер очень профессиональный!", rating: 5, status: "pending" },
+  { id: 2, author: "Серик О.", barbershop: "Chop Chop", text: "Нормально, но пришлось долго ждать.", rating: 3, status: "approved" },
+  { id: 3, author: "Тимур Н.", barbershop: "Fade Masters", text: "Лучшие фейды в городе, однозначно рекомендую!", rating: 5, status: "pending" },
+  { id: 4, author: "Максим В.", barbershop: "OldSchool Barbershop", text: "Не понравилось обслуживание, грубый мастер.", rating: 2, status: "rejected" },
+  { id: 5, author: "Даурен К.", barbershop: "CutZone", text: "Хорошее соотношение цены и качества.", rating: 4, status: "pending" },
+  { id: 6, author: "Олжас М.", barbershop: "Royal Cuts", text: "Быстро и качественно, рекомендую всем!", rating: 5, status: "approved" },
+  { id: 7, author: "Арман Т.", barbershop: "BarberKing", text: "Мастер опоздал на 20 минут, неприятно.", rating: 2, status: "rejected" },
+  { id: 8, author: "Бекзат Н.", barbershop: "Fade Masters", text: "Цена завышена, но качество на уровне.", rating: 3, status: "pending" },
 ];

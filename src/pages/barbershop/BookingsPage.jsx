@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { bookingsList } from "../../data/mockDashboardStats";
+import Button from "../../components/common/Button";
+import EmptyState from "../../components/common/EmptyState";
+import SectionTitle from "../../components/common/SectionTitle";
 import colors from "../../styles/colors";
 
 const tabs = ["Все", "Ожидает", "Подтверждено", "Отменено"];
@@ -30,12 +33,7 @@ function BookingsPage() {
       className="min-h-screen px-4 py-6 max-w-2xl mx-auto"
       style={{ backgroundColor: colors.primary }}
     >
-      <div className="mb-6">
-        <h1 className="text-white text-2xl font-bold">Записи</h1>
-        <p className="text-sm mt-1" style={{ color: colors.gray }}>
-          Управляйте бронированиями
-        </p>
-      </div>
+      <SectionTitle title="Записи" subtitle="Управляйте бронированиями" />
 
       {/* Табы */}
       <div className="flex gap-2 overflow-x-auto pb-1 mb-5">
@@ -57,15 +55,8 @@ function BookingsPage() {
         })}
       </div>
 
-      {/* Список записей */}
       {filteredBookings.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-3">
-          <span className="text-4xl">📭</span>
-          <p className="text-white font-medium">Записей нет</p>
-          <p className="text-sm" style={{ color: colors.gray }}>
-            В этой категории пока ничего нет
-          </p>
-        </div>
+        <EmptyState icon="📭" message="В этой категории пока нет записей." />
       ) : (
         <div className="flex flex-col gap-3">
           {filteredBookings.map((booking) => {
@@ -77,7 +68,6 @@ function BookingsPage() {
                 className="rounded-2xl p-4 flex flex-col gap-3"
                 style={{ backgroundColor: colors.light }}
               >
-                {/* Верх карточки: имя + статус */}
                 <div className="flex items-start justify-between gap-2">
                   <span className="text-white font-semibold text-sm">
                     {booking.clientName}
@@ -93,12 +83,10 @@ function BookingsPage() {
                   </span>
                 </div>
 
-                {/* Услуга и мастер */}
                 <p className="text-sm" style={{ color: colors.gray }}>
                   {booking.service} · {booking.barber}
                 </p>
 
-                {/* Дата, время, цена */}
                 <div className="flex items-center justify-between">
                   <span className="text-sm" style={{ color: colors.gray }}>
                     {booking.date} · {booking.time}
@@ -108,24 +96,10 @@ function BookingsPage() {
                   </span>
                 </div>
 
-                {/* Кнопки (только UI) */}
                 {booking.status === "pending" && (
                   <div className="flex gap-2 pt-1">
-                    <button
-                      className="flex-1 py-2 rounded-xl text-sm font-medium text-white"
-                      style={{ backgroundColor: colors.success }}
-                    >
-                      Подтвердить
-                    </button>
-                    <button
-                      className="flex-1 py-2 rounded-xl text-sm font-medium"
-                      style={{
-                        backgroundColor: colors.dark,
-                        color: colors.gray,
-                      }}
-                    >
-                      Отменить
-                    </button>
+                    <Button label="Подтвердить" variant="success" fullWidth />
+                    <Button label="Отменить" variant="danger" fullWidth />
                   </div>
                 )}
               </div>

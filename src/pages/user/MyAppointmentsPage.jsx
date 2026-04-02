@@ -1,14 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import mockAppointments from "../../data/mockAppointments";
+import getStatusLabel from "../../utils/getStatusLabel";
+import formatPrice from "../../utils/formatPrice";
 import colors from "../../styles/colors";
-
-const statusConfig = {
-  confirmed: { label: "Подтверждено", color: colors.success },
-  pending:   { label: "Ожидает",      color: "#F6AD55" },
-  cancelled: { label: "Отменено",     color: colors.accent },
-  completed: { label: "Завершено",    color: colors.gray },
-};
 
 function MyAppointmentsPage() {
   const navigate = useNavigate();
@@ -73,7 +68,7 @@ function MyAppointmentsPage() {
         ) : (
           <div className="flex flex-col gap-3 pb-8">
             {filteredAppointments.map((appointment) => {
-              const status = statusConfig[appointment.status];
+              const status = getStatusLabel(appointment.status);
               return (
                 <div key={appointment.id}
                   className="rounded-2xl p-4 flex flex-col gap-3"
@@ -99,7 +94,7 @@ function MyAppointmentsPage() {
                         {appointment.date} в {appointment.time}
                       </p>
                       <span className="text-sm font-semibold text-white">
-                        {appointment.price} ₸
+                        {formatPrice(appointment.price)}
                       </span>
                     </div>
                   </div>
