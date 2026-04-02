@@ -16,4 +16,7 @@ coverage/
 .DS_Store
 .idea/
 .vscode/
-.claude/ 
+.claude/
+CLAUDE.md
+CLAUDE.local.md
+docs/
