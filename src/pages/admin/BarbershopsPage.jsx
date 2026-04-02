@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { barbershopList } from "../../data/mockAdminStats";
 import BarbershopsTable from "../../components/admin/BarbershopsTable";
+import Input from "../../components/common/Input";
+import EmptyState from "../../components/common/EmptyState";
+import SectionTitle from "../../components/common/SectionTitle";
 import colors from "../../styles/colors";
 
 const tabs = ["Все", "Активные", "Заблокированные"];
@@ -31,26 +34,15 @@ function BarbershopsPage() {
       className="min-h-screen px-4 py-6 max-w-4xl mx-auto"
       style={{ backgroundColor: colors.primary }}
     >
-      <div className="mb-6">
-        <h1 className="text-white text-2xl font-bold">Барбершопы</h1>
-        <p className="text-sm mt-1" style={{ color: colors.gray }}>
-          Управление барбершопами платформы
-        </p>
-      </div>
+      <SectionTitle title="Барбершопы" subtitle="Управление барбершопами платформы" />
 
-      {/* Поиск */}
-      <input
-        type="text"
-        placeholder="Поиск по названию или адресу..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        className="w-full rounded-xl px-4 py-3 text-sm outline-none mb-4"
-        style={{
-          backgroundColor: colors.light,
-          border: `1px solid ${colors.dark}`,
-          color: "#ffffff",
-        }}
-      />
+      <div className="mb-4">
+        <Input
+          placeholder="Поиск по названию или адресу..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
 
       {/* Табы */}
       <div className="flex gap-2 mb-5">
@@ -72,15 +64,8 @@ function BarbershopsPage() {
         })}
       </div>
 
-      {/* Таблица или EmptyState */}
       {filteredBarbershops.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-3">
-          <span className="text-4xl">✂️</span>
-          <p className="text-white font-medium">Барбершопы не найдены</p>
-          <p className="text-sm" style={{ color: colors.gray }}>
-            Попробуйте изменить запрос или фильтр
-          </p>
-        </div>
+        <EmptyState icon="✂️" message="Барбершопы не найдены. Попробуйте изменить запрос или фильтр." />
       ) : (
         <BarbershopsTable barbershopList={filteredBarbershops} />
       )}

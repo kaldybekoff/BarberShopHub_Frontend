@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { reviewList } from "../../data/mockAdminStats";
 import ReviewModerationTable from "../../components/admin/ReviewModerationTable";
+import EmptyState from "../../components/common/EmptyState";
+import SectionTitle from "../../components/common/SectionTitle";
 import colors from "../../styles/colors";
 
 const tabs = ["Все", "Ожидает", "Одобрено", "Отклонено"];
@@ -25,12 +27,7 @@ function ReviewsPage() {
       className="min-h-screen px-4 py-6 max-w-4xl mx-auto"
       style={{ backgroundColor: colors.primary }}
     >
-      <div className="mb-6">
-        <h1 className="text-white text-2xl font-bold">Модерация отзывов</h1>
-        <p className="text-sm mt-1" style={{ color: colors.gray }}>
-          Проверка и управление отзывами
-        </p>
-      </div>
+      <SectionTitle title="Модерация отзывов" subtitle="Проверка и управление отзывами" />
 
       {/* Табы */}
       <div className="flex gap-2 overflow-x-auto pb-1 mb-5">
@@ -52,15 +49,8 @@ function ReviewsPage() {
         })}
       </div>
 
-      {/* Таблица или EmptyState */}
       {filteredReviews.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-3">
-          <span className="text-4xl">💬</span>
-          <p className="text-white font-medium">Отзывов нет</p>
-          <p className="text-sm" style={{ color: colors.gray }}>
-            В этой категории пока ничего нет
-          </p>
-        </div>
+        <EmptyState icon="💬" message="В этой категории пока нет отзывов." />
       ) : (
         <ReviewModerationTable reviewList={filteredReviews} />
       )}

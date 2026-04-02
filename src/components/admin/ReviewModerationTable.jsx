@@ -1,7 +1,9 @@
+import Button from "../../components/common/Button";
 import colors from "../../styles/colors";
 
 function ReviewModerationTable({ reviewList }) {
   const pendingReviews = reviewList.filter((r) => r.status === "pending");
+
   return (
     <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: colors.light }}>
       <div className="px-5 py-4 border-b" style={{ borderColor: colors.dark }}>
@@ -30,18 +32,8 @@ function ReviewModerationTable({ reviewList }) {
               <p className="text-sm" style={{ color: colors.gray }}>{review.text}</p>
 
               <div className="flex gap-2 pt-1">
-                <button
-                  className="px-4 py-1.5 rounded-lg text-xs font-medium text-white"
-                  style={{ backgroundColor: colors.success }}
-                >
-                  Одобрить
-                </button>
-                <button
-                  className="px-4 py-1.5 rounded-lg text-xs font-medium"
-                  style={{ backgroundColor: `${colors.accent}20`, color: colors.accent }}
-                >
-                  Отклонить
-                </button>
+                <Button label="Одобрить" variant="success" />
+                <Button label="Отклонить" variant="danger" />
               </div>
             </div>
           );
