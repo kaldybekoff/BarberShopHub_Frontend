@@ -85,6 +85,19 @@ export const scheduleData = {
   ],
 };
 
+export const analyticsStats = [
+  { id: 1, label: "Выручка за период", value: "84 500 ₸", icon: "💰" },
+  { id: 2, label: "Количество записей", value: "47", icon: "📅" },
+  { id: 3, label: "Средний чек", value: "1 798 ₸", icon: "📊" },
+  { id: 4, label: "Новые клиенты", value: "12", icon: "👤" },
+];
+
+export const topServices = [
+  { id: 1, name: "Классическая стрижка", count: 18 },
+  { id: 2, name: "Fade + борода", count: 13 },
+  { id: 3, name: "Стрижка + укладка", count: 9 },
+];
+
 export const bookingsList = [
   {
     id: 1,
