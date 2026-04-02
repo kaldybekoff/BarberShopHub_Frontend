@@ -1,6 +1,10 @@
 import { Routes, Route } from "react-router-dom";
 import roles from "../constants/roles";
 
+import AuthLayout from "../components/layout/AuthLayout";
+import MainLayout from "../components/layout/MainLayout";
+import DashboardLayout from "../components/layout/DashboardLayout";
+
 import WelcomePage from "../pages/auth/WelcomePage";
 import LoginPage from "../pages/auth/LoginPage";
 import RegisterPage from "../pages/auth/RegisterPage";
@@ -31,38 +35,46 @@ import RoleRoute from "./RoleRoute";
 function AppRouter() {
   return (
     <Routes>
-      {/* публичные */}
-      <Route path="/" element={<WelcomePage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/verify" element={<VerifyPage />} />
+      {/* auth — без навигации */}
+      <Route element={<AuthLayout />}>
+        <Route path="/" element={<WelcomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/verify" element={<VerifyPage />} />
+      </Route>
 
-      {/* user */}
+      {/* user — Header + BottomNav */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/search" element={<SearchPage />} />
-        <Route path="/shops/:id" element={<ShopDetailsPage />} />
-        <Route path="/booking/:shopId" element={<BookingPage />} />
-        <Route path="/booking-success" element={<BookingSuccessPage />} />
-        <Route path="/appointments" element={<MyAppointmentsPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
+        <Route element={<MainLayout />}>
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/search" element={<SearchPage />} />
+          <Route path="/shops/:id" element={<ShopDetailsPage />} />
+          <Route path="/booking/:shopId" element={<BookingPage />} />
+          <Route path="/booking-success" element={<BookingSuccessPage />} />
+          <Route path="/appointments" element={<MyAppointmentsPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+        </Route>
       </Route>
 
-      {/* barbershop */}
+      {/* barbershop — Sidebar + Topbar */}
       <Route element={<RoleRoute allowedRoles={[roles.Barbershop]} />}>
-        <Route path="/barbershop/dashboard" element={<BarbershopDashboardPage />} />
-        <Route path="/barbershop/schedule" element={<SchedulePage />} />
-        <Route path="/barbershop/bookings" element={<BookingsPage />} />
-        <Route path="/barbershop/services" element={<ServicesPage />} />
-        <Route path="/barbershop/analytics" element={<AnalyticsPage />} />
+        <Route element={<DashboardLayout />}>
+          <Route path="/barbershop/dashboard" element={<BarbershopDashboardPage />} />
+          <Route path="/barbershop/schedule" element={<SchedulePage />} />
+          <Route path="/barbershop/bookings" element={<BookingsPage />} />
+          <Route path="/barbershop/services" element={<ServicesPage />} />
+          <Route path="/barbershop/analytics" element={<AnalyticsPage />} />
+        </Route>
       </Route>
 
-      {/* admin */}
+      {/* admin — Sidebar + Topbar */}
       <Route element={<RoleRoute allowedRoles={[roles.Admin]} />}>
-        <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-        <Route path="/admin/users" element={<UsersPage />} />
-        <Route path="/admin/barbershops" element={<BarbershopsPage />} />
-        <Route path="/admin/reviews" element={<ReviewsPage />} />
+        <Route element={<DashboardLayout />}>
+          <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+          <Route path="/admin/users" element={<UsersPage />} />
+          <Route path="/admin/barbershops" element={<BarbershopsPage />} />
+          <Route path="/admin/reviews" element={<ReviewsPage />} />
+        </Route>
       </Route>
     </Routes>
   );
