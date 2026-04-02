@@ -1,4 +1,4 @@
-import { adminStatsCards, userList, barbershopList, pendingReviews } from "../../data/mockAdminStats";
+import { adminStatsCards, userList, barbershopList, reviewList } from "../../data/mockAdminStats";
 import StatsCard from "../../components/barbershop/StatsCard";
 import UsersTable from "../../components/admin/UsersTable";
 import BarbershopsTable from "../../components/admin/BarbershopsTable";
@@ -34,7 +34,7 @@ function AdminDashboardPage() {
       <div className="flex flex-col gap-6">
         <UsersTable userList={userList} />
         <BarbershopsTable barbershopList={barbershopList} />
-        <ReviewModerationTable pendingReviews={pendingReviews} />
+        <ReviewModerationTable reviewList={reviewList} />
       </div>
     </div>
   );

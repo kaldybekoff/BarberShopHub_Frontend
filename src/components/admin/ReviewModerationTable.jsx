@@ -1,6 +1,7 @@
 import colors from "../../styles/colors";
 
-function ReviewModerationTable({ pendingReviews }) {
+function ReviewModerationTable({ reviewList }) {
+  const pendingReviews = reviewList.filter((r) => r.status === "pending");
   return (
     <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: colors.light }}>
       <div className="px-5 py-4 border-b" style={{ borderColor: colors.dark }}>
