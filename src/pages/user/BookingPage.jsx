@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import mockShops from "../../data/mockShops";
+import bookingSteps from "../../constants/bookingSteps";
 import colors from "../../styles/colors";
 
 const timeSlots = [
@@ -83,18 +84,23 @@ function BookingPage() {
           </button>
           {/* индикатор шагов */}
           <div className="flex items-center gap-2">
-            {[1, 2, 3].map((step) => (
+            {bookingSteps.map(({ step, label }) => (
               <div key={step} className="flex items-center gap-2">
-                <div
-                  className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold"
-                  style={{
-                    backgroundColor: step <= currentStep ? colors.accent : colors.light,
-                    color: step <= currentStep ? "#fff" : colors.gray,
-                  }}>
-                  {step}
+                <div className="flex flex-col items-center gap-0.5">
+                  <div
+                    className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold"
+                    style={{
+                      backgroundColor: step <= currentStep ? colors.accent : colors.light,
+                      color: step <= currentStep ? "#fff" : colors.gray,
+                    }}>
+                    {step}
+                  </div>
+                  <span className="text-xs hidden sm:block" style={{ color: step <= currentStep ? colors.accent : colors.gray }}>
+                    {label}
+                  </span>
                 </div>
-                {step < 3 && (
-                  <div className="w-6 h-px" style={{ backgroundColor: step < currentStep ? colors.accent : colors.light }} />
+                {step < bookingSteps.length && (
+                  <div className="w-6 h-px mb-4" style={{ backgroundColor: step < currentStep ? colors.accent : colors.light }} />
                 )}
               </div>
             ))}
