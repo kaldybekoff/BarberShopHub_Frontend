@@ -1,5 +1,6 @@
 function formatPrice(amount) {
-  return amount.toLocaleString("ru-RU") + "₸";
+  if (amount == null || isNaN(amount)) return "— ₸";
+  return Number(amount).toLocaleString("ru-RU") + "₸";
 }
 
 export default formatPrice;

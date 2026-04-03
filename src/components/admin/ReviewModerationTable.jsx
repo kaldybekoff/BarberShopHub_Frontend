@@ -25,7 +25,10 @@ function ReviewModerationTable({ reviewList }) {
                   <span className="text-xs" style={{ color: colors.gray }}>→ {review.barbershop}</span>
                 </div>
                 <span style={{ color: colors.gold }} className="text-sm">
-                  {"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}
+                  {(() => {
+                    const r = Math.min(5, Math.max(0, Math.round(review.rating || 0)));
+                    return "★".repeat(r) + "☆".repeat(5 - r);
+                  })()}
                 </span>
               </div>
 
