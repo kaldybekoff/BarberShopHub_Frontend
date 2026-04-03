@@ -4,7 +4,8 @@ import EmptyState from "../../components/common/EmptyState";
 import SectionTitle from "../../components/common/SectionTitle";
 import colors from "../../styles/colors";
 
-const serviceList = mockShops[0].services;
+// TODO: заменить на услуги текущего барбершопа из API
+const serviceList = mockShops[0]?.services ?? [];
 
 function ServicesPage() {
   return (

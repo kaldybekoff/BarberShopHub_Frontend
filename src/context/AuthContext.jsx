@@ -3,8 +3,13 @@ import { createContext, useState } from "react";
 export const AuthContext = createContext(null);
 
 function getSavedUser() {
-  const savedUser = localStorage.getItem("user");
-  return savedUser ? JSON.parse(savedUser) : null;
+  try {
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? JSON.parse(savedUser) : null;
+  } catch {
+    localStorage.removeItem("user");
+    return null;
+  }
 }
 
 function getSavedToken() {
