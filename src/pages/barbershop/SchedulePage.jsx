@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { scheduleData } from "../../data/mockDashboardStats";
+import { useState, useEffect } from "react";
+import { getSchedule } from "../../api/dashboardApi";
 import ScheduleCalendar from "../../components/barbershop/ScheduleCalendar";
 import ScheduleSlot from "../../components/barbershop/ScheduleSlot";
 import colors from "../../styles/colors";
@@ -9,8 +9,25 @@ const tabs = ["День", "Неделя"];
 function SchedulePage() {
   const [selectedDay, setSelectedDay] = useState("Пн");
   const [activeTab, setActiveTab] = useState("День");
+  const [schedule, setSchedule] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
 
-  const scheduleSlots = scheduleData[selectedDay] || [];
+  useEffect(() => {
+    getSchedule()
+      .then((data) => setSchedule(data))
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  const scheduleSlots = schedule[selectedDay] || [];
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: colors.primary }}>
+        <p className="text-sm" style={{ color: colors.gray }}>Загрузка...</p>
+      </div>
+    );
+  }
 
   return (
     <div

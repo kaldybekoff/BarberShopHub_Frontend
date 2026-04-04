@@ -16,17 +16,22 @@ function SearchBar() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="relative mb-5">
-      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-base">🔍</span>
+    <form onSubmit={handleSubmit} className="relative mb-5 max-w-xl">
+      <span
+        className="absolute left-4 top-1/2 -translate-y-1/2 text-base"
+        style={{ color: colors.gray }}
+      >
+        🔍
+      </span>
       <input
         type="text"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         placeholder="Найти барбершоп или мастера..."
-        className="w-full pl-10 pr-4 py-3 rounded-xl text-white text-sm focus:outline-none"
+        className="w-full pl-10 pr-4 py-3 rounded-xl text-sm focus:outline-none"
         style={{
           backgroundColor: colors.light,
-          border: `1px solid ${colors.dark}`,
+          border: "1px solid rgba(255,255,255,0.1)",
           color: "#ffffff",
         }}
       />

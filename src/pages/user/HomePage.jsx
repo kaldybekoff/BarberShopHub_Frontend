@@ -18,7 +18,7 @@ function HomePage() {
 
   return (
     <div
-      className="px-4 py-6 max-w-2xl mx-auto"
+      className="max-w-6xl mx-auto px-6 py-8"
       style={{ backgroundColor: colors.primary }}
     >
       <GreetingBlock />

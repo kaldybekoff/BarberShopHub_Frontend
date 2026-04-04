@@ -5,18 +5,21 @@ function WelcomePage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6"
-      style={{ backgroundColor: colors.primary }}>
-
-      <div className="w-full max-w-sm flex flex-col items-center text-center gap-6">
+    <div
+      className="min-h-screen flex flex-col items-center justify-center px-6"
+      style={{ backgroundColor: colors.primary }}
+    >
+      <div className="w-full max-w-md flex flex-col items-center text-center gap-8">
 
         {/* лого */}
-        <div className="flex flex-col items-center gap-2">
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl"
-            style={{ backgroundColor: colors.accent }}>
+        <div className="flex flex-col items-center gap-3">
+          <div
+            className="w-20 h-20 rounded-2xl flex items-center justify-center text-4xl"
+            style={{ backgroundColor: colors.accent }}
+          >
             ✂
           </div>
-          <h1 className="text-3xl font-bold text-white tracking-wide">
+          <h1 className="text-4xl font-bold text-white tracking-wide">
             Barber<span style={{ color: colors.accent }}>Hub</span>
           </h1>
         </div>
@@ -32,17 +35,19 @@ function WelcomePage() {
         </div>
 
         {/* кнопки */}
-        <div className="w-full flex flex-col gap-3 mt-2">
+        <div className="w-full flex flex-col gap-3">
           <button
             onClick={() => navigate("/login")}
             className="w-full py-3 rounded-xl font-semibold text-white text-base transition-opacity hover:opacity-90"
-            style={{ backgroundColor: colors.accent }}>
+            style={{ backgroundColor: colors.accent }}
+          >
             Войти
           </button>
           <button
             onClick={() => navigate("/register")}
-            className="w-full py-3 rounded-xl font-semibold text-base border transition-colors hover:bg-white hover:text-gray-900"
-            style={{ borderColor: colors.gray, color: colors.gray }}>
+            className="w-full py-3 rounded-xl font-semibold text-base border transition-colors hover:border-white hover:text-white"
+            style={{ borderColor: colors.gray, color: colors.gray }}
+          >
             Создать аккаунт
           </button>
         </div>

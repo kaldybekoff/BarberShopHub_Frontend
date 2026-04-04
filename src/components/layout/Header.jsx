@@ -1,9 +1,15 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import colors from "../../styles/colors";
 
 function Header() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    logout();
+    navigate("/");
+  }
 
   return (
     <header
@@ -24,6 +30,13 @@ function Header() {
             {user?.name ? user.name[0].toUpperCase() : "U"}
           </div>
         </Link>
+        <button
+          onClick={handleLogout}
+          className="text-sm font-medium transition-colors hover:text-red-400"
+          style={{ color: colors.gray }}
+        >
+          Выйти
+        </button>
       </div>
     </header>
   );

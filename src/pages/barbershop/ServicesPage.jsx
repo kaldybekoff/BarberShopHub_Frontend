@@ -1,3 +1,4 @@
+import { useState } from "react";
 import mockShops from "../../data/mockShops";
 import Button from "../../components/common/Button";
 import EmptyState from "../../components/common/EmptyState";
@@ -5,9 +6,11 @@ import SectionTitle from "../../components/common/SectionTitle";
 import colors from "../../styles/colors";
 
 // TODO: заменить на услуги текущего барбершопа из API
-const serviceList = mockShops[0]?.services ?? [];
+const mockServiceList = mockShops[0]?.services ?? [];
 
 function ServicesPage() {
+  const [serviceList] = useState(mockServiceList);
+
   return (
     <div
       className="min-h-screen px-4 py-6 max-w-2xl mx-auto"

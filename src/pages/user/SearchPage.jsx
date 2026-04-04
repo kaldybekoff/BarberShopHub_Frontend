@@ -43,42 +43,47 @@ function SearchPage() {
   });
 
   return (
-    <div className="min-h-screen px-4 py-6 max-w-2xl mx-auto"
+    <div className="min-h-screen max-w-6xl mx-auto px-6 py-8"
       style={{ backgroundColor: colors.primary }}>
 
-      <form onSubmit={handleSearch} className="flex gap-2 mb-4">
+      <form onSubmit={handleSearch} className="flex gap-2 mb-6 max-w-xl">
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Найти барбершоп..."
-          className="flex-1 px-4 py-3 rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none"
-          style={{ backgroundColor: colors.light }}
+          className="flex-1 px-4 py-3 rounded-xl text-white text-sm focus:outline-none"
+          style={{
+            backgroundColor: colors.light,
+            border: "1px solid rgba(255,255,255,0.1)",
+          }}
         />
         <button
           type="submit"
-          className="px-4 py-3 rounded-xl text-sm font-medium text-white"
+          className="px-5 py-3 rounded-xl text-sm font-medium text-white hover:opacity-90 transition-opacity"
           style={{ backgroundColor: colors.accent }}>
           Найти
         </button>
       </form>
 
-      <div className="flex gap-2 overflow-x-auto pb-1 mb-5">
+      <div className="flex gap-0 border-b mb-6" style={{ borderColor: colors.light }}>
         {services.map((s) => (
           <button
             key={s.value}
             onClick={() => handleServiceClick(s.value)}
-            className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors"
+            className="px-5 py-2.5 text-sm font-medium whitespace-nowrap transition-colors"
             style={{
-              backgroundColor: activeService === s.value ? colors.accent : colors.light,
               color: activeService === s.value ? "#ffffff" : colors.gray,
+              borderBottom: activeService === s.value
+                ? `2px solid ${colors.accent}`
+                : "2px solid transparent",
             }}>
             {s.label}
           </button>
         ))}
       </div>
 
-      <p className="text-sm mb-4" style={{ color: colors.gray }}>
+      <p className="text-sm mb-5" style={{ color: colors.gray }}>
         Найдено: {filteredShops.length} барбершопов
       </p>
 
@@ -90,24 +95,24 @@ function SearchPage() {
           </p>
         </div>
       ) : (
-        <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredShops.map((shop) => (
             <div
               key={shop.id}
               className="rounded-2xl p-4 flex flex-col gap-2"
-              style={{ backgroundColor: colors.dark }}>
+              style={{ backgroundColor: colors.light }}>
 
-              <div className="flex items-start justify-between">
+              <div className="flex items-start justify-between gap-2">
                 <div>
                   <h3 className="font-semibold text-white text-base">{shop.name}</h3>
-                  <p className="text-xs mt-0.5" style={{ color: colors.gray }}>
+                  <p className="text-sm mt-0.5" style={{ color: colors.gray }}>
                     {shop.address} · {shop.distance}
                   </p>
                 </div>
                 <span
-                  className="text-xs px-2 py-1 rounded-full font-medium"
+                  className="text-xs px-2 py-0.5 rounded-full font-medium shrink-0"
                   style={{
-                    backgroundColor: shop.isOpen ? "#1a3a2a" : "#2a1a1a",
+                    backgroundColor: shop.isOpen ? `${colors.success}20` : `${colors.accent}20`,
                     color: shop.isOpen ? colors.success : colors.accent,
                   }}>
                   {shop.isOpen ? "Открыто" : "Закрыто"}
@@ -122,7 +127,7 @@ function SearchPage() {
                     ({shop.reviewCount})
                   </span>
                 </div>
-                <span className="text-sm" style={{ color: colors.gray }}>
+                <span className="text-sm text-white">
                   от {shop.priceFrom} ₸
                 </span>
               </div>

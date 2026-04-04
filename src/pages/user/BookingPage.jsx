@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import mockShops from "../../data/mockShops";
 import bookingSteps from "../../constants/bookingSteps";
 import colors from "../../styles/colors";
+import { createBooking } from "../../api/bookingApi";
 
 const timeSlots = [
   "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
@@ -38,6 +39,7 @@ function BookingPage() {
   const [selectedTime, setSelectedTime] = useState(null);
   const [comment, setComment] = useState("");
   const [reminder, setReminder] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const days = getNextDays(7);
 
@@ -58,7 +60,7 @@ function BookingPage() {
     }
   }
 
-  function handleConfirm() {
+  async function handleConfirm() {
     const bookingData = {
       shopId: shop.id,
       shopName: shop.name,
@@ -69,42 +71,65 @@ function BookingPage() {
       comment,
       reminder,
     };
-    console.log("booking:", bookingData);
-    navigate("/booking-success", { state: bookingData });
+
+    setIsSubmitting(true);
+    try {
+      await createBooking(bookingData);
+      navigate("/booking-success", { state: bookingData });
+    } catch (error) {
+      console.error("Ошибка при создании записи:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
     <div className="min-h-screen pb-10" style={{ backgroundColor: colors.primary }}>
-      <div className="max-w-lg mx-auto px-4 pt-6">
+      <div className="max-w-2xl mx-auto px-6 pt-8">
 
         {/* верхняя панель */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-8">
           <button onClick={handleBack} className="text-sm" style={{ color: colors.gray }}>
             ← Назад
           </button>
+
           {/* индикатор шагов */}
           <div className="flex items-center gap-2">
             {bookingSteps.map(({ step, label }) => (
               <div key={step} className="flex items-center gap-2">
-                <div className="flex flex-col items-center gap-0.5">
+                <div className="flex flex-col items-center gap-1">
                   <div
-                    className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold"
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold"
                     style={{
-                      backgroundColor: step <= currentStep ? colors.accent : colors.light,
-                      color: step <= currentStep ? "#fff" : colors.gray,
+                      backgroundColor:
+                        step < currentStep ? colors.success
+                        : step === currentStep ? colors.accent
+                        : colors.light,
+                      color: step <= currentStep ? "#ffffff" : colors.gray,
                     }}>
-                    {step}
+                    {step < currentStep ? "✓" : step}
                   </div>
-                  <span className="text-xs hidden sm:block" style={{ color: step <= currentStep ? colors.accent : colors.gray }}>
+                  <span
+                    className="text-xs"
+                    style={{
+                      color:
+                        step < currentStep ? colors.success
+                        : step === currentStep ? colors.accent
+                        : colors.gray,
+                    }}>
                     {label}
                   </span>
                 </div>
                 {step < bookingSteps.length && (
-                  <div className="w-6 h-px mb-4" style={{ backgroundColor: step < currentStep ? colors.accent : colors.light }} />
+                  <div
+                    className="w-12 h-px mb-5"
+                    style={{ backgroundColor: step < currentStep ? colors.success : "rgba(255,255,255,0.1)" }}
+                  />
                 )}
               </div>
             ))}
           </div>
+
           <div className="w-12" />
         </div>
 
@@ -123,16 +148,23 @@ function BookingPage() {
                     onClick={() => setSelectedService(service)}
                     className="w-full flex items-center justify-between px-4 py-4 rounded-xl text-left transition-all"
                     style={{
-                      backgroundColor: isSelected ? colors.accent : colors.dark,
-                      border: isSelected ? `1px solid ${colors.accent}` : "1px solid transparent",
+                      backgroundColor: colors.light,
+                      border: isSelected
+                        ? `1px solid ${colors.accent}`
+                        : "1px solid rgba(255,255,255,0.05)",
                     }}>
                     <div>
                       <p className="text-white text-sm font-medium">{service.name}</p>
-                      <p className="text-xs mt-0.5" style={{ color: isSelected ? "rgba(255,255,255,0.7)" : colors.gray }}>
+                      <p className="text-sm mt-0.5" style={{ color: colors.gray }}>
                         {service.duration}
                       </p>
                     </div>
-                    <span className="text-sm font-semibold text-white">{service.price} ₸</span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-semibold" style={{ color: colors.gray }}>{service.price} ₸</span>
+                      {isSelected && (
+                        <span className="text-sm font-bold" style={{ color: colors.accent }}>✓</span>
+                      )}
+                    </div>
                   </button>
                 );
               })}
@@ -156,23 +188,25 @@ function BookingPage() {
           <div>
             <h2 className="text-xl font-bold text-white mb-5">Мастер и время</h2>
 
-            {/* мастера */}
-            <p className="text-sm font-medium text-white mb-2">Мастер</p>
-            <div className="flex flex-col gap-2 mb-6">
+            {/* мастера — горизонтальный ряд аватаров */}
+            <p className="text-sm font-medium text-white mb-3">Мастер</p>
+            <div className="flex gap-4 overflow-x-auto pb-2 mb-6">
 
               {/* любой доступный */}
               <button
                 onClick={() => setSelectedMaster(null)}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
-                style={{
-                  backgroundColor: selectedMaster === null ? colors.accent : colors.dark,
-                  border: selectedMaster === null ? `1px solid ${colors.accent}` : "1px solid transparent",
-                }}>
-                <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm shrink-0"
-                  style={{ backgroundColor: colors.light }}>
+                className="flex flex-col items-center gap-1.5 shrink-0">
+                <div
+                  className="w-14 h-14 rounded-full flex items-center justify-center text-lg"
+                  style={{
+                    backgroundColor: colors.light,
+                    border: selectedMaster === null ? `2px solid ${colors.accent}` : "2px solid transparent",
+                  }}>
                   ✦
                 </div>
-                <span className="text-sm text-white font-medium">Любой доступный</span>
+                <span className="text-xs text-center w-14 leading-tight" style={{ color: selectedMaster === null ? "#ffffff" : colors.gray }}>
+                  Любой
+                </span>
               </button>
 
               {shop.masters.map((master) => {
@@ -182,28 +216,27 @@ function BookingPage() {
                   <button
                     key={master.id}
                     onClick={() => setSelectedMaster(master)}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
-                    style={{
-                      backgroundColor: isSelected ? colors.accent : colors.dark,
-                      border: isSelected ? `1px solid ${colors.accent}` : "1px solid transparent",
-                    }}>
-                    <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0"
-                      style={{ backgroundColor: isSelected ? "rgba(255,255,255,0.2)" : colors.light }}>
+                    className="flex flex-col items-center gap-1.5 shrink-0">
+                    <div
+                      className="w-14 h-14 rounded-full flex items-center justify-center text-sm font-bold text-white"
+                      style={{
+                        backgroundColor: colors.light,
+                        border: isSelected ? `2px solid ${colors.accent}` : "2px solid transparent",
+                      }}>
                       {initials}
                     </div>
-                    <div className="text-left">
-                      <p className="text-sm text-white font-medium">{master.name}</p>
-                      <p className="text-xs" style={{ color: isSelected ? "rgba(255,255,255,0.7)" : colors.gray }}>
-                        ★ {master.rating}
-                      </p>
-                    </div>
+                    <span
+                      className="text-xs text-center w-14 leading-tight"
+                      style={{ color: isSelected ? "#ffffff" : colors.gray }}>
+                      {master.name.split(" ")[0]}
+                    </span>
                   </button>
                 );
               })}
             </div>
 
             {/* дата */}
-            <p className="text-sm font-medium text-white mb-2">Дата</p>
+            <p className="text-sm font-medium text-white mb-3">Дата</p>
             <div className="flex gap-2 overflow-x-auto pb-1 mb-6">
               {days.map((day) => {
                 const isSelected = selectedDate === day.full;
@@ -211,11 +244,11 @@ function BookingPage() {
                   <button
                     key={day.full}
                     onClick={() => setSelectedDate(day.full)}
-                    className="flex flex-col items-center px-3 py-2 rounded-xl min-w-13 transition-all"
+                    className="flex flex-col items-center px-3 py-2 rounded-xl min-w-[52px] transition-all"
                     style={{
-                      backgroundColor: isSelected ? colors.accent : colors.dark,
+                      backgroundColor: isSelected ? colors.accent : colors.light,
                     }}>
-                    <span className="text-xs" style={{ color: isSelected ? "rgba(255,255,255,0.7)" : colors.gray }}>
+                    <span className="text-xs" style={{ color: isSelected ? "rgba(255,255,255,0.8)" : colors.gray }}>
                       {day.label}
                     </span>
                     <span className="text-sm font-semibold text-white mt-0.5">{day.date}</span>
@@ -225,7 +258,7 @@ function BookingPage() {
             </div>
 
             {/* время */}
-            <p className="text-sm font-medium text-white mb-2">Время</p>
+            <p className="text-sm font-medium text-white mb-3">Время</p>
             <div className="grid grid-cols-4 gap-2 mb-6">
               {timeSlots.map((slot) => {
                 const isSelected = selectedTime === slot;
@@ -233,10 +266,10 @@ function BookingPage() {
                   <button
                     key={slot}
                     onClick={() => setSelectedTime(slot)}
-                    className="py-2 rounded-xl text-sm font-medium transition-all"
+                    className="py-2 rounded-lg text-sm font-medium transition-all"
                     style={{
-                      backgroundColor: isSelected ? colors.accent : colors.dark,
-                      color: isSelected ? "#fff" : colors.gray,
+                      backgroundColor: isSelected ? colors.accent : colors.light,
+                      color: isSelected ? "#ffffff" : "#ffffff",
                     }}>
                     {slot}
                   </button>
@@ -263,20 +296,17 @@ function BookingPage() {
             <h2 className="text-xl font-bold text-white mb-5">Детали записи</h2>
 
             {/* summary */}
-            <div className="rounded-2xl p-4 flex flex-col gap-3 mb-5"
-              style={{ backgroundColor: colors.dark }}>
+            <div className="rounded-2xl p-6 mb-5" style={{ backgroundColor: colors.dark }}>
               <Row label="Барбершоп" value={shop.name} />
               <Row label="Адрес" value={shop.address} />
-              <div className="h-px" style={{ backgroundColor: colors.light }} />
               <Row label="Услуга" value={selectedService?.name} />
               <Row label="Длительность" value={selectedService?.duration} />
               <Row label="Мастер" value={selectedMaster ? selectedMaster.name : "Любой доступный"} />
               <Row label="Дата" value={selectedDate} />
-              <Row label="Время" value={selectedTime} />
-              <div className="h-px" style={{ backgroundColor: colors.light }} />
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-white">Итого</span>
-                <span className="text-base font-bold" style={{ color: colors.accent }}>
+              <Row label="Время" value={selectedTime} last />
+              <div className="flex items-center justify-between pt-4">
+                <span className="text-base font-bold text-white">Итого</span>
+                <span className="text-lg font-bold" style={{ color: colors.accent }}>
                   {selectedService?.price} ₸
                 </span>
               </div>
@@ -290,19 +320,22 @@ function BookingPage() {
                 onChange={(e) => setComment(e.target.value)}
                 placeholder="Например: хочу фейд с переходом..."
                 rows={3}
-                className="w-full px-4 py-3 rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none resize-none"
-                style={{ backgroundColor: colors.light }}
+                className="w-full px-4 py-3 rounded-xl text-white text-sm focus:outline-none resize-none"
+                style={{
+                  backgroundColor: colors.light,
+                  border: "1px solid rgba(255,255,255,0.1)",
+                }}
               />
             </div>
 
             {/* напоминание */}
             <div className="flex items-center justify-between px-4 py-3 rounded-xl mb-3"
-              style={{ backgroundColor: colors.dark }}>
+              style={{ backgroundColor: colors.light }}>
               <span className="text-sm text-white">Напоминание за 2 часа</span>
               <button
                 onClick={() => setReminder(!reminder)}
                 className="w-11 h-6 rounded-full transition-colors flex items-center px-1"
-                style={{ backgroundColor: reminder ? colors.accent : colors.light }}>
+                style={{ backgroundColor: reminder ? colors.accent : colors.dark }}>
                 <div
                   className="w-4 h-4 rounded-full bg-white transition-transform"
                   style={{ transform: reminder ? "translateX(20px)" : "translateX(0)" }}
@@ -316,9 +349,10 @@ function BookingPage() {
 
             <button
               onClick={handleConfirm}
-              className="w-full py-3 rounded-xl font-semibold text-white text-base hover:opacity-90 transition-opacity"
+              disabled={isSubmitting}
+              className="w-full py-3 rounded-xl font-semibold text-white text-base hover:opacity-90 transition-opacity disabled:opacity-60"
               style={{ backgroundColor: colors.accent }}>
-              Подтвердить запись ✓
+              {isSubmitting ? "Подтверждаем..." : "Подтвердить запись ✓"}
             </button>
           </div>
         )}
@@ -328,11 +362,12 @@ function BookingPage() {
   );
 }
 
-// маленький компонент для строк summary — только внутри файла
-function Row({ label, value }) {
+function Row({ label, value, last }) {
   return (
-    <div className="flex items-center justify-between">
-      <span className="text-sm" style={{ color: "#A8B2C1" }}>{label}</span>
+    <div
+      className="flex items-center justify-between py-3"
+      style={{ borderBottom: last ? "none" : "1px solid rgba(255,255,255,0.05)" }}>
+      <span className="text-sm" style={{ color: colors.gray }}>{label}</span>
       <span className="text-sm text-white font-medium">{value}</span>
     </div>
   );

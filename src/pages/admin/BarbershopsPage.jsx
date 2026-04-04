@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { barbershopList } from "../../data/mockAdminStats";
+import { useState, useEffect } from "react";
+import { getBarbershops } from "../../api/adminApi";
 import BarbershopsTable from "../../components/admin/BarbershopsTable";
 import Input from "../../components/common/Input";
 import EmptyState from "../../components/common/EmptyState";
@@ -15,8 +15,16 @@ const tabFilterMap = {
 };
 
 function BarbershopsPage() {
+  const [barbershopList, setBarbershopList] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("Все");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    getBarbershops()
+      .then((data) => setBarbershopList(data))
+      .finally(() => setIsLoading(false));
+  }, []);
 
   const statusFilter = tabFilterMap[activeTab];
 
@@ -28,6 +36,15 @@ function BarbershopsPage() {
     const matchesTab = statusFilter ? shop.status === statusFilter : true;
     return matchesSearch && matchesTab;
   });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: colors.primary }}>
+        <p className="text-sm" style={{ color: colors.gray }}>Загрузка...</p>
+      </div>
+    );
+  }
 
   return (
     <div

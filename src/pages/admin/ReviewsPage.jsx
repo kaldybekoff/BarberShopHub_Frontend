@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { reviewList } from "../../data/mockAdminStats";
+import { useState, useEffect } from "react";
+import { getReviews } from "../../api/adminApi";
 import ReviewModerationTable from "../../components/admin/ReviewModerationTable";
 import EmptyState from "../../components/common/EmptyState";
 import SectionTitle from "../../components/common/SectionTitle";
@@ -15,12 +15,29 @@ const tabFilterMap = {
 };
 
 function ReviewsPage() {
+  const [reviewList, setReviewList] = useState([]);
   const [activeTab, setActiveTab] = useState("Все");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    getReviews()
+      .then((data) => setReviewList(data))
+      .finally(() => setIsLoading(false));
+  }, []);
 
   const statusFilter = tabFilterMap[activeTab];
   const filteredReviews = statusFilter
     ? reviewList.filter((review) => review.status === statusFilter)
     : reviewList;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: colors.primary }}>
+        <p className="text-sm" style={{ color: colors.gray }}>Загрузка...</p>
+      </div>
+    );
+  }
 
   return (
     <div

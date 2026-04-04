@@ -11,14 +11,16 @@ function BottomNav() {
       style={{ backgroundColor: colors.dark, borderTop: `1px solid ${colors.light}` }}
     >
       {userNavItems.map((navItem) => {
-        const isActive = pathname === navItem.path;
+        const isActive = pathname === navItem.path || pathname.startsWith(navItem.path + "/");
         return (
           <Link
             key={navItem.path}
             to={navItem.path}
             className="flex flex-col items-center gap-0.5 px-3 py-1"
           >
-            <span className="text-xl">{navItem.icon}</span>
+            <span className="text-xl" style={{ color: isActive ? colors.accent : colors.gray }}>
+              {navItem.icon}
+            </span>
             <span
               className="text-xs font-medium"
               style={{ color: isActive ? colors.accent : colors.gray }}
