@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { userList } from "../../data/mockAdminStats";
+import { useState, useEffect } from "react";
+import { getUsers } from "../../api/adminApi";
 import UsersTable from "../../components/admin/UsersTable";
 import Input from "../../components/common/Input";
 import EmptyState from "../../components/common/EmptyState";
@@ -7,7 +7,15 @@ import SectionTitle from "../../components/common/SectionTitle";
 import colors from "../../styles/colors";
 
 function UsersPage() {
+  const [userList, setUserList] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    getUsers()
+      .then((data) => setUserList(data))
+      .finally(() => setIsLoading(false));
+  }, []);
 
   const filteredUsers = userList.filter((user) => {
     const query = searchQuery.toLowerCase();
@@ -16,6 +24,15 @@ function UsersPage() {
       user.phone.includes(query)
     );
   });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: colors.primary }}>
+        <p className="text-sm" style={{ color: colors.gray }}>Загрузка...</p>
+      </div>
+    );
+  }
 
   return (
     <div

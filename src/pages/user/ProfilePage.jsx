@@ -3,18 +3,6 @@ import useAuth from "../../hooks/useAuth";
 import mockAppointments from "../../data/mockAppointments";
 import colors from "../../styles/colors";
 
-const settingsItems = [
-  { icon: "✏️", label: "Редактировать профиль", action: "edit" },
-  { icon: "📅", label: "Мои записи", action: "appointments" },
-  { icon: "🔔", label: "Уведомления", action: "notifications" },
-  { icon: "🌐", label: "Язык", action: "language" },
-];
-
-const supportItems = [
-  { icon: "ℹ️", label: "О приложении", action: "about" },
-  { icon: "💬", label: "Написать в поддержку", action: "support" },
-];
-
 function ProfilePage() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -28,15 +16,7 @@ function ProfilePage() {
 
   function handleLogout() {
     logout();
-    navigate("/login");
-  }
-
-  function handleSettingsAction(action) {
-    if (action === "appointments") {
-      navigate("/appointments");
-      return;
-    }
-    console.log("settings action:", action);
+    navigate("/");
   }
 
   return (
@@ -70,44 +50,46 @@ function ProfilePage() {
           </div>
         </div>
 
-        {/* настройки */}
-        <div className="rounded-2xl overflow-hidden mb-4" style={{ backgroundColor: colors.dark }}>
-          {settingsItems.map((item, index) => (
-            <div key={item.action}>
-              <button
-                onClick={() => handleSettingsAction(item.action)}
-                className="w-full flex items-center justify-between px-4 py-4 text-left hover:opacity-80 transition-opacity">
-                <div className="flex items-center gap-3">
-                  <span className="text-base">{item.icon}</span>
-                  <span className="text-sm text-white">{item.label}</span>
-                </div>
-                <span style={{ color: colors.gray }}>→</span>
-              </button>
-              {index < settingsItems.length - 1 && (
-                <div className="mx-4 h-px" style={{ backgroundColor: colors.light }} />
-              )}
-            </div>
-          ))}
+        {/* мои данные */}
+        <div className="rounded-2xl p-4 flex flex-col gap-3 mb-4"
+          style={{ backgroundColor: colors.dark }}>
+          <h2 className="text-sm font-semibold text-white">Мои данные</h2>
+          <div className="h-px" style={{ backgroundColor: colors.light }} />
+          <div className="flex items-center justify-between">
+            <span className="text-sm" style={{ color: colors.gray }}>Имя</span>
+            <span className="text-sm text-white font-medium">{user?.name || "—"}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm" style={{ color: colors.gray }}>Email</span>
+            <span className="text-sm text-white font-medium">{user?.email || "—"}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm" style={{ color: colors.gray }}>Роль</span>
+            <span className="text-sm text-white font-medium">{user?.role || "—"}</span>
+          </div>
         </div>
 
-        {/* поддержка */}
+        {/* действия */}
         <div className="rounded-2xl overflow-hidden mb-6" style={{ backgroundColor: colors.dark }}>
-          {supportItems.map((item, index) => (
-            <div key={item.action}>
-              <button
-                onClick={() => console.log(item.action)}
-                className="w-full flex items-center justify-between px-4 py-4 text-left hover:opacity-80 transition-opacity">
-                <div className="flex items-center gap-3">
-                  <span className="text-base">{item.icon}</span>
-                  <span className="text-sm text-white">{item.label}</span>
-                </div>
-                <span style={{ color: colors.gray }}>→</span>
-              </button>
-              {index < supportItems.length - 1 && (
-                <div className="mx-4 h-px" style={{ backgroundColor: colors.light }} />
-              )}
+          <button
+            onClick={() => navigate("/appointments")}
+            className="w-full flex items-center justify-between px-4 py-4 text-left hover:opacity-80 transition-opacity">
+            <div className="flex items-center gap-3">
+              <span className="text-base">📅</span>
+              <span className="text-sm text-white">Мои записи</span>
             </div>
-          ))}
+            <span style={{ color: colors.gray }}>→</span>
+          </button>
+          <div className="mx-4 h-px" style={{ backgroundColor: colors.light }} />
+          <button
+            onClick={() => navigate("/search")}
+            className="w-full flex items-center justify-between px-4 py-4 text-left hover:opacity-80 transition-opacity">
+            <div className="flex items-center gap-3">
+              <span className="text-base">✂️</span>
+              <span className="text-sm text-white">Найти барбершоп</span>
+            </div>
+            <span style={{ color: colors.gray }}>→</span>
+          </button>
         </div>
 
         {/* выход */}
