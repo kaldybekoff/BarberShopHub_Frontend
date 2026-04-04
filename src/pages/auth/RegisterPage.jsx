@@ -20,7 +20,7 @@ function RegisterPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   }
 
-  function handleRegister(e) {
+  async function handleRegister(e) {
     e.preventDefault();
     setErrorMessage("");
 
