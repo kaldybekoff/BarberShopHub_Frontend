@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import colors from "../../styles/colors";
+import { register as apiRegister } from "../../api/authApi";
 
 function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -11,6 +12,9 @@ function RegisterPage() {
     role: "User",
   });
   const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -30,8 +34,15 @@ function RegisterPage() {
       return;
     }
 
-    // TODO: подключить API регистрации
-    console.log("register:", formData);
+    setIsLoading(true);
+    try {
+      await apiRegister(formData.name, formData.email, formData.password);
+      navigate("/verify", { state: { email: formData.email } });
+    } catch (error) {
+      setErrorMessage(error.response?.data?.detail || error.message || "Ошибка регистрации");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   const inputStyle = { backgroundColor: colors.light };
@@ -130,9 +141,10 @@ function RegisterPage() {
 
           <button
             type="submit"
-            className="w-full py-3 rounded-xl font-semibold text-white text-base mt-1 hover:opacity-90 transition-opacity"
+            disabled={isLoading}
+            className="w-full py-3 rounded-xl font-semibold text-white text-base mt-1 hover:opacity-90 transition-opacity disabled:opacity-60"
             style={{ backgroundColor: colors.accent }}>
-            Зарегистрироваться
+            {isLoading ? "Регистрируем..." : "Зарегистрироваться"}
           </button>
         </form>
 
