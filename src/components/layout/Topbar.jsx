@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import colors from "../../styles/colors";
 
@@ -16,9 +16,15 @@ const pageTitles = {
 
 function Topbar() {
   const { pathname } = useLocation();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const currentTitle = pageTitles[pathname] || "BarberHUB";
+
+  function handleLogout() {
+    logout();
+    navigate("/");
+  }
 
   return (
     <header
@@ -37,6 +43,13 @@ function Topbar() {
         >
           {user?.name ? user.name[0].toUpperCase() : "B"}
         </div>
+        <button
+          onClick={handleLogout}
+          className="text-sm font-medium transition-colors hover:text-red-400 md:hidden"
+          style={{ color: colors.gray }}
+        >
+          Выйти
+        </button>
       </div>
     </header>
   );
