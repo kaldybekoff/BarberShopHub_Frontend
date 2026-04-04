@@ -6,7 +6,7 @@ function RevenueChart({ revenueData }) {
   return (
     <div
       className="rounded-2xl p-5"
-      style={{ backgroundColor: colors.light }}
+      style={{ backgroundColor: colors.dark }}
     >
       <h2 className="text-white font-semibold text-base mb-4">
         Выручка за 7 дней
