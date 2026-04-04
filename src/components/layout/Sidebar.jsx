@@ -11,6 +11,10 @@ function Sidebar() {
 
   const navItems = role === roles.Admin ? adminNavItems : barbershopNavItems;
 
+  function isActive(itemPath) {
+    return pathname === itemPath || pathname.startsWith(itemPath + "/");
+  }
+
   function handleLogout() {
     logout();
     navigate("/");
@@ -31,15 +35,15 @@ function Sidebar() {
       {/* Навигация */}
       <nav className="flex flex-col gap-1 px-3 flex-1">
         {navItems.map((navItem) => {
-          const isActive = pathname === navItem.path;
+          const active = isActive(navItem.path);
           return (
             <Link
               key={navItem.path}
               to={navItem.path}
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors"
               style={{
-                backgroundColor: isActive ? colors.accent : "transparent",
-                color: isActive ? "#ffffff" : colors.gray,
+                backgroundColor: active ? colors.accent : "transparent",
+                color: active ? "#ffffff" : colors.gray,
               }}
             >
               <span className="text-base">{navItem.icon}</span>
