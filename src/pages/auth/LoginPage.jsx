@@ -16,7 +16,7 @@ function LoginPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   }
 
-  function handleLogin(e) {
+  async function handleLogin(e) {
     e.preventDefault();
     setErrorMessage("");
 
@@ -25,8 +25,23 @@ function LoginPage() {
       return;
     }
 
-    // TODO: подключить API авторизации
-    console.log("login:", formData);
+    setIsLoading(true);
+    try {
+      const { access_token, user } = await apiLogin(formData.email, formData.password);
+      login(user, access_token);
+
+      if (user.role === "Admin") {
+        navigate("/admin/dashboard");
+      } else if (user.role === "Barbershop") {
+        navigate("/barbershop/dashboard");
+      } else {
+        navigate("/home");
+      }
+    } catch (error) {
+      setErrorMessage(error.response?.data?.detail || error.message || "Ошибка входа");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -77,9 +92,10 @@ function LoginPage() {
 
           <button
             type="submit"
-            className="w-full py-3 rounded-xl font-semibold text-white text-base mt-1 hover:opacity-90 transition-opacity"
+            disabled={isLoading}
+            className="w-full py-3 rounded-xl font-semibold text-white text-base mt-1 hover:opacity-90 transition-opacity disabled:opacity-60"
             style={{ backgroundColor: colors.accent }}>
-            Войти
+            {isLoading ? "Входим..." : "Войти"}
           </button>
         </form>
 
