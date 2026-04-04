@@ -244,7 +244,7 @@ function BookingPage() {
                   <button
                     key={day.full}
                     onClick={() => setSelectedDate(day.full)}
-                    className="flex flex-col items-center px-3 py-2 rounded-xl min-w-[52px] transition-all"
+                    className="flex flex-col items-center px-3 py-2 rounded-xl min-w-13 transition-all"
                     style={{
                       backgroundColor: isSelected ? colors.accent : colors.light,
                     }}>

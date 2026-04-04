@@ -20,7 +20,7 @@ function BarbershopsTable({ barbershopList }) {
               {["Название", "Адрес", "Рейтинг", "Статус"].map((col) => (
                 <th
                   key={col}
-                  className="text-left px-5 py-3 font-medium"
+                  className="text-left px-5 py-3 font-medium text-xs uppercase tracking-wide"
                   style={{ color: colors.gray }}
                 >
                   {col}

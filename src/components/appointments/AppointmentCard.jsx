@@ -8,7 +8,7 @@ function AppointmentCard({ appointment, onCancel }) {
 
   return (
     <div
-      className="rounded-2xl p-4 flex flex-col gap-3"
+      className="rounded-2xl p-5 flex flex-col gap-3"
       style={{ backgroundColor: colors.dark }}>
 
       {/* шапка: название и статус */}
@@ -38,11 +38,11 @@ function AppointmentCard({ appointment, onCancel }) {
 
       {/* кнопка отмены — только если не отменено */}
       {!isCancelled && onCancel && (
-        <div className="flex gap-2 mt-1">
+        <div className="flex justify-end mt-1">
           <button
             onClick={() => onCancel(appointment.id)}
-            className="flex-1 py-2 rounded-xl text-sm font-medium border"
-            style={{ borderColor: colors.accent, color: colors.accent }}>
+            className="px-4 py-1.5 rounded-lg text-sm border hover:text-red-400 transition-colors"
+            style={{ borderColor: "rgba(255,255,255,0.1)", color: colors.gray }}>
             Отменить
           </button>
         </div>

@@ -21,7 +21,7 @@ function ProfilePage() {
 
   return (
     <div className="min-h-screen pb-10" style={{ backgroundColor: colors.primary }}>
-      <div className="max-w-lg mx-auto px-4 pt-8">
+      <div className="max-w-lg mx-auto px-6 pt-8">
 
         {/* аватар и имя */}
         <div className="flex flex-col items-center mb-8">
@@ -51,39 +51,39 @@ function ProfilePage() {
         </div>
 
         {/* мои данные */}
-        <div className="rounded-2xl p-4 flex flex-col gap-3 mb-4"
+        <div className="rounded-2xl p-6 mt-6 mb-4"
           style={{ backgroundColor: colors.dark }}>
-          <h2 className="text-sm font-semibold text-white">Мои данные</h2>
-          <div className="h-px" style={{ backgroundColor: colors.light }} />
-          <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-white mb-4">Мои данные</h2>
+          <div className="flex items-center justify-between py-3 border-b border-white/5">
             <span className="text-sm" style={{ color: colors.gray }}>Имя</span>
             <span className="text-sm text-white font-medium">{user?.name || "—"}</span>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between py-3 border-b border-white/5">
             <span className="text-sm" style={{ color: colors.gray }}>Email</span>
             <span className="text-sm text-white font-medium">{user?.email || "—"}</span>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between py-3">
             <span className="text-sm" style={{ color: colors.gray }}>Роль</span>
             <span className="text-sm text-white font-medium">{user?.role || "—"}</span>
           </div>
         </div>
 
         {/* действия */}
-        <div className="rounded-2xl overflow-hidden mb-6" style={{ backgroundColor: colors.dark }}>
+        <div className="flex flex-col gap-2 mb-6">
           <button
             onClick={() => navigate("/appointments")}
-            className="w-full flex items-center justify-between px-4 py-4 text-left hover:opacity-80 transition-opacity">
+            className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl text-left border hover:opacity-80 transition-opacity"
+            style={{ backgroundColor: colors.light, borderColor: "rgba(255,255,255,0.1)" }}>
             <div className="flex items-center gap-3">
               <span className="text-base">📅</span>
               <span className="text-sm text-white">Мои записи</span>
             </div>
             <span style={{ color: colors.gray }}>→</span>
           </button>
-          <div className="mx-4 h-px" style={{ backgroundColor: colors.light }} />
           <button
             onClick={() => navigate("/search")}
-            className="w-full flex items-center justify-between px-4 py-4 text-left hover:opacity-80 transition-opacity">
+            className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl text-left border hover:opacity-80 transition-opacity"
+            style={{ backgroundColor: colors.light, borderColor: "rgba(255,255,255,0.1)" }}>
             <div className="flex items-center gap-3">
               <span className="text-base">✂️</span>
               <span className="text-sm text-white">Найти барбершоп</span>
@@ -95,8 +95,7 @@ function ProfilePage() {
         {/* выход */}
         <button
           onClick={handleLogout}
-          className="w-full py-3 rounded-xl text-sm font-semibold border transition-opacity hover:opacity-80"
-          style={{ borderColor: colors.accent, color: colors.accent }}>
+          className="w-full py-3 rounded-xl text-sm font-semibold text-red-400 hover:text-red-300 transition-colors mt-4">
           Выйти
         </button>
 

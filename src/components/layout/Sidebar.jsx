@@ -22,7 +22,7 @@ function Sidebar() {
 
   return (
     <aside
-      className="hidden md:flex flex-col w-56 min-h-screen sticky top-0"
+      className="hidden md:flex flex-col w-64 min-h-screen sticky top-0"
       style={{ backgroundColor: colors.dark, borderRight: `1px solid ${colors.light}` }}
     >
       {/* Логотип */}
@@ -42,8 +42,9 @@ function Sidebar() {
               to={navItem.path}
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors"
               style={{
-                backgroundColor: active ? colors.accent : "transparent",
+                backgroundColor: active ? "rgba(233,69,96,0.1)" : "transparent",
                 color: active ? "#ffffff" : colors.gray,
+                borderLeft: active ? `2px solid ${colors.accent}` : "2px solid transparent",
               }}
             >
               <span className="text-base">{navItem.icon}</span>
@@ -57,7 +58,7 @@ function Sidebar() {
       <div className="px-3 pb-5">
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium w-full"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium w-full hover:text-red-400 transition-colors"
           style={{ color: colors.gray }}
         >
           <span className="text-base">🚪</span>

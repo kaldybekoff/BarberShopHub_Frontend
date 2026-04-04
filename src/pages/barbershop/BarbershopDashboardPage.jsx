@@ -51,7 +51,7 @@ function BarbershopDashboardPage() {
 
   return (
     <div
-      className="min-h-screen px-4 py-6 max-w-2xl mx-auto"
+      className="min-h-screen px-8 py-6"
       style={{ backgroundColor: colors.primary }}
     >
       <div className="mb-6">
@@ -61,7 +61,7 @@ function BarbershopDashboardPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 mb-6">
+      <div className="grid grid-cols-4 gap-4 mb-6">
         {stats.map((stat) => (
           <StatsCard
             key={stat.id}
