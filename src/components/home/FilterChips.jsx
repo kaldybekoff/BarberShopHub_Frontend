@@ -11,7 +11,7 @@ function FilterChips({ activeFilter, onFilterChange }) {
           <button
             key={filter}
             onClick={() => onFilterChange(filter)}
-            className="shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors"
+            className="shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors"
             style={{
               backgroundColor: isActive ? colors.accent : colors.light,
               color: isActive ? "#ffffff" : colors.gray,
