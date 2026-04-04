@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { bookingsList } from "../../data/mockDashboardStats";
+import { useState, useEffect } from "react";
+import { getBookings } from "../../api/dashboardApi";
 import Button from "../../components/common/Button";
 import EmptyState from "../../components/common/EmptyState";
 import SectionTitle from "../../components/common/SectionTitle";
@@ -22,11 +22,28 @@ const tabFilterMap = {
 
 function BookingsPage() {
   const [activeTab, setActiveTab] = useState("Все");
+  const [bookings, setBookings] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    getBookings()
+      .then((data) => setBookings(data))
+      .finally(() => setIsLoading(false));
+  }, []);
 
   const filterValue = tabFilterMap[activeTab];
   const filteredBookings = filterValue
-    ? bookingsList.filter((booking) => booking.status === filterValue)
-    : bookingsList;
+    ? bookings.filter((booking) => booking.status === filterValue)
+    : bookings;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: colors.primary }}>
+        <p className="text-sm" style={{ color: colors.gray }}>Загрузка...</p>
+      </div>
+    );
+  }
 
   return (
     <div

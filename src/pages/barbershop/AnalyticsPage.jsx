@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { analyticsStats, topServices, revenueData } from "../../data/mockDashboardStats";
+import { getDashboardStats } from "../../api/dashboardApi";
 import StatsCard from "../../components/barbershop/StatsCard";
 import RevenueChart from "../../components/barbershop/RevenueChart";
 import colors from "../../styles/colors";
@@ -8,6 +9,22 @@ const tabs = ["Неделя", "Месяц"];
 
 function AnalyticsPage() {
   const [activeTab, setActiveTab] = useState("Неделя");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // analytics использует данные из mock напрямую,
+    // getDashboardStats даёт задержку как при реальном API
+    getDashboardStats().finally(() => setIsLoading(false));
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: colors.primary }}>
+        <p className="text-sm" style={{ color: colors.gray }}>Загрузка...</p>
+      </div>
+    );
+  }
 
   return (
     <div
