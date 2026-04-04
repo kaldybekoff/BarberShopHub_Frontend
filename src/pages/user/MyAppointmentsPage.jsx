@@ -25,7 +25,7 @@ function MyAppointmentsPage() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: colors.primary }}>
-      <div className="max-w-2xl mx-auto px-4 pt-6">
+      <div className="max-w-3xl mx-auto px-6 pt-6">
 
         <h1 className="text-2xl font-bold text-white mb-5">Мои записи</h1>
 
