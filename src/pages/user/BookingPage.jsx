@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import mockShops from "../../data/mockShops";
 import bookingSteps from "../../constants/bookingSteps";
 import colors from "../../styles/colors";
+import { createBooking } from "../../api/bookingApi";
 
 const timeSlots = [
   "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
@@ -38,6 +39,7 @@ function BookingPage() {
   const [selectedTime, setSelectedTime] = useState(null);
   const [comment, setComment] = useState("");
   const [reminder, setReminder] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const days = getNextDays(7);
 
@@ -58,7 +60,7 @@ function BookingPage() {
     }
   }
 
-  function handleConfirm() {
+  async function handleConfirm() {
     const bookingData = {
       shopId: shop.id,
       shopName: shop.name,
@@ -69,8 +71,16 @@ function BookingPage() {
       comment,
       reminder,
     };
-    console.log("booking:", bookingData);
-    navigate("/booking-success", { state: bookingData });
+
+    setIsSubmitting(true);
+    try {
+      await createBooking(bookingData);
+      navigate("/booking-success", { state: bookingData });
+    } catch (error) {
+      console.error("Ошибка при создании записи:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -316,9 +326,10 @@ function BookingPage() {
 
             <button
               onClick={handleConfirm}
-              className="w-full py-3 rounded-xl font-semibold text-white text-base hover:opacity-90 transition-opacity"
+              disabled={isSubmitting}
+              className="w-full py-3 rounded-xl font-semibold text-white text-base hover:opacity-90 transition-opacity disabled:opacity-60"
               style={{ backgroundColor: colors.accent }}>
-              Подтвердить запись ✓
+              {isSubmitting ? "Подтверждаем..." : "Подтвердить запись ✓"}
             </button>
           </div>
         )}
