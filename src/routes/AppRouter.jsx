@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import roles from "../constants/roles";
 
 import AuthLayout from "../components/layout/AuthLayout";
@@ -76,6 +76,9 @@ function AppRouter() {
           <Route path="/admin/reviews" element={<ReviewsPage />} />
         </Route>
       </Route>
+
+      {/* catch-all — любой неизвестный путь → WelcomePage */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

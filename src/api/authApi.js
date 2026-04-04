@@ -1,5 +1,13 @@
 // TODO: заменить на реальный axiosInstance когда будет API
 
+// ===========================================
+// DEMO АККАУНТЫ ДЛЯ ДЕМОНСТРАЦИИ НА ЗАЩИТЕ
+// ===========================================
+// user@test.com  / 123456  → роль User
+// shop@test.com  / 123456  → роль Barbershop
+// admin@test.com / 123456  → роль Admin
+// ===========================================
+
 const mockUsers = [
   { id: 1, name: "Артём Иванов", email: "user@test.com", role: "User" },
   { id: 2, name: "Барбершоп KZ", email: "shop@test.com", role: "Barbershop" },

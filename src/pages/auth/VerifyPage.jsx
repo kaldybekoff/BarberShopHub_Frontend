@@ -1,11 +1,19 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { verifyEmail } from "../../api/authApi";
+import useAuth from "../../hooks/useAuth";
 import colors from "../../styles/colors";
 
 function VerifyPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
+
+  const email = location.state?.email || "";
+
   const [codeDigits, setCodeDigits] = useState(["", "", "", ""]);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [countdown, setCountdown] = useState(42);
   const inputRefs = useRef([]);
 
@@ -35,7 +43,7 @@ function VerifyPage() {
     }
   }
 
-  function handleConfirm() {
+  async function handleConfirm() {
     setErrorMessage("");
     const code = codeDigits.join("");
 
@@ -44,12 +52,26 @@ function VerifyPage() {
       return;
     }
 
-    console.log("code:", code);
-    navigate("/home");
+    setIsLoading(true);
+    try {
+      const { access_token, user } = await verifyEmail(email, code);
+      login(user, access_token);
+
+      if (user.role === "Admin") {
+        navigate("/admin/dashboard");
+      } else if (user.role === "Barbershop") {
+        navigate("/barbershop/dashboard");
+      } else {
+        navigate("/home");
+      }
+    } catch (error) {
+      setErrorMessage(error.message || "Неверный код");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   function handleResend() {
-    console.log("resend");
     setCountdown(42);
   }
 
@@ -101,9 +123,10 @@ function VerifyPage() {
 
         <button
           onClick={handleConfirm}
-          className="w-full py-3 rounded-xl font-semibold text-white text-base hover:opacity-90 transition-opacity"
+          disabled={isLoading}
+          className="w-full py-3 rounded-xl font-semibold text-white text-base hover:opacity-90 transition-opacity disabled:opacity-60"
           style={{ backgroundColor: colors.accent }}>
-          Подтвердить
+          {isLoading ? "Проверяем..." : "Подтвердить"}
         </button>
 
         <p className="text-sm text-center" style={{ color: colors.gray }}>
