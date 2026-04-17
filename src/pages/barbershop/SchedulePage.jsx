@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { getSchedule } from "../../api/dashboardApi";
 import ScheduleCalendar from "../../components/barbershop/ScheduleCalendar";
 import ScheduleSlot from "../../components/barbershop/ScheduleSlot";
-import colors from "../../styles/colors";
+import colors from "../../constants/colors";
 
 const tabs = ["День", "Неделя"];
 
@@ -22,7 +22,7 @@ function SchedulePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center"
+      <div className="min-h-full flex items-center justify-center"
         style={{ backgroundColor: colors.primary }}>
         <p className="text-sm" style={{ color: colors.gray }}>Загрузка...</p>
       </div>
@@ -31,7 +31,7 @@ function SchedulePage() {
 
   return (
     <div
-      className="min-h-screen px-4 py-6 max-w-2xl mx-auto"
+      className="min-h-full px-4 md:px-6 py-6 pb-24 max-w-7xl mx-auto"
       style={{ backgroundColor: colors.primary }}
     >
       <div className="mb-6">

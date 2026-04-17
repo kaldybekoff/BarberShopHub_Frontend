@@ -3,7 +3,7 @@ import { analyticsStats, topServices, revenueData } from "../../data/mockDashboa
 import { getDashboardStats } from "../../api/dashboardApi";
 import StatsCard from "../../components/barbershop/StatsCard";
 import RevenueChart from "../../components/barbershop/RevenueChart";
-import colors from "../../styles/colors";
+import colors from "../../constants/colors";
 
 const tabs = ["Неделя", "Месяц"];
 
@@ -19,7 +19,7 @@ function AnalyticsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center"
+      <div className="min-h-full flex items-center justify-center"
         style={{ backgroundColor: colors.primary }}>
         <p className="text-sm" style={{ color: colors.gray }}>Загрузка...</p>
       </div>
@@ -28,7 +28,7 @@ function AnalyticsPage() {
 
   return (
     <div
-      className="min-h-screen px-4 py-6 max-w-2xl mx-auto"
+      className="min-h-full px-4 md:px-6 py-6 max-w-7xl mx-auto"
       style={{ backgroundColor: colors.primary }}
     >
       <div className="mb-6">

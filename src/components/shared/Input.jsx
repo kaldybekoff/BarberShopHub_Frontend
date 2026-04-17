@@ -1,4 +1,4 @@
-import colors from "../../styles/colors";
+import colors from "../../constants/colors";
 
 function Input({ label, value, onChange, placeholder, type = "text", error }) {
   return (

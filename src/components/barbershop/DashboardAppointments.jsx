@@ -1,5 +1,5 @@
 import getStatusLabel from "../../utils/getStatusLabel";
-import colors from "../../styles/colors";
+import colors from "../../constants/colors";
 
 function DashboardAppointments({ appointmentList }) {
   return (
@@ -18,14 +18,14 @@ function DashboardAppointments({ appointmentList }) {
           return (
             <div
               key={appointment.id}
-              className="flex items-center justify-between rounded-xl px-4 py-3"
+              className="flex items-center justify-between gap-3 rounded-xl px-4 py-3"
               style={{ backgroundColor: colors.dark }}
             >
-              <div className="flex flex-col gap-0.5">
+              <div className="flex flex-col gap-0.5 min-w-0">
                 <span className="text-white text-sm font-medium">
                   {appointment.clientName}
                 </span>
-                <span className="text-xs" style={{ color: colors.gray }}>
+                <span className="text-xs truncate" style={{ color: colors.gray }}>
                   {appointment.service} · {appointment.barber}
                 </span>
               </div>

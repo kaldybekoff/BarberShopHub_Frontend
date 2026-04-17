@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import colors from "../../styles/colors";
+import colors from "../../constants/colors";
 
 function ShopCard({ shop }) {
   const navigate = useNavigate();

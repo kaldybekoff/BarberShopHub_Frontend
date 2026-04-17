@@ -1,28 +1,27 @@
 import { useState } from "react";
 import mockShops from "../../data/mockShops";
 import GreetingBlock from "../../components/home/GreetingBlock";
-import SearchBar from "../../components/home/SearchBar";
 import FilterChips from "../../components/home/FilterChips";
 import NearbyShopsSection from "../../components/home/NearbyShopsSection";
 import PopularServicesSection from "../../components/home/PopularServicesSection";
-import colors from "../../styles/colors";
+import colors from "../../constants/colors";
 
 function HomePage() {
-  const [activeFilter, setActiveFilter] = useState("Рядом");
+  const [activeFilter, setActiveFilter] = useState("top");
 
-  const filteredShops = activeFilter === "Открыто сейчас"
-    ? mockShops.filter((shop) => shop.isOpen)
-    : activeFilter === "Топ"
-    ? [...mockShops].sort((a, b) => b.rating - a.rating)
-    : mockShops;
+  const filteredShops = (() => {
+    if (activeFilter === "open") return mockShops.filter((s) => s.isOpen);
+    if (activeFilter === "top") return [...mockShops].sort((a, b) => b.rating - a.rating);
+    if (activeFilter === "cheap") return mockShops.filter((s) => s.priceFrom <= 2000);
+    return mockShops;
+  })();
 
   return (
     <div
-      className="max-w-6xl mx-auto px-6 py-8"
+      className="max-w-7xl mx-auto px-4 md:px-6 py-8"
       style={{ backgroundColor: colors.primary }}
     >
       <GreetingBlock />
-      <SearchBar />
       <FilterChips activeFilter={activeFilter} onFilterChange={setActiveFilter} />
       <NearbyShopsSection shops={filteredShops} />
       <PopularServicesSection />

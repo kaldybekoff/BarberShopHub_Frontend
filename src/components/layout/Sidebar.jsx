@@ -1,8 +1,30 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  LayoutDashboard,
+  CalendarDays,
+  ClipboardList,
+  Scissors,
+  BarChart3,
+  Users,
+  MessageSquare,
+  LogOut,
+} from "lucide-react";
 import useAuth from "../../hooks/useAuth";
 import { barbershopNavItems, adminNavItems } from "../../constants/navItems";
 import roles from "../../constants/roles";
-import colors from "../../styles/colors";
+import colors from "../../constants/colors";
+
+const navIconSize = 18;
+
+const iconMap = {
+  dashboard: LayoutDashboard,
+  calendar: CalendarDays,
+  clipboard: ClipboardList,
+  scissors: Scissors,
+  chart: BarChart3,
+  users: Users,
+  message: MessageSquare,
+};
 
 function Sidebar() {
   const { pathname } = useLocation();
@@ -26,7 +48,7 @@ function Sidebar() {
       style={{ backgroundColor: colors.dark, borderRight: `1px solid ${colors.light}` }}
     >
       {/* Логотип */}
-      <div className="px-5 py-5">
+      <div className="px-5 h-14 flex items-center">
         <span className="text-white font-bold text-lg">
           Barber<span style={{ color: colors.accent }}>HUB</span>
         </span>
@@ -36,6 +58,7 @@ function Sidebar() {
       <nav className="flex flex-col gap-1 px-3 flex-1">
         {navItems.map((navItem) => {
           const active = isActive(navItem.path);
+          const Icon = iconMap[navItem.icon];
           return (
             <Link
               key={navItem.path}
@@ -47,7 +70,7 @@ function Sidebar() {
                 borderLeft: active ? `2px solid ${colors.accent}` : "2px solid transparent",
               }}
             >
-              <span className="text-base">{navItem.icon}</span>
+              <span>{Icon ? <Icon size={navIconSize} /> : null}</span>
               {navItem.label}
             </Link>
           );
@@ -61,7 +84,7 @@ function Sidebar() {
           className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium w-full hover:text-red-400 transition-colors"
           style={{ color: colors.gray }}
         >
-          <span className="text-base">🚪</span>
+          <LogOut size={navIconSize} />
           Выйти
         </button>
       </div>

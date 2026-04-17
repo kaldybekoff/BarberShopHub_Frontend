@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
+import { LogOut } from "lucide-react";
 import useAuth from "../../hooks/useAuth";
-import colors from "../../styles/colors";
+import colors from "../../constants/colors";
 
 const pageTitles = {
   "/barbershop/dashboard": "Дашборд",
@@ -28,7 +29,7 @@ function Topbar() {
 
   return (
     <header
-      className="flex items-center justify-between px-6 py-3 sticky top-0 z-10"
+      className="h-14 flex items-center justify-between px-6 sticky top-0 z-10"
       style={{ backgroundColor: colors.dark, borderBottom: `1px solid ${colors.light}` }}
     >
       <span className="text-white font-bold text-base">{currentTitle}</span>
@@ -45,9 +46,10 @@ function Topbar() {
         </div>
         <button
           onClick={handleLogout}
-          className="text-sm font-medium transition-colors hover:text-red-400 md:hidden"
+          className="flex items-center gap-1 text-sm font-medium transition-colors hover:text-red-400 md:hidden"
           style={{ color: colors.gray }}
         >
+          <LogOut size={14} />
           Выйти
         </button>
       </div>

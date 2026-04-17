@@ -1,8 +1,8 @@
-import colors from "../../styles/colors";
+import colors from "../../constants/colors";
 
-function SectionTitle({ title, subtitle }) {
+function SectionTitle({ title, subtitle, compact = false }) {
   return (
-    <div className="mb-6">
+    <div className={compact ? "" : "mb-6"}>
       <h1 className="text-white text-2xl font-bold">{title}</h1>
       {subtitle && (
         <p className="text-sm mt-1" style={{ color: colors.gray }}>

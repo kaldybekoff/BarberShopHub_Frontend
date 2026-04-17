@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import colors from "../../styles/colors";
+import { Search } from "lucide-react";
+import colors from "../../constants/colors";
 
 function SearchBar() {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ function SearchBar() {
         className="absolute left-4 top-1/2 -translate-y-1/2 text-base"
         style={{ color: colors.gray }}
       >
-        🔍
+        <Search size={16} />
       </span>
       <input
         type="text"

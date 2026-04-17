@@ -1,4 +1,4 @@
-import colors from "../styles/colors";
+import colors from "../constants/colors";
 
 const statusMap = {
   confirmed: { label: "Подтверждено", color: colors.success },
