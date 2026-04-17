@@ -1,34 +1,43 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react";
-import colors from "../../constants/colors";
+import { useNavigate } from "react-router-dom";
+import AuthBrandPanel from "../../components/auth/AuthBrandPanel";
 import { login as apiLogin } from "../../api/authApi";
 import useAuth from "../../hooks/useAuth";
-import AuthBrandPanel, { AuthBrandHeader } from "../../components/auth/AuthBrandPanel";
 
 const pageStyle = { backgroundColor: "#171A33" };
 
-const fieldStyle = {
-  backgroundColor: "#243044",
-  border: "1px solid rgba(88,103,130,0.16)",
-  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.02)",
+const labelStyle = {
+  display: "block",
+  color: "#A8B2C1",
+  fontSize: "11px",
+  fontWeight: 600,
+  letterSpacing: "1px",
+  textTransform: "uppercase",
+  marginBottom: "6px",
 };
 
-const dividerStyle = {
-  backgroundColor: "rgba(255,255,255,0.08)",
+const inputStyle = {
+  width: "100%",
+  backgroundColor: "#1E2A3A",
+  border: "1px solid rgba(255,255,255,0.08)",
+  borderRadius: "10px",
+  padding: "13px 16px",
+  color: "#ffffff",
+  fontSize: "14px",
+  outline: "none",
 };
 
 function LoginPage() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const { login } = useAuth();
-  const navigate = useNavigate();
-
-  async function handleLogin(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     setErrorMessage("");
 
@@ -45,9 +54,7 @@ function LoginPage() {
       if (user.role === "Barbershop") navigate("/barbershop/dashboard");
       else navigate("/home");
     } catch (error) {
-      setErrorMessage(
-        error.response?.data?.detail || error.message || "Неверный логин или пароль"
-      );
+      setErrorMessage(error.message || "Неверный логин или пароль");
     } finally {
       setIsLoading(false);
     }
@@ -61,153 +68,287 @@ function LoginPage() {
       <AuthBrandPanel />
 
       <section
-        className="flex min-h-screen items-center justify-center px-4 py-10 sm:px-6 lg:px-16"
-        style={pageStyle}
+        style={{
+          flex: 1,
+          backgroundColor: "#1A1A2E",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "40px",
+          minHeight: "100vh",
+        }}
       >
-        <div className="w-full max-w-[304px] sm:max-w-[332px] lg:max-w-[376px]">
-          <AuthBrandHeader className="mb-10 lg:hidden" />
-
-          <header className="mb-7 text-left">
-            <h1 className="text-[2.15rem] font-extrabold leading-[1.08] tracking-[-0.04em] text-white sm:text-[2.5rem]">
-              Добро пожаловать <span className="inline-block">👋</span>
-            </h1>
-            <p
-              className="mt-2 text-[0.97rem] font-medium leading-normal"
-              style={{ color: "rgba(168,178,193,0.72)" }}
+        <div
+          style={{
+            backgroundColor: "#16213E",
+            borderRadius: "20px",
+            padding: "40px 44px",
+            width: "100%",
+            maxWidth: "460px",
+            border: "1px solid rgba(255,255,255,0.07)",
+          }}
+        >
+          <div
+            className="flex items-center justify-center"
+            style={{ gap: "8px", marginBottom: "28px" }}
+          >
+            <span style={{ fontSize: "18px", color: "#E94560" }}>✂️</span>
+            <span
+              style={{
+                fontSize: "18px",
+                fontWeight: 800,
+                color: "#ffffff",
+              }}
             >
-              Войдите в свой аккаунт
-            </p>
-          </header>
+              Barber<span style={{ color: "#E94560" }}>Hub</span>
+            </span>
+          </div>
+
+          <h1
+            style={{
+              color: "#ffffff",
+              fontSize: "24px",
+              fontWeight: 800,
+              textAlign: "center",
+            }}
+          >
+            Добро пожаловать 👋
+          </h1>
+          <p
+            style={{
+              color: "#A8B2C1",
+              fontSize: "13px",
+              textAlign: "center",
+              marginTop: "6px",
+              marginBottom: "24px",
+            }}
+          >
+            Войдите в свой аккаунт
+          </p>
 
           <div
-            className="mb-5 grid grid-cols-2 border-b"
-            style={{ borderColor: "rgba(255,255,255,0.08)" }}
+            style={{
+              display: "flex",
+              borderBottom: "1px solid rgba(255,255,255,0.08)",
+              marginBottom: "24px",
+            }}
           >
-            <span
-              className="pb-2.5 text-center text-[0.98rem] font-bold"
+            <div
               style={{
-                color: colors.accent,
-                borderBottom: `2px solid ${colors.accent}`,
+                flex: 1,
+                textAlign: "center",
+                padding: "10px",
+                fontSize: "14px",
+                fontWeight: 600,
+                color: "#E94560",
+                borderBottom: "2px solid #E94560",
+                marginBottom: "-1px",
               }}
             >
               Войти
-            </span>
-            <Link
-              to="/register"
-              className="pb-2.5 text-center text-[0.98rem] font-semibold transition-opacity hover:opacity-85"
-              style={{ color: "rgba(168,178,193,0.52)" }}
+            </div>
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => navigate("/register")}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") navigate("/register");
+              }}
+              style={{
+                flex: 1,
+                textAlign: "center",
+                padding: "10px",
+                fontSize: "14px",
+                fontWeight: 600,
+                cursor: "pointer",
+                color: "#A8B2C1",
+              }}
             >
               Регистрация
-            </Link>
+            </div>
           </div>
 
-          <form onSubmit={handleLogin}>
-            <div className="space-y-5">
-              <div>
-                <label
-                  htmlFor="auth-email"
-                  className="mb-2 block text-[0.88rem] font-medium"
-                  style={{ color: "rgba(168,178,193,0.76)" }}
-                >
-                  Email
-                </label>
+          <form onSubmit={handleSubmit}>
+            <div style={{ marginBottom: "16px" }}>
+              <label htmlFor="login-email" style={labelStyle}>
+                Email
+              </label>
+              <input
+                id="login-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="example@mail.com"
+                className="placeholder:text-[#4A5568]"
+                style={inputStyle}
+              />
+            </div>
+
+            <div style={{ marginBottom: "10px" }}>
+              <label htmlFor="login-password" style={labelStyle}>
+                Пароль
+              </label>
+              <div style={{ position: "relative" }}>
                 <input
-                  id="auth-email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="example@mail.com"
-                  className="h-[46px] w-full rounded-[10px] px-4 text-[0.98rem] text-white outline-none placeholder:text-[rgba(168,178,193,0.26)]"
-                  style={fieldStyle}
+                  id="login-password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="placeholder:text-[#4A5568]"
+                  style={{ ...inputStyle, paddingRight: "40px" }}
                 />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="auth-password"
-                  className="mb-2 block text-[0.88rem] font-medium"
-                  style={{ color: "rgba(168,178,193,0.76)" }}
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    right: "10px",
+                    transform: "translateY(-50%)",
+                    background: "transparent",
+                    border: "none",
+                    color: "#A8B2C1",
+                    fontSize: "14px",
+                    cursor: "pointer",
+                    padding: "4px",
+                  }}
+                  aria-label={showPassword ? "Скрыть пароль" : "Показать пароль"}
                 >
-                  Пароль
-                </label>
-
-                <div className="relative">
-                  <input
-                    id="auth-password"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="h-[46px] w-full rounded-[10px] px-4 pr-11 text-[0.98rem] text-white outline-none placeholder:text-[rgba(168,178,193,0.26)]"
-                    style={fieldStyle}
-                  />
-
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 transition-opacity hover:opacity-80"
-                    style={{ color: "rgba(168,178,193,0.56)" }}
-                  >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
-
-                <div className="mt-4 flex justify-end">
-                  <button
-                    type="button"
-                    className="text-[0.78rem] font-medium transition-opacity hover:opacity-85"
-                    style={{ color: colors.accent }}
-                  >
-                    Забыли пароль?
-                  </button>
-                </div>
+                  👁
+                </button>
               </div>
             </div>
 
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => console.log("forgot password")}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ")
+                  console.log("forgot password");
+              }}
+              style={{
+                textAlign: "right",
+                color: "#E94560",
+                fontSize: "12px",
+                fontWeight: 600,
+                cursor: "pointer",
+                marginBottom: "20px",
+              }}
+            >
+              Забыли пароль?
+            </div>
+
             {errorMessage && (
-              <p className="mt-4 text-sm font-medium text-red-400">{errorMessage}</p>
+              <p
+                style={{
+                  color: "#F87171",
+                  fontSize: "13px",
+                  fontWeight: 500,
+                  marginBottom: "12px",
+                }}
+              >
+                {errorMessage}
+              </p>
             )}
 
             <button
               type="submit"
               disabled={isLoading}
-              className="mt-6 h-[50px] w-full rounded-[12px] text-[1.08rem] font-bold text-white transition-transform duration-200 hover:-translate-y-0.5 disabled:translate-y-0 disabled:opacity-60"
               style={{
-                background:
-                  "linear-gradient(180deg, #ee4766 0%, #ea4262 52%, #e83f5f 100%)",
-                boxShadow:
-                  "0 0 0 1px rgba(255,255,255,0.03) inset, 0 0 22px rgba(233,69,96,0.30)",
+                width: "100%",
+                backgroundColor: "#E94560",
+                color: "#ffffff",
+                border: "none",
+                borderRadius: "10px",
+                padding: "14px",
+                fontSize: "15px",
+                fontWeight: 700,
+                cursor: isLoading ? "default" : "pointer",
+                opacity: isLoading ? 0.7 : 1,
+                marginBottom: "16px",
               }}
             >
               {isLoading ? "Входим..." : "Войти"}
             </button>
+          </form>
 
-            <div className="mt-4 flex items-center gap-3">
-              <div className="h-px flex-1" style={dividerStyle} />
-              <span
-                className="text-[0.84rem] font-semibold"
-                style={{ color: "rgba(168,178,193,0.42)" }}
-              >
-                или
-              </span>
-              <div className="h-px flex-1" style={dividerStyle} />
-            </div>
-
-            <button
-              type="button"
-              className="mt-4 flex h-[46px] w-full items-center justify-center gap-2 rounded-[12px] border text-[0.98rem] font-semibold transition-colors hover:bg-white/2"
+          <div
+            className="flex items-center"
+            style={{ marginBottom: "16px" }}
+          >
+            <div
               style={{
-                borderColor: colors.accent,
-                borderWidth: "1.5px",
-                color: colors.accent,
-                backgroundColor: "transparent",
-                boxShadow: "0 0 0 1px rgba(233,69,96,0.12)",
+                flex: 1,
+                height: "1px",
+                backgroundColor: "rgba(255,255,255,0.08)",
+              }}
+            />
+            <span
+              style={{
+                color: "#A8B2C1",
+                fontSize: "12px",
+                padding: "0 10px",
               }}
             >
-              <span aria-hidden="true">🌐</span>
-              Войти через Google
-            </button>
-          </form>
+              или
+            </span>
+            <div
+              style={{
+                flex: 1,
+                height: "1px",
+                backgroundColor: "rgba(255,255,255,0.08)",
+              }}
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={() => console.log("google login")}
+            className="flex items-center justify-center"
+            style={{
+              width: "100%",
+              gap: "10px",
+              background: "transparent",
+              border: "1px solid rgba(255,255,255,0.12)",
+              borderRadius: "10px",
+              padding: "13px",
+              color: "#ffffff",
+              fontSize: "14px",
+              fontWeight: 600,
+              cursor: "pointer",
+              marginBottom: "20px",
+            }}
+          >
+            <span>🌐</span>
+            Войти через Google
+          </button>
+
+          <div
+            style={{
+              textAlign: "center",
+              color: "#A8B2C1",
+              fontSize: "13px",
+            }}
+          >
+            Нет аккаунта?{" "}
+            <span
+              role="button"
+              tabIndex={0}
+              onClick={() => navigate("/register")}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") navigate("/register");
+              }}
+              style={{
+                color: "#E94560",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Зарегистрироваться
+            </span>
+          </div>
         </div>
       </section>
     </div>
