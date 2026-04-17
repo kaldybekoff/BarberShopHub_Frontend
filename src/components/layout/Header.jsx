@@ -1,13 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Scissors, MapPin, Bell } from "lucide-react";
 import useAuth from "../../hooks/useAuth";
-import colors from "../../constants/colors";
-
-const iconSize = {
-  sm: 14,
-  md: 16,
-  lg: 18,
-};
 
 const navLinks = [
   { path: "/home", label: "Главная" },
@@ -21,71 +13,78 @@ function Header() {
   const { pathname } = useLocation();
 
   const initials = user?.name
-    ? user.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()
-    : "АН";
+    ? user.name
+        .split(" ")
+        .map((word) => word[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase()
+    : "AN";
 
   return (
     <header
-      className="sticky top-0 z-20 px-6 h-14 flex items-center justify-between"
+      className="sticky top-0 z-20 border-b px-4 md:px-6"
       style={{
-        backgroundColor: colors.dark,
-        borderBottom: "1px solid rgba(255,255,255,0.06)",
+        backgroundColor: "#000000",
+        borderColor: "#1E2A3A",
       }}
     >
-      {/* лого */}
-      <Link to="/home" className="flex items-center gap-2 shrink-0">
-        <Scissors size={iconSize.lg} style={{ color: colors.accent }} />
-        <span className="font-bold text-white text-base">
-          Barber<span style={{ color: colors.accent }}>Hub</span>
-        </span>
-      </Link>
-
-      {/* навигация по центру — скрыта на мобиле */}
-      <nav className="hidden md:flex items-center gap-7">
-        {navLinks.map((link) => {
-          const isActive =
-            pathname === link.path ||
-            (link.path !== "/home" && pathname.startsWith(link.path));
-          return (
-            <Link
-              key={link.path}
-              to={link.path}
-              className="text-sm font-medium transition-colors hover:text-white"
-              style={{ color: isActive ? colors.accent : colors.gray }}
-            >
-              {link.label}
-            </Link>
-          );
-        })}
-      </nav>
-
-      {/* правая часть */}
-      <div className="flex items-center gap-3">
-        <span className="text-sm hidden md:block" style={{ color: colors.gray }}>
-          <span className="inline-flex items-center gap-1">
-            <MapPin size={iconSize.sm} />
-            Алматы
+      <div className="mx-auto flex h-[54px] max-w-7xl items-center justify-between gap-4">
+        <Link to="/home" className="flex shrink-0 items-center gap-2.5">
+          <span className="text-base">✂️</span>
+          <span className="text-base font-bold text-white">
+            Barber<span style={{ color: "#E94560" }}>Hub</span>
           </span>
-        </span>
-
-        <button className="relative leading-none" style={{ color: colors.gray }}>
-          <Bell size={iconSize.lg} />
-          <span
-            className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full border-2"
-            style={{
-              backgroundColor: colors.accent,
-              borderColor: colors.dark,
-            }}
-          />
-        </button>
-
-        <Link
-          to="/profile"
-          className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
-          style={{ backgroundColor: colors.accent }}
-        >
-          {initials}
         </Link>
+
+        <nav className="hidden items-center gap-9 md:flex">
+          {navLinks.map((link) => {
+            const isActive =
+              pathname === link.path ||
+              (link.path !== "/home" && pathname.startsWith(link.path));
+
+            return (
+              <Link
+                key={link.path}
+                to={link.path}
+                className="text-sm font-medium transition-opacity hover:opacity-85"
+                style={{ color: isActive ? "#E94560" : "#A8B2C1" }}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="flex items-center gap-4 md:gap-5">
+          <div
+            className="hidden items-center gap-1 text-sm font-medium md:flex"
+            style={{ color: "#A8B2C1" }}
+          >
+            <span>📍</span>
+            Алматы
+          </div>
+
+          <button
+            type="button"
+            className="relative hidden text-base transition-opacity hover:opacity-85 md:inline-flex"
+            style={{ color: "#A8B2C1" }}
+          >
+            🔔
+            <span
+              className="absolute -right-1 -top-1 h-[7px] w-[7px] rounded-full"
+              style={{ backgroundColor: "#E94560" }}
+            />
+          </button>
+
+          <Link
+            to="/profile"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
+            style={{ backgroundColor: "#E94560" }}
+          >
+            {initials}
+          </Link>
+        </div>
       </div>
     </header>
   );

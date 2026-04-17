@@ -13,7 +13,7 @@ function ProfilePage() {
     : "П";
 
   const totalAppointments = mockAppointments.length;
-  const completedAppointments = mockAppointments.filter((a) => a.status === "completed").length;
+  const completedAppointments = mockAppointments.filter((a) => a.status === "done").length;
 
   function handleLogout() {
     logout();

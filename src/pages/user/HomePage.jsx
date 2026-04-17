@@ -1,30 +1,42 @@
-import { useState } from "react";
-import mockShops from "../../data/mockShops";
+import { useMemo, useState } from "react";
+import { homeMockShops } from "../../data/mockShops";
 import GreetingBlock from "../../components/home/GreetingBlock";
 import FilterChips from "../../components/home/FilterChips";
 import NearbyShopsSection from "../../components/home/NearbyShopsSection";
 import PopularServicesSection from "../../components/home/PopularServicesSection";
-import colors from "../../constants/colors";
 
 function HomePage() {
   const [activeFilter, setActiveFilter] = useState("top");
 
-  const filteredShops = (() => {
-    if (activeFilter === "open") return mockShops.filter((s) => s.isOpen);
-    if (activeFilter === "top") return [...mockShops].sort((a, b) => b.rating - a.rating);
-    if (activeFilter === "cheap") return mockShops.filter((s) => s.priceFrom <= 2000);
-    return mockShops;
-  })();
+  const filteredShops = useMemo(() => {
+    let shops = [...homeMockShops];
+
+    if (activeFilter === "open") {
+      shops = shops.filter((shop) => shop.isOpen);
+    } else if (activeFilter === "cheap") {
+      shops = shops.filter((shop) => shop.priceFrom <= 2000);
+    } else if (activeFilter === "top") {
+      shops = [...shops].sort((a, b) => b.rating - a.rating);
+    }
+
+    return shops;
+  }, [activeFilter]);
 
   return (
     <div
-      className="max-w-7xl mx-auto px-4 md:px-6 py-8"
-      style={{ backgroundColor: colors.primary }}
+      className="min-h-full pb-8 pt-5 font-['Plus_Jakarta_Sans',system-ui]"
+      style={{ backgroundColor: "#1A1A2E" }}
     >
-      <GreetingBlock />
-      <FilterChips activeFilter={activeFilter} onFilterChange={setActiveFilter} />
-      <NearbyShopsSection shops={filteredShops} />
-      <PopularServicesSection />
+      <section className="mx-auto w-full max-w-[980px]">
+        <GreetingBlock />
+
+        <div className="mt-3">
+          <FilterChips activeFilter={activeFilter} onFilterChange={setActiveFilter} />
+        </div>
+
+        <NearbyShopsSection shops={filteredShops} />
+        <PopularServicesSection />
+      </section>
     </div>
   );
 }

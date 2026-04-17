@@ -1,343 +1,348 @@
-import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { MapPin, Wallet, List, Map, Scissors } from "lucide-react";
-import mockShops from "../../data/mockShops";
-import colors from "../../constants/colors";
-
-const iconSize = {
-  sm: 14,
-  md: 16,
-  lg: 34,
-};
+import { useMemo, useState } from "react";
+import { searchMockShops } from "../../data/mockShops";
+import ShopCard from "../../components/shop/ShopCard";
 
 function SearchPage() {
-  const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState("барбершоп");
+  const [statusFilter, setStatusFilter] = useState([]);
+  const [ratingFilter, setRatingFilter] = useState(null);
+  const [distanceFilter, setDistanceFilter] = useState(null);
+  const [priceFilters, setPriceFilters] = useState([]);
+  const [priceRange, setPriceRange] = useState(2000);
+  const [activeView, setActiveView] = useState("list");
 
-  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
-  const [statusFilter, setStatusFilter] = useState("all"); // all | open | soon
-  const [ratingFilter, setRatingFilter] = useState("all"); // all | top | good
-  const [distanceFilter, setDistanceFilter] = useState("all"); // all | 1 | 3 | 5
-  const [maxPrice, setMaxPrice] = useState(5000);
+  const toggleStatus = (value) => {
+    setStatusFilter((prev) =>
+      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
+    );
+  };
 
-  function handleSearch(e) {
-    e.preventDefault();
-    const params = {};
-    if (searchQuery.trim()) params.q = searchQuery.trim();
-    setSearchParams(params);
-  }
+  const togglePrice = (value) => {
+    setPriceFilters((prev) =>
+      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
+    );
+  };
 
-  const filteredShops = mockShops.filter((shop) => {
-    if (searchQuery.trim() && !shop.name.toLowerCase().includes(searchQuery.trim().toLowerCase())) {
-      return false;
-    }
-    if (statusFilter === "open" && !shop.isOpen) return false;
-    if (ratingFilter === "top" && shop.rating < 4.8) return false;
-    if (ratingFilter === "good" && shop.rating < 4.0) return false;
-    if (shop.priceFrom > maxPrice) return false;
-    return true;
-  });
+  const filteredShops = useMemo(() => {
+    return searchMockShops.filter((shop) => {
+      if (
+        searchQuery.trim() &&
+        !shop.name.toLowerCase().includes(searchQuery.trim().toLowerCase())
+      ) {
+        return false;
+      }
+
+      if (statusFilter.length > 0 && !statusFilter.includes(shop.status)) {
+        return false;
+      }
+
+      if (ratingFilter === "top" && shop.rating < 4.8) return false;
+      if (ratingFilter === "good" && shop.rating < 4.0) return false;
+
+      if (distanceFilter) {
+        const km = parseFloat(shop.distance);
+        const limit = Number(distanceFilter);
+        if (!Number.isNaN(km) && km > limit) return false;
+      }
+
+      if (shop.price > priceRange) return false;
+
+      if (priceFilters.length > 0) {
+        const passes = priceFilters.some((limit) => shop.price <= limit);
+        if (!passes) return false;
+      }
+
+      return true;
+    });
+  }, [searchQuery, statusFilter, ratingFilter, distanceFilter, priceRange, priceFilters]);
 
   return (
-    <div className="flex min-h-full" style={{ backgroundColor: colors.primary }}>
-
-      {/* sidebar с фильтрами */}
+    <div
+      className="flex min-h-[calc(100vh-54px)] w-full font-['Plus_Jakarta_Sans',system-ui]"
+      style={{ backgroundColor: "#1A1A2E" }}
+    >
       <aside
-        className="hidden lg:block w-72 xl:w-80 shrink-0 px-5 py-6 sticky top-14 self-start h-[calc(100vh-56px)] overflow-y-auto"
-        style={{ borderRight: "1px solid rgba(255,255,255,0.06)" }}
+        className="shrink-0"
+        style={{
+          width: "260px",
+          backgroundColor: "#000000",
+          padding: "24px",
+        }}
       >
-        <h2 className="text-base font-bold text-white mb-4">Поиск</h2>
+        <h1
+          className="text-white"
+          style={{ fontSize: "24px", fontWeight: 700, marginBottom: "16px" }}
+        >
+          Поиск
+        </h1>
 
-        <form onSubmit={handleSearch} className="mb-6">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="барбершоп"
-            className="w-full px-3 py-2.5 rounded-xl text-white text-sm focus:outline-none"
-            style={{
-              backgroundColor: "transparent",
-              border: `1px solid ${colors.accent}`,
-            }}
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="барбершоп"
+          className="w-full text-white focus:outline-none"
+          style={{
+            border: "2px solid #E94560",
+            backgroundColor: "transparent",
+            borderRadius: "10px",
+            padding: "10px 14px",
+            fontSize: "14px",
+          }}
+        />
+
+        <h2
+          className="text-white"
+          style={{ fontWeight: 700, marginTop: "24px", marginBottom: "12px" }}
+        >
+          Фильтры
+        </h2>
+
+        <FilterSection title="Статус">
+          <FilterCheckbox
+            icon="🟢"
+            label="Открыто"
+            checked={statusFilter.includes("open")}
+            onChange={() => toggleStatus("open")}
           />
-        </form>
+          <FilterCheckbox
+            icon="🔴"
+            label="Скоро откроется"
+            checked={statusFilter.includes("soon")}
+            onChange={() => toggleStatus("soon")}
+          />
+        </FilterSection>
 
-        <div className="flex flex-col gap-5">
+        <FilterSection title="Рейтинг">
+          <FilterCheckbox
+            icon="⭐"
+            label="Топ (4.8+)"
+            checked={ratingFilter === "top"}
+            onChange={() =>
+              setRatingFilter(ratingFilter === "top" ? null : "top")
+            }
+          />
+          <FilterCheckbox
+            icon="⭐"
+            label="Хороший (4.0+)"
+            checked={ratingFilter === "good"}
+            onChange={() =>
+              setRatingFilter(ratingFilter === "good" ? null : "good")
+            }
+          />
+        </FilterSection>
 
-          {/* Статус */}
-          <div>
-            <p className="text-xs font-semibold text-white mb-2">Статус</p>
-            <div className="flex flex-col gap-2">
-              {[
-                { value: "open", label: "Открыто", dot: colors.success },
-                { value: "soon", label: "Скоро открывается", dot: "#F6AD55" },
-              ].map((opt) => (
-                <label
-                  key={opt.value}
-                  className="flex items-center gap-2 cursor-pointer"
-                >
-                  <input
-                    type="radio"
-                    name="status"
-                    checked={statusFilter === opt.value}
-                    onChange={() =>
-                      setStatusFilter(statusFilter === opt.value ? "all" : opt.value)
-                    }
-                    className="hidden"
-                  />
-                  <span
-                    className="w-2 h-2 rounded-full shrink-0"
-                    style={{ backgroundColor: opt.dot }}
-                  />
-                  <span
-                    className="text-sm"
-                    style={{
-                      color: statusFilter === opt.value ? "#ffffff" : colors.gray,
-                    }}
-                  >
-                    {opt.label}
-                  </span>
-                </label>
-              ))}
-            </div>
+        <FilterSection title="Расстояние">
+          <FilterRadio
+            icon="📍"
+            label="До 1 км"
+            checked={distanceFilter === "1"}
+            onChange={() =>
+              setDistanceFilter(distanceFilter === "1" ? null : "1")
+            }
+          />
+          <FilterRadio
+            icon="📍"
+            label="До 3 км"
+            checked={distanceFilter === "3"}
+            onChange={() =>
+              setDistanceFilter(distanceFilter === "3" ? null : "3")
+            }
+          />
+          <FilterRadio
+            icon="📍"
+            label="До 5 км"
+            checked={distanceFilter === "5"}
+            onChange={() =>
+              setDistanceFilter(distanceFilter === "5" ? null : "5")
+            }
+          />
+        </FilterSection>
+
+        <FilterSection title="Цена">
+          <FilterCheckbox
+            icon="💰"
+            label="До 2000₸"
+            checked={priceFilters.includes(2000)}
+            onChange={() => togglePrice(2000)}
+          />
+          <FilterCheckbox
+            icon="💰"
+            label="До 5000₸"
+            checked={priceFilters.includes(5000)}
+            onChange={() => togglePrice(5000)}
+          />
+
+          <input
+            type="range"
+            min={0}
+            max={5000}
+            value={priceRange}
+            onChange={(e) => setPriceRange(Number(e.target.value))}
+            className="w-full"
+            style={{ accentColor: "#E94560", marginTop: "12px" }}
+          />
+          <div
+            className="flex items-center justify-between"
+            style={{ fontSize: "12px", color: "#A8B2C1", marginTop: "6px" }}
+          >
+            <span>от</span>
+            <span>{priceRange}₸</span>
           </div>
-
-          {/* Рейтинг */}
-          <div>
-            <p className="text-xs font-semibold text-white mb-2">Рейтинг</p>
-            <div className="flex flex-col gap-2">
-              {[
-                { value: "top", label: "Топ (4.8+)" },
-                { value: "good", label: "Хороший (4.0+)" },
-              ].map((opt) => (
-                <button
-                  key={opt.value}
-                  onClick={() =>
-                    setRatingFilter(ratingFilter === opt.value ? "all" : opt.value)
-                  }
-                  className="flex items-center gap-2 text-left"
-                >
-                  <span style={{ color: colors.gold }}>★</span>
-                  <span
-                    className="text-sm"
-                    style={{
-                      color: ratingFilter === opt.value ? "#ffffff" : colors.gray,
-                    }}
-                  >
-                    {opt.label}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Расстояние */}
-          <div>
-            <p className="text-xs font-semibold text-white mb-2">Расстояние</p>
-            <div className="flex flex-col gap-2">
-              {["До 1 км", "До 3 км", "До 5 км"].map((label) => (
-                <button
-                  key={label}
-                  onClick={() =>
-                    setDistanceFilter(distanceFilter === label ? "all" : label)
-                  }
-                  className="flex items-center gap-2 text-left"
-                >
-                  <MapPin size={iconSize.sm} />
-                  <span
-                    className="text-sm"
-                    style={{
-                      color: distanceFilter === label ? "#ffffff" : colors.gray,
-                    }}
-                  >
-                    {label}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Цена */}
-          <div>
-            <p className="text-xs font-semibold text-white mb-2">Цена</p>
-            <div className="flex flex-col gap-2">
-              {[
-                { label: "До 2000₸", value: 2000 },
-                { label: "До 5000₸", value: 5000 },
-              ].map((opt) => (
-                <button
-                  key={opt.value}
-                  onClick={() => setMaxPrice(opt.value)}
-                  className="flex items-center gap-2 text-left"
-                >
-                  <Wallet size={iconSize.sm} />
-                  <span
-                    className="text-sm"
-                    style={{
-                      color: maxPrice === opt.value ? "#ffffff" : colors.gray,
-                    }}
-                  >
-                    {opt.label}
-                  </span>
-                </button>
-              ))}
-            </div>
-
-            <input
-              type="range"
-              min={0}
-              max={5000}
-              step={500}
-              value={maxPrice}
-              onChange={(e) => setMaxPrice(Number(e.target.value))}
-              className="w-full mt-3"
-              style={{ accentColor: colors.accent }}
-            />
-            <div
-              className="flex justify-between text-xs mt-1"
-              style={{ color: colors.gray }}
-            >
-              <span>от</span>
-              <span>{maxPrice.toLocaleString("ru-RU")}₸</span>
-            </div>
-          </div>
-
-        </div>
+        </FilterSection>
       </aside>
 
-      {/* основной контент */}
-      <main className="flex-1 px-4 md:px-6 py-6">
-        <div className="max-w-7xl mx-auto">
-
-        {/* мобильная форма поиска */}
-        <form onSubmit={handleSearch} className="flex gap-2 mb-5 md:hidden">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Найти барбершоп..."
-            className="flex-1 px-4 py-2.5 rounded-xl text-white text-sm focus:outline-none"
-            style={{
-              backgroundColor: colors.light,
-              border: "1px solid rgba(255,255,255,0.08)",
-            }}
-          />
+      <main
+        className="flex-1"
+        style={{ padding: "24px", backgroundColor: "#1A1A2E" }}
+      >
+        <div
+          className="flex items-center"
+          style={{ gap: "16px", marginBottom: "20px" }}
+        >
           <button
-            type="submit"
-            className="px-4 py-2.5 rounded-xl text-sm font-medium text-white"
-            style={{ backgroundColor: colors.accent }}
+            onClick={() => setActiveView("list")}
+            className="font-semibold"
+            style={{
+              padding: "8px 18px",
+              fontSize: "14px",
+              borderRadius: "10px",
+              backgroundColor: activeView === "list" ? "#E94560" : "#1E2A3A",
+              color: activeView === "list" ? "#ffffff" : "#A8B2C1",
+              cursor: "pointer",
+              border: "none",
+            }}
           >
-            Найти
+            📋 Список
           </button>
-        </form>
+          <button
+            onClick={() => setActiveView("map")}
+            className="font-semibold"
+            style={{
+              padding: "8px 18px",
+              fontSize: "14px",
+              borderRadius: "10px",
+              backgroundColor: activeView === "map" ? "#E94560" : "#1E2A3A",
+              color: activeView === "map" ? "#ffffff" : "#A8B2C1",
+              cursor: "pointer",
+              border: "none",
+            }}
+          >
+            🗺 Карта
+          </button>
 
-        {/* переключатель список/карта */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
-          <div className="flex rounded-xl overflow-hidden" style={{ backgroundColor: colors.light }}>
-            <button
-              className="px-4 py-2 text-sm font-medium text-white flex items-center gap-1.5"
-              style={{ backgroundColor: colors.accent }}
-            >
-              <List size={iconSize.sm} />
-              Список
-            </button>
-            <button
-              className="px-4 py-2 text-sm font-medium flex items-center gap-1.5"
-              style={{ color: colors.gray }}
-            >
-              <Map size={iconSize.sm} />
-              Карта
-            </button>
-          </div>
-          <p className="text-sm sm:text-right" style={{ color: colors.gray }}>
+          <p
+            style={{
+              marginLeft: "auto",
+              color: "#A8B2C1",
+              fontSize: "14px",
+            }}
+          >
             Найдено: {filteredShops.length} барбершопа
           </p>
         </div>
 
-        {filteredShops.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-2">
-            <p className="text-white font-semibold text-lg">Ничего не найдено</p>
-            <p className="text-sm" style={{ color: colors.gray }}>
+        {activeView === "map" ? (
+          <div
+            className="flex items-center justify-center rounded-2xl text-white"
+            style={{
+              backgroundColor: "#1E2A3A",
+              minHeight: "400px",
+              fontSize: "16px",
+            }}
+          >
+            🗺 Карта в разработке
+          </div>
+        ) : filteredShops.length === 0 ? (
+          <div
+            className="flex flex-col items-center justify-center rounded-2xl"
+            style={{ backgroundColor: "#1E2A3A", padding: "60px 20px" }}
+          >
+            <p className="text-white" style={{ fontSize: "16px", fontWeight: 600 }}>
+              Ничего не найдено
+            </p>
+            <p style={{ color: "#A8B2C1", fontSize: "14px", marginTop: "6px" }}>
               Попробуйте изменить фильтры
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div
+            className="grid"
+            style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "16px" }}
+          >
             {filteredShops.map((shop) => (
-              <ShopCard
-                key={shop.id}
-                shop={shop}
-                onBook={() => navigate(`/shops/${shop.id}`)}
-              />
+              <ShopCard key={shop.id} shop={shop} />
             ))}
           </div>
         )}
-        </div>
       </main>
-
     </div>
   );
 }
 
-function ShopCard({ shop, onBook }) {
+function FilterSection({ title, children }) {
   return (
-    <div
-      className="rounded-2xl overflow-hidden flex flex-col"
-      style={{ backgroundColor: colors.light }}
-    >
-      {/* фото-плейсхолдер */}
-      <div
-        className="relative h-40 flex items-center justify-center text-4xl"
-        style={{ backgroundColor: colors.dark }}
+    <div style={{ marginTop: "16px" }}>
+      <p
+        style={{
+          color: "#A8B2C1",
+          fontSize: "12px",
+          marginBottom: "8px",
+        }}
       >
-        <Scissors size={iconSize.lg} style={{ color: colors.accent }} />
-        <span
-          className="absolute top-3 right-3 text-xs px-2.5 py-1 rounded-full font-medium"
-          style={{
-            backgroundColor: shop.isOpen
-              ? "rgba(72,187,120,0.15)"
-              : "rgba(246,173,85,0.15)",
-            color: shop.isOpen ? "#48BB78" : "#F6AD55",
-          }}
-        >
-          {shop.isOpen ? "● Открыто" : "● Скоро"}
-        </span>
-      </div>
-
-      {/* инфо */}
-      <div className="p-4 flex flex-col gap-2">
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <h3 className="font-semibold text-white text-base">{shop.name}</h3>
-            <p className="text-sm mt-0.5" style={{ color: colors.gray }}>
-              {shop.distance} · {shop.address}
-            </p>
-          </div>
-          <span
-            className="text-sm font-semibold shrink-0"
-            style={{ color: colors.accent }}
-          >
-            от {shop.priceFrom.toLocaleString("ru-RU")}₸
-          </span>
-        </div>
-
-        <div className="flex items-center gap-1">
-          <span style={{ color: colors.gold }}>★</span>
-          <span className="text-sm text-white font-medium">{shop.rating}</span>
-          <span className="text-xs" style={{ color: colors.gray }}>
-            ({shop.reviewCount})
-          </span>
-        </div>
-
-        <button
-          onClick={onBook}
-          className="w-full py-2.5 rounded-xl text-sm font-semibold text-white mt-1 hover:opacity-90 transition-opacity"
-          style={{ backgroundColor: colors.accent }}
-        >
-          Записаться
-        </button>
-      </div>
+        {title}
+      </p>
+      <div className="flex flex-col">{children}</div>
     </div>
+  );
+}
+
+function FilterCheckbox({ icon, label, checked, onChange }) {
+  return (
+    <label
+      className="flex items-center cursor-pointer select-none"
+      style={{
+        gap: "8px",
+        fontSize: "14px",
+        color: "#ffffff",
+        marginBottom: "4px",
+        fontWeight: checked ? 700 : 400,
+      }}
+    >
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={onChange}
+        style={{ accentColor: "#E94560", display: "none" }}
+      />
+      <span>{icon}</span>
+      <span>{label}</span>
+    </label>
+  );
+}
+
+function FilterRadio({ icon, label, checked, onChange }) {
+  return (
+    <label
+      className="flex items-center cursor-pointer select-none"
+      style={{
+        gap: "8px",
+        fontSize: "14px",
+        color: "#ffffff",
+        marginBottom: "4px",
+        fontWeight: checked ? 700 : 400,
+      }}
+    >
+      <input
+        type="radio"
+        name="distance"
+        checked={checked}
+        onChange={onChange}
+        style={{ accentColor: "#E94560", display: "none" }}
+      />
+      <span>{icon}</span>
+      <span>{label}</span>
+    </label>
   );
 }
 

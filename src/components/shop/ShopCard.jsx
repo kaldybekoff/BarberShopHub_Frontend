@@ -1,48 +1,77 @@
 import { useNavigate } from "react-router-dom";
-import colors from "../../constants/colors";
 
 function ShopCard({ shop }) {
   const navigate = useNavigate();
 
+  const price = shop.price ?? shop.priceFrom;
+  const reviewsCount = shop.reviews ?? shop.reviewCount;
+  const status = shop.status ?? (shop.isOpen ? "open" : "soon");
+  const isOpen = status === "open";
+
+  const handleClick = () => navigate(`/shops/${shop.id}`);
+
   return (
     <div
-      className="rounded-2xl p-4 flex flex-col gap-2"
-      style={{ backgroundColor: colors.light }}>
-
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <h3 className="font-semibold text-white text-base">{shop.name}</h3>
-          <p className="text-sm mt-0.5" style={{ color: colors.gray }}>
-            {shop.address} · {shop.distance}
-          </p>
-        </div>
+      className="min-w-[280px] overflow-hidden rounded-2xl"
+      style={{ backgroundColor: "#1E2A3A" }}
+    >
+      <div
+        className="relative flex h-40 items-center justify-center"
+        style={{ backgroundColor: "#16213E" }}
+      >
+        <span style={{ fontSize: "48px" }}>💈</span>
         <span
-          className="text-xs px-2 py-0.5 rounded-full font-medium shrink-0"
+          className="absolute right-3 top-3 rounded-full text-xs font-semibold text-white"
           style={{
-            backgroundColor: shop.isOpen ? `${colors.success}20` : `${colors.accent}20`,
-            color: shop.isOpen ? colors.success : colors.accent,
-          }}>
-          {shop.isOpen ? "Открыто" : "Закрыто"}
+            backgroundColor: isOpen ? "#48BB78" : "#F6AD55",
+            padding: "3px 10px",
+          }}
+        >
+          {isOpen ? "● Открыто" : "● Скоро"}
         </span>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1">
-          <span style={{ color: colors.gold }}>★</span>
-          <span className="text-sm text-white font-medium">{shop.rating}</span>
-          <span className="text-xs" style={{ color: colors.gray }}>({shop.reviewCount})</span>
+      <div style={{ padding: "14px 16px" }}>
+        <h3 className="text-base font-bold text-white" style={{ marginBottom: "6px" }}>
+          {shop.name}
+        </h3>
+
+        <p className="text-sm text-white">
+          <span style={{ color: "#F5A623" }}>★</span> {shop.rating}{" "}
+          <span style={{ color: "#A8B2C1" }}>({reviewsCount})</span>
+        </p>
+
+        <p
+          className="text-[13px]"
+          style={{ color: "#A8B2C1", marginTop: "2px", marginBottom: "12px" }}
+        >
+          📍 {shop.distance}
+          {shop.address ? ` · ${shop.address}` : ""}
+        </p>
+
+        <div className="flex items-center justify-between">
+          <span
+            className="font-bold"
+            style={{ color: "#E94560", fontSize: "15px" }}
+          >
+            от {price}₸
+          </span>
+
+          <button
+            onClick={handleClick}
+            className="rounded-[10px] text-sm font-semibold transition-opacity hover:opacity-90"
+            style={{
+              padding: "8px 18px",
+              backgroundColor: isOpen ? "#E94560" : "#1E2A3A",
+              color: isOpen ? "#ffffff" : "#E94560",
+              border: isOpen ? "1px solid #E94560" : "1px solid #E94560",
+              cursor: "pointer",
+            }}
+          >
+            {isOpen ? "Записаться" : "Посмотреть"}
+          </button>
         </div>
-        <span className="text-sm text-white">
-          от {shop.priceFrom} ₸
-        </span>
       </div>
-
-      <button
-        onClick={() => navigate(`/shops/${shop.id}`)}
-        className="w-full py-2 rounded-xl text-sm font-semibold text-white mt-1 hover:opacity-90 transition-opacity"
-        style={{ backgroundColor: colors.accent }}>
-        Записаться
-      </button>
     </div>
   );
 }

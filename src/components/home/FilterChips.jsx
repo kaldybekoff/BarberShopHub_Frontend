@@ -1,35 +1,29 @@
-import colors from "../../constants/colors";
-import { Trophy, MapPin, Zap, Wallet } from "lucide-react";
-
-const chipIconSize = 14;
-
 const filters = [
-  { label: "Топ рейтинг", value: "top", icon: Trophy },
-  { label: "Рядом", value: "nearby", icon: MapPin },
-  { label: "Сейчас открыто", value: "open", icon: Zap },
-  { label: "До 2000₸", value: "cheap", icon: Wallet },
+  { label: "🏆 Топ рейтинг", value: "top" },
+  { label: "📍 Рядом", value: "nearby" },
+  { label: "⚡ Сейчас открыто", value: "open" },
+  { label: "💰 До 2000₸", value: "cheap" },
 ];
 
 function FilterChips({ activeFilter, onFilterChange }) {
   return (
-    <div className="flex gap-2 overflow-x-auto pb-1 mb-6">
+    <div className="mb-5 flex gap-2 overflow-x-auto px-6 pb-1">
       {filters.map((filter) => {
         const isActive = filter.value === activeFilter;
-        const Icon = filter.icon;
+
         return (
           <button
             key={filter.value}
+            type="button"
             onClick={() => onFilterChange(filter.value)}
-            className="shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap"
+            className="shrink-0 cursor-pointer whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-opacity hover:opacity-85"
             style={{
-              backgroundColor: isActive ? colors.accent : colors.light,
-              color: isActive ? "#ffffff" : colors.gray,
+              backgroundColor: isActive ? "#E94560" : "#1E2A3A",
+              color: "#ffffff",
+              border: isActive ? "none" : "1px solid rgba(255,255,255,0.08)",
             }}
           >
-            <span className="inline-flex items-center gap-1.5">
-              <Icon size={chipIconSize} />
-              {filter.label}
-            </span>
+            {filter.label}
           </button>
         );
       })}
