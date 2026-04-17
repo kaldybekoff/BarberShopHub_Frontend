@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-const serviceChips = [
+const services = [
   { label: "Стрижка", icon: "✂️", value: "haircut" },
   { label: "Борода", icon: "🪒", value: "beard" },
   { label: "Комплекс", icon: "💎", value: "complex" },
@@ -11,22 +11,51 @@ function PopularServicesSection() {
   const navigate = useNavigate();
 
   return (
-    <section className="mt-7 border-t px-6 pt-5" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
-      <h2 className="mb-4 text-xl font-semibold text-white">Популярные услуги</h2>
+    <section>
+      <div
+        style={{
+          height: "1px",
+          backgroundColor: "#1E2A3A",
+          margin: "32px 0",
+        }}
+      />
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        {serviceChips.map((chip) => (
+      <h2
+        className="text-white"
+        style={{ fontSize: "20px", fontWeight: 700, marginBottom: "16px" }}
+      >
+        Популярные услуги
+      </h2>
+
+      <div
+        className="grid"
+        style={{
+          gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+          gap: "14px",
+        }}
+      >
+        {services.map((service) => (
           <button
-            key={chip.value}
+            key={service.value}
             type="button"
-            onClick={() => navigate(`/search?service=${chip.value}`)}
-            className="aspect-square rounded-2xl p-3 transition-opacity hover:opacity-85"
+            onClick={() => navigate(`/search?service=${service.value}`)}
+            className="flex flex-col items-center transition-opacity hover:opacity-85"
             style={{
               backgroundColor: "#1E2A3A",
+              borderRadius: "16px",
+              padding: "24px 16px",
+              gap: "10px",
+              cursor: "pointer",
+              border: "none",
             }}
           >
-            <span className="mb-2 block text-3xl">{chip.icon}</span>
-            <span className="text-sm font-medium text-white">{chip.label}</span>
+            <span style={{ fontSize: "32px" }}>{service.icon}</span>
+            <span
+              className="text-white"
+              style={{ fontSize: "14px", fontWeight: 600 }}
+            >
+              {service.label}
+            </span>
           </button>
         ))}
       </div>

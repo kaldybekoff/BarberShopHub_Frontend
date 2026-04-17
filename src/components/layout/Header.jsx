@@ -23,68 +23,115 @@ function Header() {
 
   return (
     <header
-      className="sticky top-0 z-20 border-b px-4 md:px-6"
+      className="sticky top-0 z-20 flex items-center border-b"
       style={{
-        backgroundColor: "#000000",
+        backgroundColor: "#16213E",
         borderColor: "#1E2A3A",
+        height: "56px",
+        padding: "0 40px",
+        position: "sticky",
       }}
     >
-      <div className="mx-auto flex h-[54px] max-w-7xl items-center justify-between gap-4">
-        <Link to="/home" className="flex shrink-0 items-center gap-2.5">
-          <span className="text-base">✂️</span>
-          <span className="text-base font-bold text-white">
-            Barber<span style={{ color: "#E94560" }}>Hub</span>
-          </span>
-        </Link>
+      <Link
+        to="/home"
+        className="flex shrink-0 items-center"
+        style={{ gap: "8px", textDecoration: "none" }}
+      >
+        <span style={{ fontSize: "18px" }}>✂️</span>
+        <span
+          className="text-white"
+          style={{ fontSize: "20px", fontWeight: 700, display: "flex", gap: 0 }}
+        >
+          Barber<span style={{ color: "#E94560" }}>Hub</span>
+        </span>
+      </Link>
 
-        <nav className="hidden items-center gap-9 md:flex">
-          {navLinks.map((link) => {
-            const isActive =
-              pathname === link.path ||
-              (link.path !== "/home" && pathname.startsWith(link.path));
+      <nav
+        className="hidden md:flex items-center"
+        style={{
+          position: "absolute",
+          left: "50%",
+          transform: "translateX(-50%)",
+        }}
+      >
+        {navLinks.map((link) => {
+          const isActive =
+            pathname === link.path ||
+            (link.path !== "/home" && pathname.startsWith(link.path));
 
-            return (
-              <Link
-                key={link.path}
-                to={link.path}
-                className="text-sm font-medium transition-opacity hover:opacity-85"
-                style={{ color: isActive ? "#E94560" : "#A8B2C1" }}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-        </nav>
+          return (
+            <Link
+              key={link.path}
+              to={link.path}
+              className="transition-opacity hover:opacity-85"
+              style={{
+                fontSize: "15px",
+                padding: "0 20px",
+                cursor: "pointer",
+                color: isActive ? "#E94560" : "#A8B2C1",
+                fontWeight: isActive ? 600 : 400,
+                textDecoration: "none",
+              }}
+            >
+              {link.label}
+            </Link>
+          );
+        })}
+      </nav>
 
-        <div className="flex items-center gap-4 md:gap-5">
-          <div
-            className="hidden items-center gap-1 text-sm font-medium md:flex"
-            style={{ color: "#A8B2C1" }}
-          >
-            <span>📍</span>
-            Алматы
-          </div>
-
-          <button
-            type="button"
-            className="relative hidden text-base transition-opacity hover:opacity-85 md:inline-flex"
-            style={{ color: "#A8B2C1" }}
-          >
-            🔔
-            <span
-              className="absolute -right-1 -top-1 h-[7px] w-[7px] rounded-full"
-              style={{ backgroundColor: "#E94560" }}
-            />
-          </button>
-
-          <Link
-            to="/profile"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
-            style={{ backgroundColor: "#E94560" }}
-          >
-            {initials}
-          </Link>
+      <div
+        className="flex items-center"
+        style={{ marginLeft: "auto", gap: "16px" }}
+      >
+        <div
+          className="hidden md:flex items-center"
+          style={{ color: "#A8B2C1", fontSize: "13px", gap: "4px" }}
+        >
+          <span>📍</span>
+          Алматы
         </div>
+
+        <button
+          type="button"
+          className="relative hidden md:inline-flex transition-opacity hover:opacity-85"
+          style={{
+            color: "#A8B2C1",
+            fontSize: "18px",
+            background: "transparent",
+            border: "none",
+            cursor: "pointer",
+            position: "relative",
+          }}
+        >
+          🔔
+          <span
+            style={{
+              position: "absolute",
+              top: 0,
+              right: 0,
+              width: "8px",
+              height: "8px",
+              borderRadius: "50%",
+              backgroundColor: "#E94560",
+            }}
+          />
+        </button>
+
+        <Link
+          to="/profile"
+          className="flex shrink-0 items-center justify-center text-white"
+          style={{
+            width: "36px",
+            height: "36px",
+            borderRadius: "50%",
+            backgroundColor: "#E94560",
+            fontSize: "13px",
+            fontWeight: 700,
+            textDecoration: "none",
+          }}
+        >
+          {initials}
+        </Link>
       </div>
     </header>
   );

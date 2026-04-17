@@ -3,21 +3,41 @@ import ShopCard from "../shop/ShopCard";
 
 function NearbyShopsSection({ shops }) {
   return (
-    <section className="mt-5 px-6">
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-white">Рядом с тобой</h2>
+    <section>
+      <div
+        className="flex items-center justify-between"
+        style={{ marginBottom: "16px" }}
+      >
+        <h2
+          className="text-white"
+          style={{ fontSize: "20px", fontWeight: 700 }}
+        >
+          Рядом с тобой
+        </h2>
         <Link
           to="/search"
-          className="text-sm font-semibold transition-opacity hover:opacity-85"
-          style={{ color: "#E94560" }}
+          className="transition-opacity hover:opacity-85"
+          style={{
+            color: "#E94560",
+            fontSize: "14px",
+            fontWeight: 600,
+            cursor: "pointer",
+            textDecoration: "none",
+          }}
         >
           Все →
         </Link>
       </div>
 
-      <div className="flex gap-4 overflow-x-auto pb-2">
+      <div
+        className="grid"
+        style={{
+          gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+          gap: "20px",
+        }}
+      >
         {shops.map((shop) => (
-          <ShopCard key={shop.id} shop={shop} />
+          <ShopCard key={shop.id} shop={shop} variant="home" />
         ))}
       </div>
     </section>
