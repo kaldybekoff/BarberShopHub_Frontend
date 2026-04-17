@@ -5,13 +5,10 @@ import {
   ClipboardList,
   Scissors,
   BarChart3,
-  Users,
-  MessageSquare,
   LogOut,
 } from "lucide-react";
 import useAuth from "../../hooks/useAuth";
-import { barbershopNavItems, adminNavItems } from "../../constants/navItems";
-import roles from "../../constants/roles";
+import { barbershopNavItems } from "../../constants/navItems";
 
 const iconMap = {
   dashboard: LayoutDashboard,
@@ -19,16 +16,14 @@ const iconMap = {
   clipboard: ClipboardList,
   scissors: Scissors,
   chart: BarChart3,
-  users: Users,
-  message: MessageSquare,
 };
 
 function Sidebar() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { role, user, logout } = useAuth();
+  const { user, logout } = useAuth();
 
-  const navItems = role === roles.Admin ? adminNavItems : barbershopNavItems;
+  const navItems = barbershopNavItems;
 
   function handleLogout() {
     logout?.();
@@ -39,18 +34,14 @@ function Sidebar() {
     return pathname === itemPath || pathname.startsWith(itemPath + "/");
   }
 
-  const isAdmin = role === roles.Admin;
-  const displayName = isAdmin
-    ? user?.name || "Админ"
-    : user?.name || "BarbershopKZ";
-  const initials = isAdmin
-    ? "A"
-    : displayName
-        .split(" ")
-        .map((w) => w[0])
-        .join("")
-        .slice(0, 2)
-        .toUpperCase() || "AK";
+  const displayName = user?.name || "BarbershopKZ";
+  const initials =
+    displayName
+      .split(" ")
+      .map((w) => w[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "AK";
 
   return (
     <aside

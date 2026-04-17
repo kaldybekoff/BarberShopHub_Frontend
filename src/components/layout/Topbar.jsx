@@ -9,10 +9,6 @@ const pageTitles = {
   "/barbershop/bookings": "Записи",
   "/barbershop/services": "Услуги",
   "/barbershop/analytics": "Аналитика",
-  "/admin/dashboard": "Дашборд",
-  "/admin/users": "Пользователи",
-  "/admin/barbershops": "Барбершопы",
-  "/admin/reviews": "Модерация отзывов",
 };
 
 function Topbar() {

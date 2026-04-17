@@ -42,8 +42,7 @@ function LoginPage() {
       const { access_token, user } = await apiLogin(email, password);
       login(user, access_token);
 
-      if (user.role === "Admin") navigate("/admin/dashboard");
-      else if (user.role === "Barbershop") navigate("/barbershop/dashboard");
+      if (user.role === "Barbershop") navigate("/barbershop/dashboard");
       else navigate("/home");
     } catch (error) {
       setErrorMessage(
