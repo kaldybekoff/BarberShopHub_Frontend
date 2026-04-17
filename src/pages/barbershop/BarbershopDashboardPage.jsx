@@ -1,82 +1,144 @@
-import { useState, useEffect } from "react";
-import { getDashboardStats, getBookings } from "../../api/dashboardApi";
-import { revenueData } from "../../data/mockDashboardStats";
+import { useNavigate } from "react-router-dom";
 import StatsCard from "../../components/barbershop/StatsCard";
 import RevenueChart from "../../components/barbershop/RevenueChart";
 import DashboardAppointments from "../../components/barbershop/DashboardAppointments";
-import colors from "../../constants/colors";
+
+const stats = [
+  { icon: "📅", label: "ЗАПИСИ СЕГОДНЯ", value: "12", delta: "▲ +3 vs вчера" },
+  { icon: "💰", label: "ВЫРУЧКА НЕДЕЛЯ", value: "48 500₸", delta: "▲ +12%" },
+  { icon: "⭐", label: "РЕЙТИНГ", value: "4.9", delta: "▲ +0.1" },
+  { icon: "👥", label: "НОВЫЕ КЛИЕНТЫ", value: "7", delta: "▲ +2" },
+];
+
+const revenueData = [
+  { day: "Пн", value: 5200 },
+  { day: "Вт", value: 7800 },
+  { day: "Ср", value: 6100 },
+  { day: "Чт", value: 8400 },
+  { day: "Пт", value: 9200 },
+  { day: "Сб", value: 11800, isActive: true },
+  { day: "Вс", value: 4500 },
+];
+
+const upcomingAppointments = [
+  {
+    time: "11:00",
+    clientName: "Artyom N.",
+    service: "Стрижка",
+    master: "Amir",
+    status: "confirmed",
+  },
+  {
+    time: "12:00",
+    clientName: "Miras S.",
+    service: "Комплекс",
+    master: "Baur",
+    status: "pending",
+  },
+  {
+    time: "13:30",
+    clientName: "Yeskendir K.",
+    service: "Борода",
+    master: "Amir",
+    status: "confirmed",
+  },
+];
 
 function BarbershopDashboardPage() {
-  const [stats, setStats] = useState([]);
-  const [appointmentList, setAppointmentList] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState("");
-
-  useEffect(() => {
-    async function loadDashboard() {
-      try {
-        const [statsResult, bookingsResult] = await Promise.all([
-          getDashboardStats(),
-          getBookings(),
-        ]);
-        setStats(statsResult);
-        setAppointmentList(bookingsResult);
-      } catch (error) {
-        setErrorMessage("Не удалось загрузить данные");
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    loadDashboard();
-  }, []);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-full flex items-center justify-center"
-        style={{ backgroundColor: colors.primary }}>
-        <p className="text-sm" style={{ color: colors.gray }}>Загрузка...</p>
-      </div>
-    );
-  }
-
-  if (errorMessage) {
-    return (
-      <div className="min-h-full flex items-center justify-center"
-        style={{ backgroundColor: colors.primary }}>
-        <p className="text-sm" style={{ color: colors.accent }}>{errorMessage}</p>
-      </div>
-    );
-  }
+  const navigate = useNavigate();
 
   return (
     <div
-      className="min-h-full max-w-7xl mx-auto px-4 md:px-6 py-6"
-      style={{ backgroundColor: colors.primary }}
+      style={{
+        backgroundColor: "#1A1A2E",
+        padding: "32px",
+        minHeight: "100%",
+        overflowY: "auto",
+      }}
     >
-      <div className="mb-6">
-        <h1 className="text-white text-2xl font-bold">Дашборд</h1>
-        <p className="text-sm mt-1" style={{ color: colors.gray }}>
-          Обзор вашей барбершопа
-        </p>
+      <div
+        className="flex items-start justify-between"
+        style={{ marginBottom: "24px" }}
+      >
+        <div>
+          <h1
+            className="text-white"
+            style={{
+              fontSize: "28px",
+              fontWeight: 700,
+              lineHeight: 1.2,
+            }}
+          >
+            Добрый день 👋
+          </h1>
+          <p
+            style={{
+              color: "#A8B2C1",
+              fontSize: "14px",
+              marginTop: "4px",
+            }}
+          >
+            BarbershopKZ
+          </p>
+        </div>
+
+        <button
+          type="button"
+          aria-label="Уведомления"
+          style={{
+            position: "relative",
+            width: "40px",
+            height: "40px",
+            borderRadius: "10px",
+            backgroundColor: "transparent",
+            border: "none",
+            fontSize: "20px",
+            cursor: "pointer",
+          }}
+        >
+          🔔
+          <span
+            style={{
+              position: "absolute",
+              top: "6px",
+              right: "6px",
+              width: "8px",
+              height: "8px",
+              borderRadius: "50%",
+              backgroundColor: "#E94560",
+            }}
+          />
+        </button>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4, 1fr)",
+          gap: "16px",
+        }}
+      >
         {stats.map((stat) => (
           <StatsCard
-            key={stat.id}
+            key={stat.label}
+            icon={stat.icon}
             label={stat.label}
             value={stat.value}
-            icon={stat.icon}
+            delta={stat.delta}
           />
         ))}
       </div>
 
-      <div className="mb-6">
-        <RevenueChart revenueData={revenueData} />
+      <div style={{ marginTop: "24px" }}>
+        <RevenueChart data={revenueData} total="48 500₸" />
       </div>
 
-      <DashboardAppointments appointmentList={appointmentList} />
+      <div style={{ marginTop: "24px" }}>
+        <DashboardAppointments
+          appointments={upcomingAppointments}
+          onShowAll={() => navigate("/barbershop/bookings")}
+        />
+      </div>
     </div>
   );
 }

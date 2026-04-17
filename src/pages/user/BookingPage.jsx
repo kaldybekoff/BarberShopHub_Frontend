@@ -134,10 +134,14 @@ function BookingPage() {
     const bookingData = {
       shopId: shop.id,
       shopName: shop.name,
-      service: selectedService,
-      master: selectedMaster,
-      date: selectedDate,
+      shopAddress: shop.address,
+      serviceName:
+        selectedService?.shortName || selectedService?.name || "",
+      masterName: selectedMaster?.name || "Любой доступный",
+      date: selectedDay?.key || null,
       time: selectedTime,
+      duration: selectedService?.duration || 30,
+      price: selectedService?.price || 0,
       comment,
       reminder,
     };
@@ -356,7 +360,7 @@ function OrderWidget({ service, onNext }) {
     <aside
       className="shrink-0"
       style={{
-        backgroundColor: "#1E2A3A",
+        backgroundColor: "#000000",
         borderRadius: "16px",
         padding: "24px",
         position: "sticky",
@@ -486,7 +490,7 @@ function Step2OrderWidget({ master, service, date, time, canProceed, onNext }) {
     <aside
       className="shrink-0"
       style={{
-        backgroundColor: "#1E2A3A",
+        backgroundColor: "#000000",
         borderRadius: "16px",
         padding: "24px",
         position: "sticky",

@@ -1,16 +1,16 @@
 export const barbershopNavItems = [
-  { label: "Дашборд", path: "/barbershop/dashboard", icon: "dashboard" },
-  { label: "Расписание", path: "/barbershop/schedule", icon: "calendar" },
-  { label: "Записи", path: "/barbershop/bookings", icon: "clipboard" },
-  { label: "Услуги", path: "/barbershop/services", icon: "scissors" },
-  { label: "Аналитика", path: "/barbershop/analytics", icon: "chart" },
+  { label: "Обзор", path: "/barbershop/dashboard", icon: "dashboard", emoji: "📊" },
+  { label: "Расписание", path: "/barbershop/schedule", icon: "calendar", emoji: "📅" },
+  { label: "Записи", path: "/barbershop/bookings", icon: "clipboard", emoji: "📋" },
+  { label: "Услуги", path: "/barbershop/services", icon: "scissors", emoji: "✂️" },
+  { label: "Аналитика", path: "/barbershop/analytics", icon: "chart", emoji: "📈" },
 ];
 
 export const adminNavItems = [
-  { label: "Дашборд", path: "/admin/dashboard", icon: "dashboard" },
-  { label: "Пользователи", path: "/admin/users", icon: "users" },
-  { label: "Барбершопы", path: "/admin/barbershops", icon: "scissors" },
-  { label: "Отзывы", path: "/admin/reviews", icon: "message" },
+  { label: "Дашборд", path: "/admin/dashboard", icon: "dashboard", emoji: "📊" },
+  { label: "Пользователи", path: "/admin/users", icon: "users", emoji: "👥" },
+  { label: "Барбершопы", path: "/admin/barbershops", icon: "scissors", emoji: "✂️" },
+  { label: "Отзывы", path: "/admin/reviews", icon: "message", emoji: "💬" },
 ];
 
 export const userNavItems = [

@@ -12,9 +12,6 @@ import {
 import useAuth from "../../hooks/useAuth";
 import { barbershopNavItems, adminNavItems } from "../../constants/navItems";
 import roles from "../../constants/roles";
-import colors from "../../constants/colors";
-
-const navIconSize = 18;
 
 const iconMap = {
   dashboard: LayoutDashboard,
@@ -29,66 +26,209 @@ const iconMap = {
 function Sidebar() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { role, logout } = useAuth();
+  const { role, user, logout } = useAuth();
 
   const navItems = role === roles.Admin ? adminNavItems : barbershopNavItems;
+
+  function handleLogout() {
+    logout?.();
+    navigate("/");
+  }
 
   function isActive(itemPath) {
     return pathname === itemPath || pathname.startsWith(itemPath + "/");
   }
 
-  function handleLogout() {
-    logout();
-    navigate("/");
-  }
+  const isAdmin = role === roles.Admin;
+  const displayName = isAdmin
+    ? user?.name || "Админ"
+    : user?.name || "BarbershopKZ";
+  const initials = isAdmin
+    ? "A"
+    : displayName
+        .split(" ")
+        .map((w) => w[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase() || "AK";
 
   return (
     <aside
-      className="hidden md:flex flex-col w-64 min-h-screen sticky top-0"
-      style={{ backgroundColor: colors.dark, borderRight: `1px solid ${colors.light}` }}
+      className="hidden md:flex flex-col"
+      style={{
+        backgroundColor: "#000000",
+        width: "260px",
+        height: "100vh",
+        position: "sticky",
+        top: 0,
+        justifyContent: "space-between",
+      }}
     >
-      {/* Логотип */}
-      <div className="px-5 h-14 flex items-center">
-        <span className="text-white font-bold text-lg">
-          Barber<span style={{ color: colors.accent }}>HUB</span>
-        </span>
+      <div>
+        <div
+          className="flex items-center"
+          style={{
+            padding: "20px 20px 16px",
+            gap: "10px",
+            borderBottom: "1px solid rgba(255,255,255,0.08)",
+          }}
+        >
+          <span style={{ fontSize: "20px" }}>✂️</span>
+          <span
+            className="text-white"
+            style={{ fontSize: "18px", fontWeight: 700 }}
+          >
+            Barber<span style={{ color: "#E94560" }}>Hub</span>
+          </span>
+          <span
+            style={{
+              marginLeft: "auto",
+              backgroundColor: "#E94560",
+              color: "#ffffff",
+              fontSize: "11px",
+              fontWeight: 700,
+              padding: "2px 8px",
+              borderRadius: "4px",
+              letterSpacing: "0.05em",
+            }}
+          >
+            PRO
+          </span>
+        </div>
+
+        <nav
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "4px",
+            padding: "16px 12px 0",
+          }}
+        >
+          {navItems.map((navItem) => (
+            <SidebarItem
+              key={navItem.path}
+              item={navItem}
+              active={isActive(navItem.path)}
+            />
+          ))}
+        </nav>
       </div>
 
-      {/* Навигация */}
-      <nav className="flex flex-col gap-1 px-3 flex-1">
-        {navItems.map((navItem) => {
-          const active = isActive(navItem.path);
-          const Icon = iconMap[navItem.icon];
-          return (
-            <Link
-              key={navItem.path}
-              to={navItem.path}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors"
+      <div
+        style={{
+          borderTop: "1px solid rgba(255,255,255,0.08)",
+          padding: "16px 20px",
+        }}
+      >
+        <div
+          className="flex items-center"
+          style={{ gap: "12px", marginBottom: "12px" }}
+        >
+          <div
+            className="flex items-center justify-center text-white"
+            style={{
+              width: "40px",
+              height: "40px",
+              borderRadius: "50%",
+              backgroundColor: "#E94560",
+              fontSize: "14px",
+              fontWeight: 700,
+              flexShrink: 0,
+            }}
+          >
+            {initials}
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <div
+              className="text-white truncate"
+              style={{ fontSize: "14px", fontWeight: 700 }}
+            >
+              {displayName}
+            </div>
+            <div
               style={{
-                backgroundColor: active ? "rgba(233,69,96,0.1)" : "transparent",
-                color: active ? "#ffffff" : colors.gray,
-                borderLeft: active ? `2px solid ${colors.accent}` : "2px solid transparent",
+                fontSize: "12px",
+                color: "#A8B2C1",
+                marginTop: "2px",
               }}
             >
-              <span>{Icon ? <Icon size={navIconSize} /> : null}</span>
-              {navItem.label}
-            </Link>
-          );
-        })}
-      </nav>
+              Управление
+            </div>
+          </div>
+        </div>
 
-      {/* Выйти */}
-      <div className="px-3 pb-5">
         <button
+          type="button"
           onClick={handleLogout}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium w-full hover:text-red-400 transition-colors"
-          style={{ color: colors.gray }}
+          className="flex items-center justify-center w-full"
+          style={{
+            gap: "8px",
+            backgroundColor: "rgba(233, 69, 96, 0.1)",
+            color: "#E94560",
+            border: "1px solid rgba(233, 69, 96, 0.25)",
+            borderRadius: "8px",
+            padding: "9px 12px",
+            fontSize: "13px",
+            fontWeight: 600,
+            cursor: "pointer",
+            transition: "background-color 0.2s",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "rgba(233, 69, 96, 0.18)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "rgba(233, 69, 96, 0.1)";
+          }}
         >
-          <LogOut size={navIconSize} />
+          <LogOut size={15} />
           Выйти
         </button>
       </div>
     </aside>
+  );
+}
+
+function SidebarItem({ item, active }) {
+  const Icon = iconMap[item.icon];
+
+  return (
+    <Link
+      to={item.path}
+      className="sidebar-nav-item flex items-center"
+      style={{
+        padding: "12px 16px",
+        borderRadius: "8px",
+        fontSize: "15px",
+        gap: "12px",
+        textDecoration: "none",
+        color: active ? "#ffffff" : "#A8B2C1",
+        backgroundColor: active ? "rgba(233,69,96,0.2)" : "transparent",
+        borderLeft: active
+          ? "3px solid #E94560"
+          : "3px solid transparent",
+        fontWeight: active ? 700 : 500,
+        transition: "all 0.2s",
+      }}
+      onMouseEnter={(e) => {
+        if (active) return;
+        e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.05)";
+        e.currentTarget.style.color = "#ffffff";
+      }}
+      onMouseLeave={(e) => {
+        if (active) return;
+        e.currentTarget.style.backgroundColor = "transparent";
+        e.currentTarget.style.color = "#A8B2C1";
+      }}
+    >
+      {item.emoji ? (
+        <span style={{ fontSize: "18px", width: "20px", textAlign: "center" }}>
+          {item.emoji}
+        </span>
+      ) : Icon ? (
+        <Icon size={18} />
+      ) : null}
+      <span>{item.label}</span>
+    </Link>
   );
 }
 

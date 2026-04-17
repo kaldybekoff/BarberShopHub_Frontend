@@ -1,85 +1,191 @@
-import { useState, useEffect } from "react";
-import { getSchedule } from "../../api/dashboardApi";
+import { useState } from "react";
 import ScheduleCalendar from "../../components/barbershop/ScheduleCalendar";
 import ScheduleSlot from "../../components/barbershop/ScheduleSlot";
-import colors from "../../constants/colors";
 
-const tabs = ["День", "Неделя"];
+const views = ["День", "Неделя", "Месяц"];
+
+const weekdayLabels = ["ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"];
+
+function getMondayOfCurrentWeek() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  const dow = d.getDay();
+  const diff = dow === 0 ? -6 : 1 - dow;
+  d.setDate(d.getDate() + diff);
+  return d;
+}
+
+function buildWeekDays() {
+  const monday = getMondayOfCurrentWeek();
+  return weekdayLabels.map((label, i) => {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + i);
+    return {
+      label,
+      number: date.getDate(),
+      key: date.toISOString().slice(0, 10),
+    };
+  });
+}
+
+const mockSlots = [
+  {
+    time: "09:00",
+    type: "booked",
+    clientName: "Artyom N.",
+    service: "Стрижка",
+    master: "Amir",
+    duration: "30 мин",
+    status: "confirmed",
+  },
+  { time: "10:00", type: "free" },
+  {
+    time: "11:00",
+    type: "booked",
+    clientName: "Miras S.",
+    service: "Комплекс",
+    master: "Baur",
+    duration: "60 мин",
+    status: "pending",
+  },
+  { time: "12:30", type: "free" },
+  {
+    time: "13:30",
+    type: "booked",
+    clientName: "Yeskendir K.",
+    service: "Борода",
+    master: "Amir",
+    duration: "25 мин",
+    status: "confirmed",
+  },
+  { time: "15:00", type: "free" },
+];
 
 function SchedulePage() {
-  const [selectedDay, setSelectedDay] = useState("Пн");
-  const [activeTab, setActiveTab] = useState("День");
-  const [schedule, setSchedule] = useState({});
-  const [isLoading, setIsLoading] = useState(true);
+  const [days] = useState(buildWeekDays);
+  const [activeView, setActiveView] = useState("День");
+  const todayKey = new Date().toISOString().slice(0, 10);
+  const defaultDay =
+    days.find((d) => d.key === todayKey) || days[days.length - 2] || days[0];
+  const [selectedDate, setSelectedDate] = useState(defaultDay);
 
-  useEffect(() => {
-    getSchedule()
-      .then((data) => setSchedule(data))
-      .finally(() => setIsLoading(false));
-  }, []);
+  function handleAddSlotClick() {
+    console.log("add slot");
+  }
 
-  const scheduleSlots = schedule[selectedDay] || [];
-
-  if (isLoading) {
-    return (
-      <div className="min-h-full flex items-center justify-center"
-        style={{ backgroundColor: colors.primary }}>
-        <p className="text-sm" style={{ color: colors.gray }}>Загрузка...</p>
-      </div>
-    );
+  function handleAddAppointmentClick() {
+    console.log("add appointment");
   }
 
   return (
     <div
-      className="min-h-full px-4 md:px-6 py-6 pb-24 max-w-7xl mx-auto"
-      style={{ backgroundColor: colors.primary }}
+      style={{
+        backgroundColor: "#1A1A2E",
+        padding: "32px",
+        minHeight: "100vh",
+      }}
     >
-      <div className="mb-6">
-        <h1 className="text-white text-2xl font-bold">Расписание</h1>
-        <p className="text-sm mt-1" style={{ color: colors.gray }}>
-          Управляйте слотами по дням
-        </p>
-      </div>
-
-      {/* Табы День / Неделя */}
       <div
-        className="flex gap-1 rounded-xl p-1 mb-5 w-fit"
-        style={{ backgroundColor: colors.light }}
+        className="flex items-center justify-between"
+        style={{ marginBottom: "24px", gap: "16px", flexWrap: "wrap" }}
       >
-        {tabs.map((tab) => {
-          const isActive = tab === activeTab;
-          return (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className="px-5 py-2 rounded-lg text-sm font-medium transition-colors"
-              style={{
-                backgroundColor: isActive ? colors.accent : "transparent",
-                color: isActive ? "#ffffff" : colors.gray,
-              }}
-            >
-              {tab}
-            </button>
-          );
-        })}
+        <h1
+          className="text-white"
+          style={{ fontSize: "26px", fontWeight: 700 }}
+        >
+          Расписание
+        </h1>
+
+        <div
+          className="flex items-center"
+          style={{ gap: "8px", flexWrap: "wrap" }}
+        >
+          {views.map((view) => {
+            const isActive = view === activeView;
+            return (
+              <button
+                key={view}
+                type="button"
+                onClick={() => setActiveView(view)}
+                style={{
+                  backgroundColor: isActive ? "#E94560" : "#1E2A3A",
+                  color: isActive ? "#ffffff" : "#A8B2C1",
+                  padding: "8px 18px",
+                  borderRadius: "8px",
+                  fontSize: "14px",
+                  fontWeight: isActive ? 600 : 500,
+                  border: "none",
+                  cursor: "pointer",
+                  transition: "background-color 0.2s",
+                }}
+              >
+                {view}
+              </button>
+            );
+          })}
+
+          <button
+            type="button"
+            onClick={handleAddSlotClick}
+            aria-label="Добавить слот"
+            className="text-white"
+            style={{
+              width: "38px",
+              height: "38px",
+              borderRadius: "50%",
+              backgroundColor: "#E94560",
+              fontSize: "20px",
+              fontWeight: 500,
+              border: "none",
+              cursor: "pointer",
+              lineHeight: 1,
+            }}
+          >
+            +
+          </button>
+        </div>
       </div>
 
-      {/* Выбор дня */}
-      <div className="mb-5">
-        <ScheduleCalendar selectedDay={selectedDay} onDaySelect={setSelectedDay} />
-      </div>
+      <ScheduleCalendar
+        days={days}
+        selectedKey={selectedDate.key}
+        onSelect={setSelectedDate}
+      />
 
-      {/* Слоты */}
-      <div className="flex flex-col gap-3">
-        {scheduleSlots.map((slotItem) => (
-          <ScheduleSlot key={slotItem.id} slotItem={slotItem} />
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "12px",
+          marginTop: "24px",
+        }}
+      >
+        {mockSlots.map((slot, i) => (
+          <ScheduleSlot key={i} slot={slot} />
         ))}
       </div>
 
-      {/* Кнопка добавить слот */}
       <button
-        className="fixed bottom-6 right-6 w-14 h-14 rounded-full text-white text-2xl font-bold shadow-lg flex items-center justify-center"
-        style={{ backgroundColor: colors.accent }}
+        type="button"
+        onClick={handleAddAppointmentClick}
+        aria-label="Добавить запись"
+        className="text-white"
+        style={{
+          position: "fixed",
+          bottom: "32px",
+          right: "32px",
+          width: "52px",
+          height: "52px",
+          borderRadius: "50%",
+          backgroundColor: "#E94560",
+          fontSize: "24px",
+          fontWeight: 500,
+          border: "none",
+          cursor: "pointer",
+          boxShadow: "0 4px 16px rgba(233,69,96,0.4)",
+          lineHeight: 1,
+          zIndex: 20,
+        }}
       >
         +
       </button>

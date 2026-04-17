@@ -30,7 +30,7 @@ function Topbar() {
   return (
     <header
       className="h-14 flex items-center justify-between px-6 sticky top-0 z-10"
-      style={{ backgroundColor: colors.dark, borderBottom: `1px solid ${colors.light}` }}
+      style={{ backgroundColor: "#000000", borderBottom: `1px solid ${colors.light}` }}
     >
       <span className="text-white font-bold text-base">{currentTitle}</span>
 

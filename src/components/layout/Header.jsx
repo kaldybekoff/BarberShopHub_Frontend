@@ -25,7 +25,7 @@ function Header() {
     <header
       className="sticky top-0 z-20 flex items-center border-b"
       style={{
-        backgroundColor: "#16213E",
+        backgroundColor: "#000000",
         borderColor: "#1E2A3A",
         height: "56px",
         padding: "0 40px",

@@ -208,7 +208,7 @@ function ShopDetailsPage() {
 
           <aside
             style={{
-              backgroundColor: "#1E2A3A",
+              backgroundColor: "#000000",
               borderRadius: "16px",
               padding: "24px",
               position: "sticky",
