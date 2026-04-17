@@ -1,80 +1,231 @@
-import { Link, useNavigate } from "react-router-dom";
-import colors from "../../constants/colors";
-import AuthBrandPanel, { AuthBrandHeader } from "../../components/auth/AuthBrandPanel";
+import { useNavigate } from "react-router-dom";
+import { Scissors } from "lucide-react";
 
 function WelcomePage() {
   const navigate = useNavigate();
 
   return (
     <div
-      className="min-h-screen w-full overflow-hidden lg:grid lg:grid-cols-[43fr_57fr]"
-      style={{ backgroundColor: "#171A33" }}
+      style={{
+        display: "flex",
+        width: "100vw",
+        height: "100vh",
+        overflow: "hidden",
+      }}
     >
-      <AuthBrandPanel showIndicators />
-
-      <section
-        className="flex min-h-screen items-center justify-center px-6 py-12 sm:px-10 lg:px-16"
-        style={{ backgroundColor: "#171A33" }}
+      <div
+        style={{
+          position: "relative",
+          width: "42%",
+          backgroundColor: "#070B17",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "16px",
+          borderRight: "1px solid rgba(255,255,255,0.07)",
+        }}
       >
-        <div className="w-full max-w-[460px] text-center lg:max-w-[520px]">
-          <AuthBrandHeader className="mb-12 lg:hidden" />
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "radial-gradient(ellipse at 50% 50%, rgba(233,69,96,0.32) 0%, rgba(233,69,96,0.1) 30%, transparent 65%)",
+            pointerEvents: "none",
+          }}
+        />
 
-          <h2 className="mx-auto max-w-[420px] text-[2.45rem] font-extrabold leading-[1.14] tracking-[-0.03em] text-white sm:text-[3rem] lg:max-w-[460px] lg:text-[3.6rem]">
-            Найди лучший
-            <br />
-            барбершоп рядом
-          </h2>
+        <div
+          style={{
+            position: "relative",
+            zIndex: 1,
+            textAlign: "center",
+          }}
+        >
+          <div
+            className="flex items-center justify-center"
+            style={{ marginBottom: "12px" }}
+          >
+            <Scissors
+              size={72}
+              strokeWidth={2}
+              style={{
+                color: "#E94560",
+                filter:
+                  "drop-shadow(0 0 16px rgba(233,69,96,0.55)) drop-shadow(0 0 28px rgba(233,69,96,0.25))",
+              }}
+            />
+          </div>
+
+          <div
+            style={{
+              fontSize: "64px",
+              fontWeight: 800,
+              color: "#ffffff",
+              lineHeight: 1,
+              letterSpacing: "-0.02em",
+            }}
+          >
+            Barber<span style={{ color: "#E94560" }}>Hub</span>
+          </div>
 
           <p
-            className="mx-auto mt-5 max-w-[420px] text-[1rem] leading-[1.35] sm:text-[1.06rem] lg:max-w-[430px] lg:text-[1.12rem]"
-            style={{ color: "rgba(168,178,193,0.78)" }}
+            style={{
+              marginTop: "10px",
+              color: "#A8B2C1",
+              fontSize: "15px",
+              letterSpacing: "0.02em",
+            }}
+          >
+            Твой барбер в один клик
+          </p>
+        </div>
+
+        <div
+          style={{
+            position: "absolute",
+            bottom: "40px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            display: "flex",
+            gap: "8px",
+            zIndex: 1,
+          }}
+        >
+          <span
+            style={{
+              width: "22px",
+              height: "7px",
+              borderRadius: "4px",
+              backgroundColor: "#E94560",
+            }}
+          />
+          <span
+            style={{
+              width: "7px",
+              height: "7px",
+              borderRadius: "50%",
+              backgroundColor: "rgba(255,255,255,0.2)",
+            }}
+          />
+          <span
+            style={{
+              width: "7px",
+              height: "7px",
+              borderRadius: "50%",
+              backgroundColor: "rgba(255,255,255,0.2)",
+            }}
+          />
+        </div>
+      </div>
+
+      <div
+        style={{
+          flex: 1,
+          backgroundColor: "#1A1A2E",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "420px",
+            width: "100%",
+            padding: "0 32px",
+            textAlign: "center",
+          }}
+        >
+          <h1
+            style={{
+              color: "#ffffff",
+              fontSize: "38px",
+              fontWeight: 800,
+              lineHeight: 1.2,
+              marginBottom: "16px",
+            }}
+          >
+            Найди лучший барбершоп рядом
+          </h1>
+
+          <p
+            style={{
+              color: "#A8B2C1",
+              fontSize: "15px",
+              lineHeight: 1.6,
+              marginBottom: "40px",
+            }}
           >
             Сотни проверенных барбершопов с реальными отзывами и ценами
           </p>
 
           <button
-            onClick={() => navigate("/login")}
-            className="mt-11 h-[64px] w-full rounded-[16px] text-[1.42rem] font-bold tracking-[-0.02em] text-white transition-transform duration-200 hover:-translate-y-0.5"
+            type="button"
+            onClick={() => navigate("/register")}
             style={{
-              background:
-                "linear-gradient(180deg, #ee4766 0%, #ea4262 52%, #e83f5f 100%)",
-              boxShadow:
-                "0 0 0 1px rgba(255,255,255,0.03) inset, 0 0 22px rgba(233,69,96,0.36)",
+              width: "100%",
+              backgroundColor: "#E94560",
+              color: "#ffffff",
+              border: "none",
+              borderRadius: "12px",
+              padding: "16px",
+              fontSize: "16px",
+              fontWeight: 700,
+              cursor: "pointer",
+              marginBottom: "20px",
             }}
           >
             Начать
           </button>
 
-          <div className="mt-5 space-y-4 text-center">
-            <p
-              className="text-[1rem] font-medium sm:text-[1.05rem]"
-              style={{ color: "rgba(168,178,193,0.74)" }}
+          <div
+            style={{
+              color: "#A8B2C1",
+              fontSize: "14px",
+              marginBottom: "14px",
+            }}
+          >
+            Уже есть аккаунт?{" "}
+            <span
+              role="button"
+              tabIndex={0}
+              onClick={() => navigate("/login")}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") navigate("/login");
+              }}
+              style={{
+                color: "#ffffff",
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
             >
-              Уже есть аккаунт?{" "}
-              <Link
-                to="/login"
-                className="font-semibold text-white transition-opacity hover:opacity-85"
-              >
-                Войти
-              </Link>
-            </p>
+              Войти
+            </span>
+          </div>
 
-            <p
-              className="text-[1rem] font-medium sm:text-[1.05rem]"
-              style={{ color: "rgba(168,178,193,0.48)" }}
+          <div style={{ fontSize: "14px" }}>
+            <span style={{ color: "#A8B2C1" }}>Вы барбер? </span>
+            <span
+              role="button"
+              tabIndex={0}
+              onClick={() => navigate("/login?role=barbershop")}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ")
+                  navigate("/login?role=barbershop");
+              }}
+              style={{
+                color: "#E94560",
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
             >
-              Вы барбер?{" "}
-              <Link
-                to="/login"
-                className="font-bold transition-opacity hover:opacity-85"
-                style={{ color: colors.accent }}
-              >
-                Войти как бизнес →
-              </Link>
-            </p>
+              Войти как бизнес →
+            </span>
           </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 }

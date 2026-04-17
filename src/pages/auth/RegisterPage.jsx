@@ -1,67 +1,44 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react";
-import colors from "../../constants/colors";
-import { register as apiRegister } from "../../api/authApi";
-import AuthBrandPanel, { AuthBrandHeader } from "../../components/auth/AuthBrandPanel";
+import { useNavigate } from "react-router-dom";
+import AuthBrandPanel from "../../components/auth/AuthBrandPanel";
 
 const pageStyle = { backgroundColor: "#171A33" };
 
-const fieldStyle = {
-  backgroundColor: "#2a364b",
-  border: "1px solid rgba(88,103,130,0.16)",
-  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.02)",
+const labelStyle = {
+  display: "block",
+  color: "#A8B2C1",
+  fontSize: "11px",
+  fontWeight: 600,
+  letterSpacing: "1px",
+  textTransform: "uppercase",
+  marginBottom: "6px",
+};
+
+const inputStyle = {
+  width: "100%",
+  backgroundColor: "#1E2A3A",
+  border: "1px solid rgba(255,255,255,0.08)",
+  borderRadius: "10px",
+  padding: "13px 16px",
+  color: "#ffffff",
+  fontSize: "14px",
+  outline: "none",
 };
 
 function RegisterPage() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    role: "User",
-  });
-  const [errorMessage, setErrorMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
   const navigate = useNavigate();
 
-  function handleChange(e) {
-    setFormData((current) => ({ ...current, [e.target.name]: e.target.value }));
-  }
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [selectedRole, setSelectedRole] = useState("user");
 
-  async function handleRegister(e) {
+  function handleSubmit(e) {
     e.preventDefault();
-    setErrorMessage("");
-
-    if (
-      !formData.name ||
-      !formData.email ||
-      !formData.password ||
-      !formData.confirmPassword
-    ) {
-      setErrorMessage("Заполните все поля");
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      setErrorMessage("Пароли не совпадают");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      await apiRegister(formData.name, formData.email, formData.password);
-      navigate("/verify", { state: { email: formData.email } });
-    } catch (error) {
-      setErrorMessage(
-        error.response?.data?.detail || error.message || "Ошибка регистрации"
-      );
-    } finally {
-      setIsLoading(false);
-    }
+    console.log({ name, email, password, role: selectedRole });
   }
 
   return (
@@ -72,209 +49,326 @@ function RegisterPage() {
       <AuthBrandPanel />
 
       <section
-        className="flex min-h-screen items-center justify-center px-4 py-10 sm:px-6 lg:px-16"
-        style={pageStyle}
+        style={{
+          flex: 1,
+          backgroundColor: "#1A1A2E",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "40px",
+          minHeight: "100vh",
+        }}
       >
-        <div className="w-full max-w-[304px] sm:max-w-[356px] lg:max-w-[532px]">
-          <AuthBrandHeader className="mb-10 lg:hidden" />
-
-          <header className="mb-6 text-left">
-            <h1 className="text-[2.1rem] font-extrabold leading-[1.04] tracking-[-0.05em] text-white sm:text-[2.5rem] lg:text-[3rem]">
-              Создайте аккаунт
-            </h1>
-            <p
-              className="mt-2 text-[0.96rem] leading-normal sm:text-[1rem]"
-              style={{ color: "rgba(168,178,193,0.72)" }}
-            >
-              Заполните данные и начните пользоваться BarberHub
-            </p>
-          </header>
-
+        <div
+          style={{
+            backgroundColor: "#16213E",
+            borderRadius: "20px",
+            padding: "40px 44px",
+            width: "100%",
+            maxWidth: "480px",
+            border: "1px solid rgba(255,255,255,0.07)",
+          }}
+        >
           <div
-            className="mb-6 grid grid-cols-2 border-b"
-            style={{ borderColor: "rgba(255,255,255,0.08)" }}
+            className="flex items-center justify-center"
+            style={{ gap: "8px", marginBottom: "28px" }}
           >
-            <Link
-              to="/login"
-              className="pb-2.5 text-center text-[0.98rem] font-semibold transition-opacity hover:opacity-85"
-              style={{ color: "rgba(168,178,193,0.52)" }}
-            >
-              Войти
-            </Link>
+            <span style={{ fontSize: "20px", color: "#E94560" }}>✂️</span>
             <span
-              className="pb-2.5 text-center text-[0.98rem] font-bold"
               style={{
-                color: colors.accent,
-                borderBottom: `2px solid ${colors.accent}`,
+                fontSize: "20px",
+                fontWeight: 800,
+                color: "#ffffff",
               }}
             >
-              Регистрация
+              Barber<span style={{ color: "#E94560" }}>Hub</span>
             </span>
           </div>
 
-          <form onSubmit={handleRegister}>
-            <div className="space-y-4">
+          <h1
+            style={{
+              color: "#ffffff",
+              fontSize: "24px",
+              fontWeight: 800,
+              textAlign: "center",
+            }}
+          >
+            Создайте аккаунт
+          </h1>
+          <p
+            style={{
+              color: "#A8B2C1",
+              fontSize: "13px",
+              textAlign: "center",
+              marginTop: "6px",
+              marginBottom: "24px",
+            }}
+          >
+            Заполните данные и начните пользоваться BarberHub
+          </p>
+
+          <div
+            style={{
+              display: "flex",
+              borderBottom: "1px solid rgba(255,255,255,0.08)",
+              marginBottom: "24px",
+            }}
+          >
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => navigate("/login")}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") navigate("/login");
+              }}
+              style={{
+                flex: 1,
+                textAlign: "center",
+                padding: "10px",
+                fontSize: "14px",
+                fontWeight: 600,
+                cursor: "pointer",
+                color: "#A8B2C1",
+              }}
+            >
+              Войти
+            </div>
+            <div
+              style={{
+                flex: 1,
+                textAlign: "center",
+                padding: "10px",
+                fontSize: "14px",
+                fontWeight: 600,
+                color: "#E94560",
+                borderBottom: "2px solid #E94560",
+                marginBottom: "-1px",
+              }}
+            >
+              Регистрация
+            </div>
+          </div>
+
+          <form onSubmit={handleSubmit}>
+            <div style={{ marginBottom: "16px" }}>
+              <label htmlFor="register-name" style={labelStyle}>
+                Имя
+              </label>
+              <input
+                id="register-name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Ваше имя"
+                className="placeholder:text-[#4A5568]"
+                style={inputStyle}
+              />
+            </div>
+
+            <div style={{ marginBottom: "16px" }}>
+              <label htmlFor="register-email" style={labelStyle}>
+                Email
+              </label>
+              <input
+                id="register-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="example@mail.com"
+                className="placeholder:text-[#4A5568]"
+                style={inputStyle}
+              />
+            </div>
+
+            <div
+              className="grid grid-cols-2"
+              style={{ gap: "12px", marginBottom: "16px" }}
+            >
               <div>
-                <label
-                  htmlFor="register-name"
-                  className="mb-1.5 block text-[0.88rem] font-medium"
-                  style={{ color: "rgba(168,178,193,0.76)" }}
-                >
-                  Имя
+                <label htmlFor="register-password" style={labelStyle}>
+                  Пароль
                 </label>
-                <input
-                  id="register-name"
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder="Ваше имя"
-                  className="h-[46px] w-full rounded-[10px] px-4 text-[0.98rem] text-white outline-none placeholder:text-[rgba(168,178,193,0.42)]"
-                  style={fieldStyle}
-                />
+                <div style={{ position: "relative" }}>
+                  <input
+                    id="register-password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="placeholder:text-[#4A5568]"
+                    style={{ ...inputStyle, paddingRight: "40px" }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    style={{
+                      position: "absolute",
+                      top: "50%",
+                      right: "10px",
+                      transform: "translateY(-50%)",
+                      background: "transparent",
+                      border: "none",
+                      color: "#A8B2C1",
+                      fontSize: "14px",
+                      cursor: "pointer",
+                      padding: "4px",
+                    }}
+                    aria-label={showPassword ? "Скрыть пароль" : "Показать пароль"}
+                  >
+                    👁
+                  </button>
+                </div>
               </div>
 
               <div>
-                <label
-                  htmlFor="register-email"
-                  className="mb-1.5 block text-[0.88rem] font-medium"
-                  style={{ color: "rgba(168,178,193,0.76)" }}
-                >
-                  Email
+                <label htmlFor="register-confirm" style={labelStyle}>
+                  Повторите пароль
                 </label>
-                <input
-                  id="register-email"
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="example@mail.com"
-                  className="h-[46px] w-full rounded-[10px] px-4 text-[0.98rem] text-white outline-none placeholder:text-[rgba(168,178,193,0.42)]"
-                  style={fieldStyle}
-                />
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label
-                    htmlFor="register-password"
-                    className="mb-1.5 block text-[0.88rem] font-medium"
-                    style={{ color: "rgba(168,178,193,0.76)" }}
+                <div style={{ position: "relative" }}>
+                  <input
+                    id="register-confirm"
+                    type={showConfirm ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="placeholder:text-[#4A5568]"
+                    style={{ ...inputStyle, paddingRight: "40px" }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirm((v) => !v)}
+                    style={{
+                      position: "absolute",
+                      top: "50%",
+                      right: "10px",
+                      transform: "translateY(-50%)",
+                      background: "transparent",
+                      border: "none",
+                      color: "#A8B2C1",
+                      fontSize: "14px",
+                      cursor: "pointer",
+                      padding: "4px",
+                    }}
+                    aria-label={showConfirm ? "Скрыть пароль" : "Показать пароль"}
                   >
-                    Пароль
-                  </label>
-                  <div className="relative">
-                    <input
-                      id="register-password"
-                      type={showPassword ? "text" : "password"}
-                      name="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      placeholder="••••••••"
-                      className="h-[46px] w-full rounded-[10px] px-4 pr-11 text-[0.98rem] text-white outline-none placeholder:text-[rgba(168,178,193,0.42)]"
-                      style={fieldStyle}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((prev) => !prev)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 transition-opacity hover:opacity-80"
-                      style={{ color: "rgba(168,178,193,0.56)" }}
-                    >
-                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="register-confirm-password"
-                    className="mb-1.5 block text-[0.88rem] font-medium"
-                    style={{ color: "rgba(168,178,193,0.76)" }}
-                  >
-                    Повторите пароль
-                  </label>
-                  <div className="relative">
-                    <input
-                      id="register-confirm-password"
-                      type={showConfirmPassword ? "text" : "password"}
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleChange}
-                      placeholder="••••••••"
-                      className="h-[46px] w-full rounded-[10px] px-4 pr-11 text-[0.98rem] text-white outline-none placeholder:text-[rgba(168,178,193,0.42)]"
-                      style={fieldStyle}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword((prev) => !prev)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 transition-opacity hover:opacity-80"
-                      style={{ color: "rgba(168,178,193,0.56)" }}
-                    >
-                      {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-1">
-                <p
-                  className="mb-3 text-[0.88rem] font-medium"
-                  style={{ color: "rgba(168,178,193,0.76)" }}
-                >
-                  Я регистрируюсь как
-                </p>
-                <div className="grid grid-cols-2 gap-3">
-                  {[
-                    { value: "User", label: "Клиент" },
-                    { value: "Barbershop", label: "Бизнес" },
-                  ].map((option) => {
-                    const isActive = formData.role === option.value;
-
-                    return (
-                      <button
-                        key={option.value}
-                        type="button"
-                        onClick={() =>
-                          setFormData((current) => ({ ...current, role: option.value }))
-                        }
-                        className="h-[54px] rounded-[14px] border text-[1rem] font-semibold transition-colors"
-                        style={{
-                          color: isActive ? "#ffffff" : "rgba(168,178,193,0.74)",
-                          background: isActive
-                            ? "linear-gradient(180deg, #ee4766 0%, #ea4262 52%, #e83f5f 100%)"
-                            : "#243044",
-                          borderColor: isActive ? colors.accent : "rgba(88,103,130,0.16)",
-                          boxShadow: isActive
-                            ? "0 0 18px rgba(233,69,96,0.22)"
-                            : "inset 0 1px 0 rgba(255,255,255,0.02)",
-                        }}
-                      >
-                        {option.label}
-                      </button>
-                    );
-                  })}
+                    👁
+                  </button>
                 </div>
               </div>
             </div>
 
-            {errorMessage && (
-              <p className="mt-5 text-sm font-medium text-red-400">{errorMessage}</p>
-            )}
+            <div style={{ marginBottom: "16px" }}>
+              <span style={labelStyle}>Я регистрируюсь как</span>
+              <div
+                className="grid grid-cols-2"
+                style={{ gap: "10px" }}
+              >
+                {[
+                  { value: "user", label: "Клиент", icon: "👤" },
+                  { value: "business", label: "Бизнес", icon: "✂️" },
+                ].map((option) => {
+                  const isActive = selectedRole === option.value;
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setSelectedRole(option.value)}
+                      style={{
+                        backgroundColor: isActive ? "#E94560" : "#1E2A3A",
+                        color: isActive ? "#ffffff" : "#A8B2C1",
+                        border: "none",
+                        borderRadius: "10px",
+                        padding: "12px",
+                        fontSize: "14px",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "8px",
+                      }}
+                    >
+                      <span>{option.icon}</span>
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
             <button
               type="submit"
-              disabled={isLoading}
-              className="mt-8 h-[54px] w-full rounded-[14px] text-[1.05rem] font-bold text-white transition-transform duration-200 hover:-translate-y-0.5 disabled:translate-y-0 disabled:opacity-60"
               style={{
-                background:
-                  "linear-gradient(180deg, #ee4766 0%, #ea4262 52%, #e83f5f 100%)",
-                boxShadow:
-                  "0 0 0 1px rgba(255,255,255,0.03) inset, 0 0 22px rgba(233,69,96,0.30)",
+                width: "100%",
+                backgroundColor: "#E94560",
+                color: "#ffffff",
+                border: "none",
+                borderRadius: "10px",
+                padding: "14px",
+                fontSize: "15px",
+                fontWeight: 700,
+                cursor: "pointer",
+                marginTop: "16px",
+                marginBottom: "16px",
               }}
             >
-              {isLoading ? "Создаём аккаунт..." : "Зарегистрироваться"}
+              Зарегистрироваться
             </button>
           </form>
+
+          <div
+            className="flex items-center"
+            style={{ marginBottom: "14px" }}
+          >
+            <div
+              style={{
+                flex: 1,
+                height: "1px",
+                backgroundColor: "rgba(255,255,255,0.08)",
+              }}
+            />
+            <span
+              style={{
+                color: "#A8B2C1",
+                fontSize: "12px",
+                padding: "0 10px",
+              }}
+            >
+              или
+            </span>
+            <div
+              style={{
+                flex: 1,
+                height: "1px",
+                backgroundColor: "rgba(255,255,255,0.08)",
+              }}
+            />
+          </div>
+
+          <div
+            style={{
+              textAlign: "center",
+              color: "#A8B2C1",
+              fontSize: "13px",
+            }}
+          >
+            Уже есть аккаунт?{" "}
+            <span
+              role="button"
+              tabIndex={0}
+              onClick={() => navigate("/login")}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") navigate("/login");
+              }}
+              style={{
+                color: "#E94560",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Войти
+            </span>
+          </div>
         </div>
       </section>
     </div>
