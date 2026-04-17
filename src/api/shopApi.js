@@ -1,29 +1,29 @@
-// TODO: заменить на реальный axiosInstance когда будет API
-import mockShops from "../data/mockShops";
+import axiosInstance from "./axiosInstance";
 
-export async function getShops(filters) {
-  await new Promise((res) => setTimeout(res, 600));
-  return mockShops;
+export async function getShops(filters = {}) {
+  const params = {};
+  if (filters.search) params.search = filters.search;
+  if (filters.is_open !== undefined) params.is_open = filters.is_open;
+  if (filters.order_by) params.order_by = filters.order_by;
+  if (filters.user_lat) params.user_lat = filters.user_lat;
+  if (filters.user_lng) params.user_lng = filters.user_lng;
+  if (filters.per_page) params.per_page = filters.per_page;
+  if (filters.page) params.page = filters.page;
+
+  const res = await axiosInstance.get("/barbershops", { params });
+  return res.data.data;
 }
 
-export async function getShopById(shopId) {
-  await new Promise((res) => setTimeout(res, 600));
-
-  const shop = mockShops.find((s) => s.id === Number(shopId));
-  if (!shop) {
-    throw new Error("Барбершоп не найден");
-  }
-
-  return shop;
+export async function getShopBySlug(slug) {
+  const res = await axiosInstance.get(`/barbershops/${slug}`);
+  return res.data.data;
 }
 
-export async function getShopServices(shopId) {
-  await new Promise((res) => setTimeout(res, 600));
+export async function getShopById(slugOrId) {
+  return getShopBySlug(slugOrId);
+}
 
-  const shop = mockShops.find((s) => s.id === Number(shopId));
-  if (!shop) {
-    throw new Error("Барбершоп не найден");
-  }
-
+export async function getShopServices(slug) {
+  const shop = await getShopBySlug(slug);
   return shop.services;
 }

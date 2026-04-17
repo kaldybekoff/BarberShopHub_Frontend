@@ -1,60 +1,44 @@
-const mockUsers = [
-  {
-    id: 1,
-    name: "Артём Иванов",
-    email: "user@test.com",
-    role: "User",
-  },
-  {
-    id: 2,
-    name: "Barbershop KZ",
-    email: "shop@test.com",
-    role: "Barbershop",
-  },
-];
+import axiosInstance from "./axiosInstance";
+
+async function detectRole(token) {
+  try {
+    const res = await axiosInstance.get("/owner/dashboard", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.data.success) return "Barbershop";
+  } catch {}
+  return "User";
+}
 
 export async function login(email, password) {
-  await new Promise((resolve) => setTimeout(resolve, 800));
-
-  const normalizedEmail = email.trim().toLowerCase();
-  const user = mockUsers.find((item) => item.email.toLowerCase() === normalizedEmail);
-
-  if (!user || password !== "123456") {
-    throw new Error("Неверный логин или пароль");
-  }
-
-  return {
-    access_token: `mock-token-${user.role.toLowerCase()}`,
-    user,
-  };
+  const res = await axiosInstance.post("/auth/login", { email, password });
+  const { user, token } = res.data.data;
+  const role = await detectRole(token);
+  return { access_token: token, user: { ...user, role } };
 }
 
 export async function register(name, email, password) {
-  await new Promise((resolve) => setTimeout(resolve, 600));
-  return { message: "success", name, email, password };
+  const res = await axiosInstance.post("/auth/register", {
+    name,
+    email,
+    password,
+    password_confirmation: password,
+  });
+  return res.data;
 }
 
 export async function verifyEmail(email, code) {
-  await new Promise((resolve) => setTimeout(resolve, 600));
+  const res = await axiosInstance.post("/auth/verify-email", { email, code });
+  const { user, token } = res.data.data;
+  const role = await detectRole(token);
+  return { access_token: token, user: { ...user, role } };
+}
 
-  if (code !== "1234") {
-    throw new Error("Неверный код подтверждения");
-  }
-
-  const user = mockUsers.find((item) => item.email === email) || {
-    id: 99,
-    name: "Новый пользователь",
-    email,
-    role: "User",
-  };
-
-  return {
-    access_token: "mock-token-user",
-    user,
-  };
+export async function resendCode(email) {
+  const res = await axiosInstance.post("/auth/resend-code", { email });
+  return res.data;
 }
 
 export function logout() {
-  localStorage.removeItem("access_token");
-  localStorage.removeItem("user");
+  axiosInstance.post("/auth/logout").catch(() => {});
 }

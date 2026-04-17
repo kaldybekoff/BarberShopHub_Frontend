@@ -1,12 +1,11 @@
-// TODO: заменить на реальный axiosInstance когда будет API
-import mockAppointments from "../data/mockAppointments";
+import axiosInstance from "./axiosInstance";
 
-export async function getMyAppointments() {
-  await new Promise((res) => setTimeout(res, 600));
-  return mockAppointments;
+export async function getMyAppointments(filter = "upcoming") {
+  const res = await axiosInstance.get("/bookings", { params: { filter } });
+  return res.data.data.data;
 }
 
 export async function cancelAppointment(appointmentId) {
-  await new Promise((res) => setTimeout(res, 600));
-  return { success: true };
+  const res = await axiosInstance.post(`/bookings/${appointmentId}/cancel`);
+  return res.data;
 }
