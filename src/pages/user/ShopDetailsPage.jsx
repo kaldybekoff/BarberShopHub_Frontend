@@ -1,325 +1,274 @@
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Scissors, MapPin, CalendarDays, Shield, Wrench } from "lucide-react";
-import mockShops from "../../data/mockShops";
-import colors from "../../constants/colors";
+import { useNavigate, useParams } from "react-router-dom";
+import ShopTabs from "../../components/shop/ShopTabs";
 import ServiceItem from "../../components/shop/ServiceItem";
-import ReviewCard from "../../components/shop/ReviewCard";
 
-const iconSize = {
-  sm: 14,
-  md: 16,
-  lg: 20,
-  xl: 52,
+const mockShop = {
+  id: 1,
+  name: "BarbershopKZ",
+  rating: 4.9,
+  reviews: 312,
+  address: "ул. Абая 14",
+  status: "open",
+  closeTime: "21:00",
+  services: [
+    {
+      id: 1,
+      category: "Стрижки",
+      name: "Классическая стрижка",
+      icon: "✂️",
+      duration: 30,
+      price: 1500,
+    },
+    {
+      id: 2,
+      category: "Стрижки",
+      name: "Фейд + укладка",
+      icon: "👑",
+      duration: 50,
+      price: 2500,
+    },
+    {
+      id: 3,
+      category: "Борода",
+      name: "Стрижка бороды",
+      icon: "🪒",
+      duration: 25,
+      price: 1200,
+    },
+    {
+      id: 4,
+      category: "Борода",
+      name: "Комплекс: стрижка + борода",
+      icon: "💎",
+      duration: 60,
+      price: 3200,
+    },
+  ],
 };
 
-const dayNames = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
-
-function getNextDays(count) {
-  const result = [];
-  for (let i = 0; i < count; i++) {
-    const d = new Date();
-    d.setDate(d.getDate() + i);
-    result.push({
-      label: dayNames[d.getDay()],
-      date: d.getDate(),
-      full: d.toLocaleDateString("ru-RU"),
-    });
-  }
-  return result;
+function groupServicesByCategory(services) {
+  const groups = {};
+  services.forEach((service) => {
+    if (!groups[service.category]) groups[service.category] = [];
+    groups[service.category].push(service);
+  });
+  return groups;
 }
-
-const quickTimeSlots = ["11:00", "11:30", "12:00", "12:30", "13:00", "13:30"];
 
 function ShopDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-
   const [activeTab, setActiveTab] = useState("services");
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedTime, setSelectedTime] = useState(null);
 
-  const shop = mockShops.find((s) => s.id === Number(id));
-  const days = getNextDays(4);
+  const shop = mockShop;
+  const shopId = id || shop.id;
 
-  if (!shop) {
-    return (
-      <div
-        className="min-h-screen flex flex-col items-center justify-center"
-        style={{ backgroundColor: colors.primary }}
-      >
-        <p className="text-white text-lg font-semibold">Барбершоп не найден</p>
-        <button
-          onClick={() => navigate(-1)}
-          className="mt-4 text-sm underline"
-          style={{ color: colors.gray }}
-        >
-          ← Назад
-        </button>
-      </div>
-    );
-  }
-
-  const tabs = [
-    { key: "services", label: "Услуги" },
-    { key: "masters", label: "Мастера" },
-    { key: "reviews", label: "Отзывы" },
-  ];
+  const servicesByCategory = groupServicesByCategory(shop.services);
+  const isOpen = shop.status === "open";
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: colors.primary }}>
-
-      {/* hero-баннер */}
+    <div
+      className="min-h-full font-['Plus_Jakarta_Sans',system-ui]"
+      style={{ backgroundColor: "#1A1A2E" }}
+    >
       <div
-        className="relative w-full h-52 flex items-center justify-center"
-        style={{ backgroundColor: colors.dark }}
+        className="flex items-center justify-center"
+        style={{ height: "220px", backgroundColor: "#16213E" }}
       >
-        <Scissors size={iconSize.xl} style={{ color: colors.accent }} />
-
-        <button
-          onClick={() => navigate(-1)}
-          className="absolute top-4 left-4 w-10 h-10 rounded-xl flex items-center justify-center text-white font-medium"
-          style={{ backgroundColor: "rgba(0,0,0,0.35)" }}
-        >
-          ←
-        </button>
+        <span style={{ fontSize: "72px" }}>💈</span>
       </div>
 
-      {/* контент страницы */}
-      <div className="max-w-5xl mx-auto px-6 py-6 flex gap-6 items-start">
-
-        {/* левая часть */}
-        <div className="flex-1 min-w-0">
-
-          {/* название и базовая инфо */}
-          <h1 className="text-2xl font-bold text-white">{shop.name}</h1>
-
-          <div className="flex items-center gap-2 mt-2">
-            <span style={{ color: colors.gold }}>★★★★★</span>
-            <span className="text-sm font-semibold text-white">{shop.rating}</span>
-            <span className="text-sm" style={{ color: colors.gray }}>
-              ({shop.reviewCount} отзывов)
-            </span>
-          </div>
-
-          <div className="flex items-center gap-4 mt-2">
-            <span className="text-sm" style={{ color: colors.gray }}>
-              <span className="inline-flex items-center gap-1">
-                <MapPin size={iconSize.sm} />
-                {shop.address}
-              </span>
-            </span>
-            <span
-              className="text-sm font-medium flex items-center gap-1"
-              style={{ color: shop.isOpen ? colors.success : colors.gray }}
-            >
-              <span
-                className="w-2 h-2 rounded-full"
-                style={{
-                  backgroundColor: shop.isOpen ? colors.success : colors.gray,
-                }}
-              />
-              {shop.isOpen ? "Открыто · до 21:00" : "Закрыто"}
-            </span>
-          </div>
-
-          {/* иконки категорий услуг */}
-          <div className="flex gap-2 mt-4">
-            {[Scissors, Shield, Wrench].map((Icon, i) => (
-              <div
-                key={i}
-                className="w-12 h-12 rounded-xl flex items-center justify-center text-xl"
-                style={{ backgroundColor: colors.light }}
-              >
-                <Icon size={iconSize.lg} style={{ color: colors.accent }} />
-              </div>
-            ))}
-          </div>
-
-          {/* табы */}
-          <div
-            className="flex border-b mt-5"
-            style={{ borderColor: "rgba(255,255,255,0.08)" }}
-          >
-            {tabs.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className="px-5 py-3 text-sm font-medium transition-colors"
-                style={{
-                  color: activeTab === tab.key ? "#ffffff" : colors.gray,
-                  borderBottom:
-                    activeTab === tab.key
-                      ? `2px solid ${colors.accent}`
-                      : "2px solid transparent",
-                }}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          {/* содержимое таба */}
-          <div className="py-4">
-            {activeTab === "services" && (
-              <div>
-                {shop.services.map((service) => (
-                  <ServiceItem key={service.id} service={service} />
-                ))}
-              </div>
-            )}
-
-            {activeTab === "masters" && (
-              <div className="flex flex-col gap-3">
-                {shop.masters.map((master) => {
-                  const initials = master.name
-                    .split(" ")
-                    .map((w) => w[0])
-                    .join("");
-                  return (
-                    <div
-                      key={master.id}
-                      className="flex items-center gap-3 px-4 py-3 rounded-xl"
-                      style={{ backgroundColor: colors.light }}
-                    >
-                      <div
-                        className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0"
-                        style={{ backgroundColor: colors.accent }}
-                      >
-                        {initials}
-                      </div>
-                      <div>
-                        <p className="text-white text-sm font-medium">
-                          {master.name}
-                        </p>
-                        <div className="flex items-center gap-1 mt-0.5">
-                          <span className="text-xs" style={{ color: colors.gold }}>
-                            ★
-                          </span>
-                          <span className="text-xs" style={{ color: colors.gray }}>
-                            {master.rating}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {activeTab === "reviews" && (
-              <div>
-                {shop.reviews.map((review) => (
-                  <ReviewCard key={review.id} review={review} />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* правый sidebar — виджет быстрой записи */}
-        <div
-          className="hidden lg:block w-72 shrink-0 rounded-2xl p-5 sticky top-20"
-          style={{ backgroundColor: colors.light }}
-        >
-          <h3 className="text-base font-semibold text-white mb-4">
-            <span className="inline-flex items-center gap-1.5">
-              <CalendarDays size={iconSize.md} />
-              Записаться
-            </span>
-          </h3>
-
-          <p className="text-xs mb-2" style={{ color: colors.gray }}>
-            Выберите дату
-          </p>
-          <div className="flex gap-2 mb-4">
-            {days.map((day) => {
-              const isSelected = selectedDate === day.full;
-              return (
-                <button
-                  key={day.full}
-                  onClick={() => setSelectedDate(day.full)}
-                  className="flex-1 flex flex-col items-center py-2 rounded-xl transition-all"
-                  style={{
-                    backgroundColor: isSelected ? colors.accent : colors.dark,
-                  }}
-                >
-                  <span
-                    className="text-xs"
-                    style={{
-                      color: isSelected ? "rgba(255,255,255,0.8)" : colors.gray,
-                    }}
-                  >
-                    {day.label}
-                  </span>
-                  <span className="text-sm font-semibold text-white">
-                    {day.date}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          <p className="text-xs mb-2" style={{ color: colors.gray }}>
-            Время
-          </p>
-          <div className="grid grid-cols-3 gap-2 mb-4">
-            {quickTimeSlots.map((slot) => {
-              const isSelected = selectedTime === slot;
-              return (
-                <button
-                  key={slot}
-                  onClick={() => setSelectedTime(slot)}
-                  className="py-2 rounded-lg text-xs font-medium transition-all"
-                  style={{
-                    backgroundColor: isSelected ? colors.accent : colors.dark,
-                    color: "#ffffff",
-                  }}
-                >
-                  {slot}
-                </button>
-              );
-            })}
-          </div>
-
-          <div
-            className="flex items-center justify-between py-3 border-t mb-4"
-            style={{ borderColor: "rgba(255,255,255,0.06)" }}
-          >
-            <span className="text-sm" style={{ color: colors.gray }}>
-              Итого
-            </span>
-            <span className="text-sm font-bold" style={{ color: colors.accent }}>
-              от {shop.priceFrom.toLocaleString("ru-RU")}₸
-            </span>
-          </div>
-
-          <button
-            onClick={() => navigate(`/booking/${shop.id}`)}
-            className="w-full py-3 rounded-xl font-semibold text-white text-sm hover:opacity-90 transition-opacity"
-            style={{ backgroundColor: colors.accent }}
-          >
-            Записаться
-          </button>
-        </div>
-      </div>
-
-      {/* кнопка записи на мобиле */}
       <div
-        className="lg:hidden fixed bottom-0 left-0 right-0 px-6 py-4"
         style={{
-          backgroundColor: colors.primary,
-          borderTop: "1px solid rgba(255,255,255,0.06)",
+          maxWidth: "1100px",
+          margin: "0 auto",
+          padding: "0 40px 40px",
         }}
       >
-        <button
-          onClick={() => navigate(`/booking/${shop.id}`)}
-          className="w-full py-3 rounded-xl font-semibold text-white hover:opacity-90 transition-opacity"
-          style={{ backgroundColor: colors.accent }}
+        <div
+          className="grid items-start"
+          style={{
+            gridTemplateColumns: "1fr 320px",
+            gap: "32px",
+            marginTop: "32px",
+          }}
         >
-          Записаться
-        </button>
+          <div>
+            <h1
+              className="text-white"
+              style={{ fontSize: "28px", fontWeight: 700, marginBottom: "8px" }}
+            >
+              {shop.name}
+            </h1>
+
+            <div
+              className="flex items-center"
+              style={{ gap: "8px", marginBottom: "8px" }}
+            >
+              <span style={{ color: "#F5A623" }}>★★★★★</span>
+              <span
+                className="text-white"
+                style={{ fontWeight: 700 }}
+              >
+                {shop.rating}
+              </span>
+              <span style={{ color: "#A8B2C1" }}>
+                ({shop.reviews} отзывов)
+              </span>
+            </div>
+
+            <div
+              className="flex items-center"
+              style={{ gap: "16px", marginBottom: "20px" }}
+            >
+              <span style={{ color: "#A8B2C1", fontSize: "14px" }}>
+                📍 {shop.address}
+              </span>
+              <span
+                className="flex items-center"
+                style={{
+                  color: isOpen ? "#48BB78" : "#A8B2C1",
+                  fontSize: "14px",
+                  gap: "6px",
+                }}
+              >
+                <span
+                  style={{
+                    width: "8px",
+                    height: "8px",
+                    borderRadius: "50%",
+                    backgroundColor: isOpen ? "#48BB78" : "#A8B2C1",
+                    display: "inline-block",
+                  }}
+                />
+                {isOpen ? `Открыто · до ${shop.closeTime}` : "Закрыто"}
+              </span>
+            </div>
+
+            <div
+              className="flex"
+              style={{ gap: "10px", marginBottom: "24px" }}
+            >
+              <PhotoSquare>✂️</PhotoSquare>
+              <PhotoSquare>💈</PhotoSquare>
+              <PhotoSquare>🪒</PhotoSquare>
+              <PhotoSquare>
+                <span
+                  style={{
+                    color: "#A8B2C1",
+                    fontSize: "14px",
+                    fontWeight: 600,
+                  }}
+                >
+                  +12
+                </span>
+              </PhotoSquare>
+            </div>
+
+            <ShopTabs activeTab={activeTab} onChange={setActiveTab} />
+
+            {activeTab === "services" ? (
+              <div>
+                {Object.entries(servicesByCategory).map(
+                  ([category, services]) => (
+                    <div key={category}>
+                      <h3
+                        style={{
+                          fontSize: "13px",
+                          fontWeight: 600,
+                          color: "#A8B2C1",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.08em",
+                          marginBottom: "10px",
+                          marginTop: "20px",
+                        }}
+                      >
+                        {category}
+                      </h3>
+                      {services.map((service) => (
+                        <ServiceItem key={service.id} service={service} />
+                      ))}
+                    </div>
+                  )
+                )}
+              </div>
+            ) : (
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: "40px",
+                  color: "#A8B2C1",
+                }}
+              >
+                Раздел в разработке
+              </div>
+            )}
+          </div>
+
+          <aside
+            style={{
+              backgroundColor: "#000000",
+              borderRadius: "16px",
+              padding: "24px",
+              position: "sticky",
+              top: "24px",
+            }}
+          >
+            <h2
+              className="text-white"
+              style={{
+                fontSize: "18px",
+                fontWeight: 700,
+                marginBottom: "20px",
+              }}
+            >
+              📅 Записаться
+            </h2>
+
+            <button
+              type="button"
+              onClick={() => navigate(`/booking/${shopId}`)}
+              className="text-white transition-colors"
+              style={{
+                width: "100%",
+                backgroundColor: "#E94560",
+                borderRadius: "12px",
+                padding: "14px",
+                fontSize: "16px",
+                fontWeight: 700,
+                border: "none",
+                cursor: "pointer",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "#c73652";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "#E94560";
+              }}
+            >
+              Записаться
+            </button>
+          </aside>
+        </div>
       </div>
+    </div>
+  );
+}
+
+function PhotoSquare({ children }) {
+  return (
+    <div
+      className="flex items-center justify-center"
+      style={{
+        width: "64px",
+        height: "64px",
+        backgroundColor: "#1E2A3A",
+        borderRadius: "12px",
+        fontSize: "22px",
+      }}
+    >
+      {children}
     </div>
   );
 }

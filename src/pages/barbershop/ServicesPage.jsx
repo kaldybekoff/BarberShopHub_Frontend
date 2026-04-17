@@ -1,58 +1,252 @@
-import { useState } from "react";
-import mockShops from "../../data/mockShops";
-import Button from "../../components/shared/Button";
-import EmptyState from "../../components/shared/EmptyState";
-import SectionTitle from "../../components/shared/SectionTitle";
-import colors from "../../constants/colors";
+const mockServices = [
+  {
+    id: 1,
+    name: "Классическая стрижка",
+    duration: 30,
+    price: 2500,
+    category: "Стрижки",
+    icon: "✂️",
+  },
+  {
+    id: 2,
+    name: "Фейд + укладка",
+    duration: 50,
+    price: 3500,
+    category: "Стрижки",
+    icon: "👑",
+  },
+  {
+    id: 3,
+    name: "Стрижка бороды",
+    duration: 25,
+    price: 1500,
+    category: "Борода",
+    icon: "🪒",
+  },
+  {
+    id: 4,
+    name: "Комплекс",
+    duration: 60,
+    price: 4500,
+    category: "Борода",
+    icon: "💎",
+  },
+];
 
-// TODO: заменить на услуги текущего барбершопа из API
-const mockServiceList = mockShops[0]?.services ?? [];
+const formatPrice = (price) => `${price.toLocaleString("ru-RU")}₸`;
 
 function ServicesPage() {
-  const [serviceList] = useState(mockServiceList);
+  const categories = [...new Set(mockServices.map((s) => s.category))];
+
+  function handleAdd() {
+    console.log("add service");
+  }
+
+  function handleEdit(id) {
+    console.log("edit service", id);
+  }
+
+  function handleDelete(id) {
+    console.log("delete service", id);
+  }
 
   return (
     <div
-      className="min-h-full px-4 md:px-6 py-6 max-w-7xl mx-auto"
-      style={{ backgroundColor: colors.primary }}
+      style={{
+        backgroundColor: "#1A1A2E",
+        padding: "28px 32px",
+        minHeight: "100vh",
+      }}
     >
-      <div className="flex items-start md:items-center justify-between gap-3 mb-6">
+      <div
+        className="flex items-center justify-between"
+        style={{ marginBottom: "24px", gap: "16px", flexWrap: "wrap" }}
+      >
         <div>
-          <SectionTitle title="Услуги" subtitle="Услуги вашего барбершопа" compact />
+          <h1
+            className="text-white"
+            style={{ fontSize: "22px", fontWeight: 700 }}
+          >
+            Услуги
+          </h1>
+          <p
+            style={{
+              color: "#A8B2C1",
+              fontSize: "13px",
+              marginTop: "3px",
+            }}
+          >
+            Услуги вашего барбершопа
+          </p>
         </div>
-        <Button label="+ Добавить" variant="primary" />
+
+        <button
+          type="button"
+          onClick={handleAdd}
+          className="text-white"
+          style={{
+            backgroundColor: "#E94560",
+            borderRadius: "8px",
+            padding: "10px 20px",
+            fontSize: "14px",
+            fontWeight: 600,
+            border: "none",
+            cursor: "pointer",
+            transition: "background-color 0.2s",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "#c73652";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "#E94560";
+          }}
+        >
+          + Добавить услугу
+        </button>
       </div>
 
-      {serviceList.length === 0 ? (
-        <EmptyState icon="scissors" message="Добавьте первую услугу." />
-      ) : (
-        <div className="flex flex-col gap-3">
-          {serviceList.map((service) => (
-            <div
-              key={service.id}
-              className="rounded-2xl px-4 py-4 flex items-center justify-between"
-              style={{ backgroundColor: colors.light }}
+      {categories.map((category) => {
+        const items = mockServices.filter((s) => s.category === category);
+        return (
+          <div key={category} style={{ marginBottom: "24px" }}>
+            <p
+              style={{
+                color: "#A8B2C1",
+                fontSize: "11px",
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                fontWeight: 600,
+                marginBottom: "12px",
+              }}
             >
-              <div className="flex flex-col gap-1">
-                <span className="text-white font-semibold text-sm">
-                  {service.name}
-                </span>
-                <span className="text-xs" style={{ color: colors.gray }}>
-                  {service.duration}
-                </span>
-              </div>
+              {category}
+            </p>
 
-              <div className="flex items-center gap-3">
-                <span className="text-white font-bold text-sm">
-                  {service.price.toLocaleString()} ₸
-                </span>
-                <Button label="Ред." variant="secondary" />
-                <Button label="Удалить" variant="danger" />
-              </div>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                gap: "12px",
+              }}
+            >
+              {items.map((service) => (
+                <ServiceCard
+                  key={service.id}
+                  service={service}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              ))}
             </div>
-          ))}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function ServiceCard({ service, onEdit, onDelete }) {
+  return (
+    <div
+      className="flex items-center justify-between"
+      style={{
+        backgroundColor: "#1E2A3A",
+        borderRadius: "12px",
+        padding: "18px 20px",
+        gap: "16px",
+      }}
+    >
+      <div
+        className="flex items-center"
+        style={{ gap: "14px", flex: 1, minWidth: 0 }}
+      >
+        <div
+          className="flex items-center justify-center"
+          style={{
+            width: "44px",
+            height: "44px",
+            borderRadius: "10px",
+            backgroundColor: "rgba(233, 69, 96, 0.12)",
+            fontSize: "22px",
+            flexShrink: 0,
+          }}
+        >
+          {service.icon}
         </div>
-      )}
+
+        <div style={{ minWidth: 0 }}>
+          <div
+            className="text-white truncate"
+            style={{ fontSize: "15px", fontWeight: 600 }}
+          >
+            {service.name}
+          </div>
+          <div
+            style={{
+              color: "#A8B2C1",
+              fontSize: "12px",
+              marginTop: "2px",
+            }}
+          >
+            ⏱ {service.duration} мин
+          </div>
+        </div>
+      </div>
+
+      <div
+        className="flex items-center"
+        style={{ gap: "14px", flexShrink: 0 }}
+      >
+        <span
+          className="text-white"
+          style={{ fontSize: "16px", fontWeight: 700 }}
+        >
+          {formatPrice(service.price)}
+        </span>
+
+        <div
+          style={{
+            width: "1px",
+            height: "28px",
+            backgroundColor: "rgba(255,255,255,0.08)",
+          }}
+        />
+
+        <div className="flex items-center" style={{ gap: "8px" }}>
+          <button
+            type="button"
+            onClick={() => onEdit(service.id)}
+            style={{
+              backgroundColor: "rgba(255,255,255,0.06)",
+              color: "#A8B2C1",
+              border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: "6px",
+              padding: "6px 12px",
+              fontSize: "12px",
+              fontWeight: 500,
+              cursor: "pointer",
+            }}
+          >
+            Ред.
+          </button>
+          <button
+            type="button"
+            onClick={() => onDelete(service.id)}
+            style={{
+              backgroundColor: "rgba(233, 69, 96, 0.1)",
+              color: "#E94560",
+              border: "1px solid rgba(233, 69, 96, 0.2)",
+              borderRadius: "6px",
+              padding: "6px 12px",
+              fontSize: "12px",
+              fontWeight: 500,
+              cursor: "pointer",
+            }}
+          >
+            Удалить
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

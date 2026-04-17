@@ -5,20 +5,8 @@ import AppointmentCard from "../../components/appointments/AppointmentCard";
 function MyAppointmentsPage() {
   const [activeTab, setActiveTab] = useState("upcoming");
 
-  const total = mockAppointments.length;
-  const confirmedCount = mockAppointments.filter((a) => a.status === "confirmed").length;
-  const pendingCount = mockAppointments.filter((a) => a.status === "pending").length;
-  const doneCount = mockAppointments.filter((a) => a.status === "done").length;
-
   const upcoming = mockAppointments.filter((a) => a.type === "upcoming");
   const past = mockAppointments.filter((a) => a.type === "past");
-
-  const stats = [
-    { value: total, label: "Всего записей", color: "#ffffff" },
-    { value: confirmedCount, label: "Подтверждено", color: "#48BB78" },
-    { value: pendingCount, label: "Ожидает", color: "#F6AD55" },
-    { value: doneCount, label: "Завершено", color: "#A8B2C1" },
-  ];
 
   return (
     <div
@@ -35,47 +23,6 @@ function MyAppointmentsPage() {
         >
           Мои записи
         </h1>
-
-        <div
-          className="grid"
-          style={{
-            gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
-            gap: "12px",
-            marginBottom: "28px",
-          }}
-        >
-          {stats.map((stat) => (
-            <div
-              key={stat.label}
-              className="text-center"
-              style={{
-                backgroundColor: "#16213E",
-                borderRadius: "12px",
-                padding: "16px",
-              }}
-            >
-              <div
-                style={{
-                  color: stat.color,
-                  fontSize: "28px",
-                  fontWeight: 700,
-                  lineHeight: 1.1,
-                }}
-              >
-                {stat.value}
-              </div>
-              <div
-                style={{
-                  color: "#A8B2C1",
-                  fontSize: "13px",
-                  marginTop: "6px",
-                }}
-              >
-                {stat.label}
-              </div>
-            </div>
-          ))}
-        </div>
 
         <div
           className="flex"

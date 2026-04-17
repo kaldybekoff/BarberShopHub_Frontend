@@ -58,7 +58,7 @@ function ProfilePage() {
           <aside
             className="flex flex-col"
             style={{
-              backgroundColor: "#1E2A3A",
+              backgroundColor: "#000000",
               borderRadius: "16px",
               padding: "32px 24px 24px",
             }}

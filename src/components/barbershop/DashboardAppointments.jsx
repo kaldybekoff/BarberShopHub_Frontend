@@ -1,53 +1,113 @@
-import getStatusLabel from "../../utils/getStatusLabel";
-import colors from "../../constants/colors";
+const STATUS_BADGES = {
+  confirmed: {
+    label: "✓ Подтв.",
+    color: "#48BB78",
+    background: "rgba(72, 187, 120, 0.15)",
+  },
+  pending: {
+    label: "⏳ Ожидает",
+    color: "#F6AD55",
+    background: "rgba(246, 173, 85, 0.15)",
+  },
+};
 
-function DashboardAppointments({ appointmentList }) {
+function DashboardAppointments({ appointments, onShowAll }) {
+  return (
+    <div>
+      <div className="flex items-center justify-between">
+        <h3
+          className="text-white"
+          style={{ fontSize: "18px", fontWeight: 700 }}
+        >
+          Ближайшие записи
+        </h3>
+        <button
+          type="button"
+          onClick={onShowAll}
+          style={{
+            color: "#E94560",
+            fontSize: "14px",
+            fontWeight: 500,
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+          }}
+        >
+          Все →
+        </button>
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          marginTop: "12px",
+        }}
+      >
+        {appointments.map((item, i) => (
+          <AppointmentRow key={i} item={item} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AppointmentRow({ item }) {
+  const badge = STATUS_BADGES[item.status] || STATUS_BADGES.confirmed;
+
   return (
     <div
-      className="rounded-2xl p-5"
-      style={{ backgroundColor: colors.dark }}
+      className="flex items-center"
+      style={{
+        backgroundColor: "#1E2A3A",
+        borderRadius: "10px",
+        padding: "16px 20px",
+        gap: "20px",
+      }}
     >
-      <h2 className="text-white font-semibold text-base mb-4">
-        Ближайшие записи
-      </h2>
-
-      <div className="flex flex-col gap-3">
-        {appointmentList.map((appointment) => {
-          const { label: statusLabel, color: statusColor } = getStatusLabel(appointment.status);
-
-          return (
-            <div
-              key={appointment.id}
-              className="flex items-center justify-between gap-3 rounded-xl px-4 py-3"
-              style={{ backgroundColor: colors.dark }}
-            >
-              <div className="flex flex-col gap-0.5 min-w-0">
-                <span className="text-white text-sm font-medium">
-                  {appointment.clientName}
-                </span>
-                <span className="text-xs truncate" style={{ color: colors.gray }}>
-                  {appointment.service} · {appointment.barber}
-                </span>
-              </div>
-
-              <div className="flex flex-col items-end gap-1">
-                <span className="text-white text-sm font-semibold">
-                  {appointment.time}
-                </span>
-                <span
-                  className="text-xs font-medium px-2 py-0.5 rounded-full"
-                  style={{
-                    color: statusColor,
-                    backgroundColor: `${statusColor}20`,
-                  }}
-                >
-                  {statusLabel}
-                </span>
-              </div>
-            </div>
-          );
-        })}
+      <div
+        className="text-white"
+        style={{
+          minWidth: "56px",
+          fontSize: "15px",
+          fontWeight: 700,
+        }}
+      >
+        {item.time}
       </div>
+
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div
+          className="text-white"
+          style={{ fontSize: "14px", fontWeight: 500 }}
+        >
+          сегодня&nbsp;&nbsp;{item.clientName}
+        </div>
+        <div
+          style={{
+            color: "#A8B2C1",
+            fontSize: "13px",
+            marginTop: "2px",
+          }}
+        >
+          {item.service} · {item.master}
+        </div>
+      </div>
+
+      <span
+        style={{
+          backgroundColor: badge.background,
+          color: badge.color,
+          padding: "4px 10px",
+          borderRadius: "20px",
+          fontSize: "12px",
+          fontWeight: 500,
+          whiteSpace: "nowrap",
+        }}
+      >
+        {badge.label}
+      </span>
     </div>
   );
 }
