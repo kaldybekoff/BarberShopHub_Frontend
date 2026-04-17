@@ -1,13 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Scissors, MapPin, Bell } from "lucide-react";
 import useAuth from "../../hooks/useAuth";
-import colors from "../../constants/colors";
-
-const iconSize = {
-  sm: 14,
-  md: 16,
-  lg: 18,
-};
 
 const navLinks = [
   { path: "/home", label: "Главная" },
@@ -21,37 +13,65 @@ function Header() {
   const { pathname } = useLocation();
 
   const initials = user?.name
-    ? user.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()
-    : "АН";
+    ? user.name
+        .split(" ")
+        .map((word) => word[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase()
+    : "AN";
 
   return (
     <header
-      className="sticky top-0 z-20 px-6 h-14 flex items-center justify-between"
+      className="sticky top-0 z-20 flex items-center border-b"
       style={{
-        backgroundColor: colors.dark,
-        borderBottom: "1px solid rgba(255,255,255,0.06)",
+        backgroundColor: "#16213E",
+        borderColor: "#1E2A3A",
+        height: "56px",
+        padding: "0 40px",
+        position: "sticky",
       }}
     >
-      {/* лого */}
-      <Link to="/home" className="flex items-center gap-2 shrink-0">
-        <Scissors size={iconSize.lg} style={{ color: colors.accent }} />
-        <span className="font-bold text-white text-base">
-          Barber<span style={{ color: colors.accent }}>Hub</span>
+      <Link
+        to="/home"
+        className="flex shrink-0 items-center"
+        style={{ gap: "8px", textDecoration: "none" }}
+      >
+        <span style={{ fontSize: "18px" }}>✂️</span>
+        <span
+          className="text-white"
+          style={{ fontSize: "20px", fontWeight: 700, display: "flex", gap: 0 }}
+        >
+          Barber<span style={{ color: "#E94560" }}>Hub</span>
         </span>
       </Link>
 
-      {/* навигация по центру — скрыта на мобиле */}
-      <nav className="hidden md:flex items-center gap-7">
+      <nav
+        className="hidden md:flex items-center"
+        style={{
+          position: "absolute",
+          left: "50%",
+          transform: "translateX(-50%)",
+        }}
+      >
         {navLinks.map((link) => {
           const isActive =
             pathname === link.path ||
             (link.path !== "/home" && pathname.startsWith(link.path));
+
           return (
             <Link
               key={link.path}
               to={link.path}
-              className="text-sm font-medium transition-colors hover:text-white"
-              style={{ color: isActive ? colors.accent : colors.gray }}
+              className="transition-opacity hover:opacity-85"
+              style={{
+                fontSize: "15px",
+                padding: "0 20px",
+                cursor: "pointer",
+                color: isActive ? "#E94560" : "#A8B2C1",
+                fontWeight: isActive ? 600 : 400,
+                textDecoration: "none",
+              }}
             >
               {link.label}
             </Link>
@@ -59,30 +79,56 @@ function Header() {
         })}
       </nav>
 
-      {/* правая часть */}
-      <div className="flex items-center gap-3">
-        <span className="text-sm hidden md:block" style={{ color: colors.gray }}>
-          <span className="inline-flex items-center gap-1">
-            <MapPin size={iconSize.sm} />
-            Алматы
-          </span>
-        </span>
+      <div
+        className="flex items-center"
+        style={{ marginLeft: "auto", gap: "16px" }}
+      >
+        <div
+          className="hidden md:flex items-center"
+          style={{ color: "#A8B2C1", fontSize: "13px", gap: "4px" }}
+        >
+          <span>📍</span>
+          Алматы
+        </div>
 
-        <button className="relative leading-none" style={{ color: colors.gray }}>
-          <Bell size={iconSize.lg} />
+        <button
+          type="button"
+          className="relative hidden md:inline-flex transition-opacity hover:opacity-85"
+          style={{
+            color: "#A8B2C1",
+            fontSize: "18px",
+            background: "transparent",
+            border: "none",
+            cursor: "pointer",
+            position: "relative",
+          }}
+        >
+          🔔
           <span
-            className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full border-2"
             style={{
-              backgroundColor: colors.accent,
-              borderColor: colors.dark,
+              position: "absolute",
+              top: 0,
+              right: 0,
+              width: "8px",
+              height: "8px",
+              borderRadius: "50%",
+              backgroundColor: "#E94560",
             }}
           />
         </button>
 
         <Link
           to="/profile"
-          className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
-          style={{ backgroundColor: colors.accent }}
+          className="flex shrink-0 items-center justify-center text-white"
+          style={{
+            width: "36px",
+            height: "36px",
+            borderRadius: "50%",
+            backgroundColor: "#E94560",
+            fontSize: "13px",
+            fontWeight: 700,
+            textDecoration: "none",
+          }}
         >
           {initials}
         </Link>

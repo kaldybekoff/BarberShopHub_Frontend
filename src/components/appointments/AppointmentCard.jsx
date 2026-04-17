@@ -1,110 +1,133 @@
-import getStatusLabel from "../../utils/getStatusLabel";
-import { CalendarDays, Clock3 } from "lucide-react";
-import colors from "../../constants/colors";
+function AppointmentCard({ appointment }) {
+  const isConfirmed = appointment.status === "confirmed";
 
-function AppointmentCard({ appointment, onCancel }) {
-  const status = getStatusLabel(appointment.status);
-  const isCancelled = appointment.status === "cancelled";
-
-  const initials = appointment.masterName
-    ? appointment.masterName.split(" ").map((w) => w[0]).join("").slice(0, 2)
-    : "?";
+  const statusLabel = isConfirmed ? "Подтверждено" : "Ожидает";
+  const statusColor = isConfirmed ? "#48BB78" : "#F6AD55";
+  const statusBg = isConfirmed
+    ? "rgba(72, 187, 120, 0.15)"
+    : "rgba(246, 173, 85, 0.15)";
 
   return (
     <div
-      className="rounded-2xl overflow-hidden"
-      style={{ backgroundColor: colors.dark }}
+      className="overflow-hidden"
+      style={{ backgroundColor: "#1E2A3A", borderRadius: "16px" }}
     >
-      {/* шапка */}
       <div
-        className="flex items-center justify-between px-5 py-3"
-        style={{ backgroundColor: colors.light }}
+        style={{
+          padding: "16px",
+          borderBottom: "1px solid #2a3a4a",
+        }}
       >
-        <h3 className="font-semibold text-white text-sm">{appointment.shopName}</h3>
-        <span
-          className="text-xs px-2.5 py-1 rounded-full font-medium"
-          style={{
-            backgroundColor: `${status.color}20`,
-            color: status.color,
-          }}
-        >
-          {status.label}
-        </span>
-      </div>
-
-      {/* тело карточки */}
-      <div className="px-5 py-4 flex flex-col gap-3">
-
-        {/* мастер + услуга */}
-        <div className="flex items-center gap-3">
-          <div
-            className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
-            style={{ backgroundColor: colors.accent }}
+        <div className="flex items-center justify-between">
+          <h3 className="text-white" style={{ fontWeight: 700, fontSize: "15px" }}>
+            {appointment.shop}
+          </h3>
+          <span
+            style={{
+              backgroundColor: statusBg,
+              color: statusColor,
+              borderRadius: "20px",
+              padding: "3px 10px",
+              fontSize: "11px",
+              fontWeight: 600,
+            }}
           >
-            {initials}
-          </div>
-          <div>
-            <p className="text-sm font-medium text-white">{appointment.masterName}</p>
-            <p className="text-xs mt-0.5" style={{ color: colors.gray }}>
-              {appointment.serviceName}
-            </p>
-          </div>
-        </div>
-
-        <div
-          className="h-px"
-          style={{ backgroundColor: "rgba(255,255,255,0.05)" }}
-        />
-
-        {/* дата + время + цена */}
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-4 flex-wrap min-w-0">
-            <span className="text-sm text-white">
-              <span className="inline-flex items-center gap-1">
-                <CalendarDays size={14} />
-                {appointment.date}
-              </span>
-            </span>
-            <span className="text-sm text-white">
-              <span className="inline-flex items-center gap-1">
-                <Clock3 size={14} />
-                {appointment.time}
-              </span>
-            </span>
-          </div>
-          <span className="text-sm font-bold shrink-0" style={{ color: colors.accent }}>
-            {appointment.price?.toLocaleString("ru-RU")}₸
+            {statusLabel}
           </span>
         </div>
 
-        {/* кнопки действий */}
-        {!isCancelled && (
-          <div className="flex gap-2 mt-1">
-            <button
-              className="flex-1 py-2 rounded-xl text-sm border transition-colors hover:text-white"
-              style={{
-                borderColor: "rgba(255,255,255,0.1)",
-                color: colors.gray,
-                backgroundColor: "transparent",
-              }}
-            >
-              Перенести
-            </button>
-            {onCancel && (
-              <button
-                onClick={() => onCancel(appointment.id)}
-                className="flex-1 py-2 rounded-xl text-sm border transition-colors hover:text-red-400"
-                style={{
-                  borderColor: "rgba(255,255,255,0.1)",
-                  color: colors.gray,
-                  backgroundColor: "transparent",
-                }}
-              >
-                Отменить
-              </button>
-            )}
+        <div className="flex items-center" style={{ gap: "12px", marginTop: "14px" }}>
+          <div
+            className="flex items-center justify-center shrink-0 text-white"
+            style={{
+              width: "36px",
+              height: "36px",
+              borderRadius: "50%",
+              backgroundColor: "#E94560",
+              fontSize: "12px",
+              fontWeight: 700,
+            }}
+          >
+            {appointment.masterInitials}
           </div>
-        )}
+          <div>
+            <p className="text-white" style={{ fontWeight: 600, fontSize: "14px" }}>
+              {appointment.master}
+            </p>
+            <p style={{ color: "#A8B2C1", fontSize: "12px", marginTop: "2px" }}>
+              {appointment.service}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div
+        className="flex items-center justify-between"
+        style={{ padding: "12px 16px" }}
+      >
+        <div className="flex items-center" style={{ gap: "14px" }}>
+          <span
+            className="inline-flex items-center"
+            style={{ color: "#A8B2C1", fontSize: "13px", gap: "6px" }}
+          >
+            <span>📅</span>
+            {appointment.date}
+          </span>
+          <span
+            className="inline-flex items-center"
+            style={{ color: "#A8B2C1", fontSize: "13px", gap: "6px" }}
+          >
+            <span>⏰</span>
+            {appointment.time}
+          </span>
+        </div>
+        <span
+          style={{ color: "#E94560", fontWeight: 700, fontSize: "16px" }}
+        >
+          {appointment.price.toLocaleString("ru-RU")}₸
+        </span>
+      </div>
+
+      <div
+        className="flex"
+        style={{ borderTop: "1px solid #2a3a4a" }}
+      >
+        <button
+          type="button"
+          style={{
+            flex: 1,
+            color: "#A8B2C1",
+            borderRight: "1px solid #2a3a4a",
+            padding: "12px",
+            textAlign: "center",
+            fontSize: "13px",
+            fontWeight: 600,
+            cursor: "pointer",
+            backgroundColor: "transparent",
+            border: "none",
+            borderRightWidth: "1px",
+            borderRightStyle: "solid",
+            borderRightColor: "#2a3a4a",
+          }}
+        >
+          Перенести
+        </button>
+        <button
+          type="button"
+          style={{
+            flex: 1,
+            color: "#E94560",
+            padding: "12px",
+            textAlign: "center",
+            fontSize: "13px",
+            fontWeight: 600,
+            cursor: "pointer",
+            backgroundColor: "transparent",
+            border: "none",
+          }}
+        >
+          Отменить
+        </button>
       </div>
     </div>
   );

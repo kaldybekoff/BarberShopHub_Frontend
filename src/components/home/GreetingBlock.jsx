@@ -1,21 +1,20 @@
 import useAuth from "../../hooks/useAuth";
-import { MapPin } from "lucide-react";
-import colors from "../../constants/colors";
 
 function GreetingBlock() {
   const { user } = useAuth();
+  const firstName = user?.name?.split(" ")[0] || "Artyom";
 
   return (
-    <div className="mb-6">
-      <h1 className="text-2xl font-bold text-white">
-        Привет, {user?.name || "друг"} 👋
-      </h1>
-      <p className="text-sm mt-1" style={{ color: colors.gray }}>
-        <span className="inline-flex items-center gap-1">
-          <MapPin size={14} />
-          Алматы
-        </span>
+    <div>
+      <p style={{ color: "#A8B2C1", fontSize: "13px", marginBottom: "8px" }}>
+        📍 Алматы, Медеуский р-н
       </p>
+      <h1
+        className="text-white"
+        style={{ fontSize: "32px", fontWeight: 700, marginBottom: "24px" }}
+      >
+        Привет, {firstName} 👋
+      </h1>
     </div>
   );
 }

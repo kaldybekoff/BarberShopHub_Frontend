@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search } from "lucide-react";
-import colors from "../../constants/colors";
 
 function SearchBar() {
   const navigate = useNavigate();
@@ -9,31 +7,43 @@ function SearchBar() {
 
   function handleSubmit(e) {
     e.preventDefault();
+
     if (searchQuery.trim()) {
       navigate(`/search?q=${searchQuery.trim()}`);
-    } else {
-      navigate("/search");
+      return;
     }
+
+    navigate("/search");
   }
 
   return (
-    <form onSubmit={handleSubmit} className="relative mb-5 max-w-xl">
-      <span
-        className="absolute left-4 top-1/2 -translate-y-1/2 text-base"
-        style={{ color: colors.gray }}
-      >
-        <Search size={16} />
-      </span>
+    <form
+      onSubmit={handleSubmit}
+      className="flex items-center"
+      style={{
+        width: "100%",
+        maxWidth: "640px",
+        margin: "0 auto",
+        marginBottom: "24px",
+        backgroundColor: "#1E2A3A",
+        borderRadius: "14px",
+        padding: "14px 20px",
+        gap: "10px",
+      }}
+    >
+      <span style={{ fontSize: "16px", color: "#A8B2C1" }}>🔍</span>
       <input
         type="text"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         placeholder="Найти барбершоп или мастера..."
-        className="w-full pl-10 pr-4 py-3 rounded-xl text-sm focus:outline-none"
+        className="text-white focus:outline-none"
         style={{
-          backgroundColor: colors.light,
-          border: "1px solid rgba(255,255,255,0.1)",
-          color: "#ffffff",
+          backgroundColor: "transparent",
+          border: "none",
+          outline: "none",
+          width: "100%",
+          fontSize: "15px",
         }}
       />
     </form>

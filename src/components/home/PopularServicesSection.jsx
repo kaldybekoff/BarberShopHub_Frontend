@@ -1,37 +1,65 @@
 import { useNavigate } from "react-router-dom";
-import { Scissors, UserRound, BadgeCheck, Baby } from "lucide-react";
-import colors from "../../constants/colors";
 
-const serviceChips = [
-  { label: "Стрижка", icon: Scissors, value: "haircut" },
-  { label: "Борода", icon: UserRound, value: "beard" },
-  { label: "Комплекс", icon: BadgeCheck, value: "complex" },
-  { label: "Детская", icon: Baby, value: "kids" },
+const services = [
+  { label: "Стрижка", icon: "✂️", value: "haircut" },
+  { label: "Борода", icon: "🪒", value: "beard" },
+  { label: "Комплекс", icon: "💎", value: "complex" },
+  { label: "Детская", icon: "👦", value: "kids" },
 ];
 
 function PopularServicesSection() {
   const navigate = useNavigate();
 
   return (
-    <div className="mb-6">
-      <h2 className="text-base font-semibold text-white mb-3">Популярные услуги</h2>
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-        {serviceChips.map((chip) => {
-          const Icon = chip.icon;
-          return (
-            <button
-              key={chip.value}
-              onClick={() => navigate(`/search?service=${chip.value}`)}
-              className="flex items-center gap-3 px-4 py-4 rounded-xl text-sm font-medium transition-opacity hover:opacity-80"
-              style={{ backgroundColor: colors.light, color: "#ffffff" }}
+    <section>
+      <div
+        style={{
+          height: "1px",
+          backgroundColor: "#1E2A3A",
+          margin: "32px 0",
+        }}
+      />
+
+      <h2
+        className="text-white"
+        style={{ fontSize: "20px", fontWeight: 700, marginBottom: "16px" }}
+      >
+        Популярные услуги
+      </h2>
+
+      <div
+        className="grid"
+        style={{
+          gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+          gap: "14px",
+        }}
+      >
+        {services.map((service) => (
+          <button
+            key={service.value}
+            type="button"
+            onClick={() => navigate(`/search?service=${service.value}`)}
+            className="flex flex-col items-center transition-opacity hover:opacity-85"
+            style={{
+              backgroundColor: "#1E2A3A",
+              borderRadius: "16px",
+              padding: "24px 16px",
+              gap: "10px",
+              cursor: "pointer",
+              border: "none",
+            }}
+          >
+            <span style={{ fontSize: "32px" }}>{service.icon}</span>
+            <span
+              className="text-white"
+              style={{ fontSize: "14px", fontWeight: 600 }}
             >
-              <Icon size={18} />
-              {chip.label}
-            </button>
-          );
-        })}
+              {service.label}
+            </span>
+          </button>
+        ))}
       </div>
-    </div>
+    </section>
   );
 }
 

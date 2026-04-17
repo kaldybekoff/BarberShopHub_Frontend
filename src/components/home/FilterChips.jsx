@@ -1,35 +1,46 @@
-import colors from "../../constants/colors";
-import { Trophy, MapPin, Zap, Wallet } from "lucide-react";
-
-const chipIconSize = 14;
+import { useState } from "react";
 
 const filters = [
-  { label: "Топ рейтинг", value: "top", icon: Trophy },
-  { label: "Рядом", value: "nearby", icon: MapPin },
-  { label: "Сейчас открыто", value: "open", icon: Zap },
-  { label: "До 2000₸", value: "cheap", icon: Wallet },
+  { label: "🏆 Топ рейтинг", value: "top" },
+  { label: "📍 Рядом", value: "nearby" },
+  { label: "⚡ Сейчас открыто", value: "open" },
+  { label: "💰 До 2000₸", value: "cheap" },
 ];
 
-function FilterChips({ activeFilter, onFilterChange }) {
+function FilterChips() {
+  const [activeFilter, setActiveFilter] = useState("top");
+
   return (
-    <div className="flex gap-2 overflow-x-auto pb-1 mb-6">
+    <div
+      className="flex"
+      style={{
+        gap: "10px",
+        marginBottom: "32px",
+        overflowX: "auto",
+        scrollbarWidth: "none",
+      }}
+    >
       {filters.map((filter) => {
         const isActive = filter.value === activeFilter;
-        const Icon = filter.icon;
+
         return (
           <button
             key={filter.value}
-            onClick={() => onFilterChange(filter.value)}
-            className="shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap"
+            type="button"
+            onClick={() => setActiveFilter(filter.value)}
+            className="shrink-0 whitespace-nowrap transition-opacity hover:opacity-85"
             style={{
-              backgroundColor: isActive ? colors.accent : colors.light,
-              color: isActive ? "#ffffff" : colors.gray,
+              backgroundColor: isActive ? "#E94560" : "#1E2A3A",
+              color: "#ffffff",
+              borderRadius: "999px",
+              padding: "8px 18px",
+              fontSize: "14px",
+              fontWeight: isActive ? 600 : 400,
+              border: isActive ? "none" : "1px solid #2a3a4a",
+              cursor: "pointer",
             }}
           >
-            <span className="inline-flex items-center gap-1.5">
-              <Icon size={chipIconSize} />
-              {filter.label}
-            </span>
+            {filter.label}
           </button>
         );
       })}

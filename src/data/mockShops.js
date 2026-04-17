@@ -102,4 +102,77 @@ const mockShops = [
   },
 ];
 
+export const searchMockShops = [
+  {
+    id: 1,
+    name: "BarbershopKZ",
+    rating: 4.9,
+    reviews: 312,
+    distance: "0.4 км",
+    address: "ул. Абая 14",
+    price: 1500,
+    status: "open",
+  },
+  {
+    id: 2,
+    name: "The Barberian",
+    rating: 4.7,
+    reviews: 198,
+    distance: "0.8 км",
+    address: "пр. Достык 8",
+    price: 2000,
+    status: "open",
+  },
+  {
+    id: 3,
+    name: "Grand Barber",
+    rating: 4.5,
+    reviews: 87,
+    distance: "1.2 км",
+    address: "ул. Тимирязева 32",
+    price: 1200,
+    status: "soon",
+  },
+  {
+    id: 4,
+    name: "Classic Cuts",
+    rating: 4.3,
+    reviews: 54,
+    distance: "1.6 км",
+    address: "пр. Сатпаева 12",
+    price: 1000,
+    status: "open",
+  },
+];
+
+export const homeMockShops = [
+  {
+    id: 1,
+    name: "BarbershopKZ",
+    rating: 4.9,
+    reviews: 312,
+    distance: "0.4 км",
+    price: 1500,
+    status: "open",
+  },
+  {
+    id: 2,
+    name: "The Barberian",
+    rating: 4.7,
+    reviews: 198,
+    distance: "0.8 км",
+    price: 2000,
+    status: "open",
+  },
+  {
+    id: 3,
+    name: "Grand Barber",
+    rating: 4.5,
+    reviews: 87,
+    distance: "1.2 км",
+    price: 1200,
+    status: "open",
+  },
+];
+
 export default mockShops;
