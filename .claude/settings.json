@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s \"https://bbs-production-6580.up.railway.app/api/documentation\")",
+      "Bash(curl -s \"https://bbs-production-6580.up.railway.app/docs?api-docs.json\")",
+      "Bash(python3 -m json.tool)"
+    ]
+  }
+}

@@ -1,23 +1,21 @@
-// TODO: заменить на реальный axiosInstance когда будет API
-
-const allSlots = [
-  "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
-  "12:00", "12:30", "13:00", "13:30", "14:00", "14:30",
-  "15:00", "15:30", "16:00", "16:30", "17:00", "17:30",
-];
-
-export async function getAvailableSlots(shopId, date) {
-  await new Promise((res) => setTimeout(res, 600));
-  // имитируем что некоторые слоты заняты
-  return allSlots.filter((_, index) => index % 3 !== 1);
-}
+import axiosInstance from "./axiosInstance";
 
 export async function createBooking(bookingData) {
-  await new Promise((res) => setTimeout(res, 600));
+  const res = await axiosInstance.post("/bookings", bookingData);
+  return res.data.data;
+}
 
-  return {
-    id: Math.floor(Math.random() * 1000) + 100,
-    status: "confirmed",
-    ...bookingData,
-  };
+export async function getBookingById(id) {
+  const res = await axiosInstance.get(`/bookings/${id}`);
+  return res.data.data;
+}
+
+export async function rescheduleBooking(id, scheduled_at) {
+  const res = await axiosInstance.post(`/bookings/${id}/reschedule`, { scheduled_at });
+  return res.data.data;
+}
+
+export async function cancelBooking(id) {
+  const res = await axiosInstance.post(`/bookings/${id}/cancel`);
+  return res.data;
 }
