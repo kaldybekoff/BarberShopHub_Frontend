@@ -60,9 +60,7 @@ function VerifyPage() {
       const { access_token, user } = await verifyEmail(email, code);
       login(user, access_token);
 
-      if (user.role === "Admin") {
-        navigate("/admin/dashboard");
-      } else if (user.role === "Barbershop") {
+      if (user.role === "Barbershop") {
         navigate("/barbershop/dashboard");
       } else {
         navigate("/home");

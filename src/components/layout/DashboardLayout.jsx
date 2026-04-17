@@ -5,8 +5,7 @@ import colors from "../../constants/colors";
 
 function DashboardLayout() {
   const { pathname } = useLocation();
-  const shouldHideTopbar =
-    pathname.startsWith("/barbershop/") || pathname.startsWith("/admin/");
+  const shouldHideTopbar = pathname.startsWith("/barbershop/");
 
   return (
     <div className="flex min-h-screen" style={{ backgroundColor: colors.primary }}>

@@ -11,12 +11,6 @@ const mockUsers = [
     email: "shop@test.com",
     role: "Barbershop",
   },
-  {
-    id: 3,
-    name: "Админ",
-    email: "admin@test.com",
-    role: "Admin",
-  },
 ];
 
 export async function login(email, password) {
