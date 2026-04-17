@@ -1,16 +1,54 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Scissors, Clock3, Check, Zap, MapPin, Bell, Info } from "lucide-react";
 import mockShops from "../../data/mockShops";
 import colors from "../../constants/colors";
 import { createBooking } from "../../api/bookingApi";
+import BookingSteps from "../../components/booking/BookingSteps";
+import ServiceSelector from "../../components/booking/ServiceSelector";
+import MasterSelector from "../../components/booking/MasterSelector";
+import DateSelector from "../../components/booking/DateSelector";
+import TimeSlotGrid from "../../components/booking/TimeSlotGrid";
+import BookingSummary from "../../components/booking/BookingSummary";
+import ReminderToggle from "../../components/booking/ReminderToggle";
 
-const iconSize = {
-  xs: 12,
-  sm: 14,
-  md: 18,
-  lg: 22,
-};
+const step1Services = [
+  {
+    id: 1,
+    category: "Стрижки",
+    icon: "✂️",
+    name: "Классическая стрижка",
+    shortName: "Классич. стрижка",
+    duration: 30,
+    price: 1500,
+  },
+  {
+    id: 2,
+    category: "Стрижки",
+    icon: "👑",
+    name: "Фейд + укладка",
+    shortName: "Фейд + укладка",
+    duration: 50,
+    price: 2500,
+  },
+  {
+    id: 3,
+    category: "Борода",
+    icon: "🪒",
+    name: "Стрижка бороды",
+    shortName: "Стрижка бороды",
+    duration: 25,
+    price: 1200,
+  },
+  {
+    id: 4,
+    category: "Борода",
+    icon: "💎",
+    name: "Комплекс: стрижка + борода",
+    shortName: "Комплекс",
+    duration: 60,
+    price: 3200,
+  },
+];
 
 const timeSlots = [
   "09:00", "09:30", "10:00", "10:30",
@@ -18,24 +56,45 @@ const timeSlots = [
   "13:00", "14:00", "15:00", "16:00",
 ];
 
-const dayNames = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
+const step2Masters = [
+  { id: 0, initials: "⚡", name: "Любой", rating: null },
+  { id: 1, initials: "AS", name: "Amir", rating: 4.9 },
+  { id: 2, initials: "BM", name: "Baur", rating: 4.8 },
+  { id: 3, initials: "NK", name: "Nurlan", rating: 4.7 },
+];
 
-function getNextDays(count) {
-  const days = [];
-  for (let i = 0; i < count; i++) {
-    const d = new Date();
-    d.setDate(d.getDate() + i);
-    days.push({
-      label: dayNames[d.getDay()],
-      date: d.getDate(),
-      full: d.toLocaleDateString("ru-RU"),
-    });
-  }
-  return days;
+const dayNames = ["ВС", "ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"];
+const dayNamesShort = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
+const monthNames = [
+  "января", "февраля", "марта", "апреля", "мая", "июня",
+  "июля", "августа", "сентября", "октября", "ноября", "декабря",
+];
+const monthNamesShort = [
+  "янв", "фев", "мар", "апр", "мая", "июн",
+  "июл", "авг", "сен", "окт", "ноя", "дек",
+];
+
+function buildDays(count) {
+  const today = new Date();
+  return Array.from({ length: count }, (_, i) => {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    const dow = d.getDay();
+    const date = d.getDate();
+    const month = d.getMonth();
+    return {
+      label: dayNames[dow],
+      number: date,
+      display: `${dayNamesShort[dow]}, ${date} ${monthNames[month]}`,
+      summaryDisplay: `${dayNamesShort[dow]}, ${date} ${monthNamesShort[month]}`,
+      key: d.toISOString().slice(0, 10),
+    };
+  });
 }
 
+const initialDays = buildDays(6);
+
 const stepTitles = ["Выбор услуги", "Мастер и время", "Подтверждение"];
-const stepLabels = ["1. Услуга", "2. Время", "3. Подтверждение"];
 
 function BookingPage() {
   const { shopId } = useParams();
@@ -44,15 +103,16 @@ function BookingPage() {
   const shop = mockShops.find((s) => s.id === Number(shopId));
 
   const [currentStep, setCurrentStep] = useState(1);
-  const [selectedService, setSelectedService] = useState(null);
-  const [selectedMaster, setSelectedMaster] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedTime, setSelectedTime] = useState(null);
+  const [selectedService, setSelectedService] = useState(step1Services[0]);
+  const [selectedMaster, setSelectedMaster] = useState(step2Masters[1]);
+  const [selectedDay, setSelectedDay] = useState(initialDays[1]);
+  const [selectedTime, setSelectedTime] = useState("11:00");
   const [comment, setComment] = useState("");
   const [reminder, setReminder] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const days = getNextDays(6);
+  const days = initialDays;
+  const selectedDate = selectedDay?.display || null;
 
   if (!shop) {
     return (
@@ -94,459 +154,592 @@ function BookingPage() {
   }
 
   return (
-    <div className="min-h-full" style={{ backgroundColor: colors.primary }}>
-
-      {/* верхняя панель */}
+    <div
+      className="min-h-screen font-['Plus_Jakarta_Sans',system-ui]"
+      style={{ backgroundColor: "#1A1A2E" }}
+    >
       <div
-        className="sticky top-0 z-10 px-6 h-14 flex items-center justify-between"
-        style={{
-          backgroundColor: colors.dark,
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
-        }}
+        className="flex items-center justify-center"
+        style={{ padding: "16px 32px", position: "relative" }}
       >
         <button
+          type="button"
           onClick={handleBack}
-          className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-medium"
-          style={{ backgroundColor: colors.light }}
+          className="flex items-center justify-center text-white"
+          style={{
+            position: "absolute",
+            left: "32px",
+            width: "40px",
+            height: "40px",
+            borderRadius: "10px",
+            backgroundColor: "#1E2A3A",
+            fontSize: "18px",
+            border: "none",
+            cursor: "pointer",
+          }}
         >
           ←
         </button>
 
-        <h1 className="text-base font-semibold text-white">
+        <h1
+          className="text-white"
+          style={{ fontSize: "20px", fontWeight: 700 }}
+        >
           {stepTitles[currentStep - 1]}
         </h1>
 
-        <span className="text-sm" style={{ color: colors.gray }}>
+        <span
+          style={{
+            position: "absolute",
+            right: "32px",
+            fontSize: "14px",
+            color: "#A8B2C1",
+          }}
+        >
           шаг {currentStep} из 3
         </span>
       </div>
 
-      {/* progress bar */}
+      <BookingSteps currentStep={currentStep} />
+
       <div
-        className="flex"
-        style={{ backgroundColor: colors.dark, paddingBottom: "1px" }}
+        className="grid items-start"
+        style={{
+          gridTemplateColumns: "1fr 320px",
+          gap: "24px",
+          padding: "0 32px",
+          maxWidth: "1100px",
+          margin: "0 auto",
+        }}
       >
-        {stepLabels.map((label, i) => {
-          const step = i + 1;
-          const isDone = step < currentStep;
-          const isActive = step === currentStep;
-          return (
-            <div key={step} className="flex-1 flex flex-col items-center pb-3 pt-1">
-              <div
-                className="w-full h-1 mb-1.5"
-                style={{
-                  backgroundColor:
-                    isDone || isActive ? colors.accent : "rgba(255,255,255,0.1)",
-                }}
-              />
-              <span
-                className="text-xs"
-                style={{
-                  color: isActive ? colors.accent : isDone ? colors.accent : colors.gray,
-                }}
-              >
-                {label}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* основной контент */}
-      <div className="max-w-6xl mx-auto px-4 md:px-6 py-6 flex gap-6 items-start">
-
-        {/* контент шага */}
-        <div className="flex-1 min-w-0">
-
-          {/* ШАГ 1 — услуга */}
+        <div className="min-w-0">
           {currentStep === 1 && (
             <div>
-              <p className="text-sm mb-4" style={{ color: colors.gray }}>
+              <p
+                style={{
+                  fontSize: "14px",
+                  color: "#A8B2C1",
+                  marginBottom: "16px",
+                }}
+              >
                 {shop.name}
               </p>
 
-              <div className="flex flex-col gap-3 mb-6">
-                {shop.services.map((service) => {
-                  const isSelected = selectedService?.id === service.id;
-                  return (
-                    <button
-                      key={service.id}
-                      onClick={() => setSelectedService(service)}
-                      className="w-full flex items-center justify-between px-4 py-4 rounded-xl text-left transition-all"
-                      style={{
-                        backgroundColor: colors.light,
-                        border: isSelected
-                          ? `1px solid ${colors.accent}`
-                          : "1px solid rgba(255,255,255,0.05)",
-                      }}
-                    >
-                      <div className="flex items-center gap-3">
-                        <Scissors size={iconSize.md} />
-                        <div>
-                          <p className="text-white text-sm font-medium">
-                            {service.name}
-                          </p>
-                          <p className="text-xs mt-0.5" style={{ color: colors.gray }}>
-                            <span className="inline-flex items-center gap-1">
-                              <Clock3 size={iconSize.xs} />
-                              {service.duration}
-                            </span>
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="text-sm font-semibold"
-                          style={{ color: isSelected ? colors.accent : colors.gray }}
-                        >
-                          {service.price.toLocaleString("ru-RU")}₸
-                        </span>
-                        {isSelected && (
-                          <Check size={iconSize.sm} style={{ color: colors.accent }} />
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <button
-                disabled={!selectedService}
-                onClick={() => setCurrentStep(2)}
-                className="w-full py-3 rounded-xl font-semibold text-white transition-opacity"
-                style={{
-                  backgroundColor: colors.accent,
-                  opacity: selectedService ? 1 : 0.4,
-                }}
-              >
-                Далее →
-              </button>
+              <ServiceSelector
+                services={step1Services}
+                selectedId={selectedService?.id}
+                onSelect={setSelectedService}
+              />
             </div>
           )}
 
-          {/* ШАГ 2 — мастер и время */}
           {currentStep === 2 && (
             <div>
-              <p className="text-sm font-medium text-white mb-3">
-                Выберите мастера
-              </p>
-              <div className="flex gap-4 overflow-x-auto pb-2 mb-6 lg:grid lg:grid-cols-6 lg:gap-3 lg:overflow-visible">
-
-                {/* любой */}
-                <button
-                  onClick={() => setSelectedMaster(null)}
-                  className="flex flex-col items-center gap-1.5 shrink-0"
-                >
-                  <div
-                    className="w-14 h-14 rounded-full flex items-center justify-center text-xl"
-                    style={{
-                      backgroundColor: colors.light,
-                      border:
-                        selectedMaster === null
-                          ? `2px solid ${colors.accent}`
-                          : "2px solid transparent",
-                    }}
-                  >
-                    <Zap size={iconSize.md} style={{ color: colors.accent }} />
-                  </div>
-                  <span
-                    className="text-xs"
-                    style={{
-                      color: selectedMaster === null ? "#ffffff" : colors.gray,
-                    }}
-                  >
-                    Любой
-                  </span>
-                </button>
-
-                {shop.masters.map((master) => {
-                  const isSelected = selectedMaster?.id === master.id;
-                  const initials = master.name
-                    .split(" ")
-                    .map((w) => w[0])
-                    .join("");
-                  return (
-                    <button
-                      key={master.id}
-                      onClick={() => setSelectedMaster(master)}
-                      className="flex flex-col items-center gap-1.5 shrink-0"
-                    >
-                      <div
-                        className="w-14 h-14 rounded-full flex items-center justify-center text-sm font-bold text-white"
-                        style={{
-                          backgroundColor: colors.light,
-                          border: isSelected
-                            ? `2px solid ${colors.accent}`
-                            : "2px solid transparent",
-                        }}
-                      >
-                        {initials}
-                      </div>
-                      <span
-                        className="text-xs text-center"
-                        style={{ color: isSelected ? "#ffffff" : colors.gray }}
-                      >
-                        {master.name.split(" ")[0]}
-                      </span>
-                      <span className="text-xs" style={{ color: colors.gold }}>
-                        ★ {master.rating}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <p className="text-sm font-medium text-white mb-3">
-                Выберите дату
-              </p>
-              <div className="flex gap-2 overflow-x-auto pb-1 mb-6 lg:grid lg:grid-cols-6 lg:gap-2 lg:overflow-visible">
-                {days.map((day) => {
-                  const isSelected = selectedDate === day.full;
-                  return (
-                    <button
-                      key={day.full}
-                      onClick={() => setSelectedDate(day.full)}
-                      className="flex flex-col items-center px-4 py-2.5 rounded-xl min-w-14 transition-all"
-                      style={{
-                        backgroundColor: isSelected ? colors.accent : colors.light,
-                      }}
-                    >
-                      <span
-                        className="text-xs"
-                        style={{
-                          color: isSelected ? "rgba(255,255,255,0.8)" : colors.gray,
-                        }}
-                      >
-                        {day.label}
-                      </span>
-                      <span className="text-sm font-semibold text-white mt-0.5">
-                        {day.date}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <p className="text-sm font-medium text-white mb-3">
-                Выберите время
-              </p>
-              <div className="grid grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 mb-6">
-                {timeSlots.map((slot) => {
-                  const isSelected = selectedTime === slot;
-                  return (
-                    <button
-                      key={slot}
-                      onClick={() => setSelectedTime(slot)}
-                      className="py-2.5 rounded-lg text-sm font-medium transition-all"
-                      style={{
-                        backgroundColor: isSelected ? colors.accent : colors.light,
-                        color: "#ffffff",
-                      }}
-                    >
-                      {slot}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <button
-                disabled={!selectedTime}
-                onClick={() => setCurrentStep(3)}
-                className="w-full py-3 rounded-xl font-semibold text-white transition-opacity"
+              <h2
+                className="text-white"
                 style={{
-                  backgroundColor: colors.accent,
-                  opacity: selectedTime ? 1 : 0.4,
+                  fontSize: "18px",
+                  fontWeight: 700,
+                  marginBottom: "16px",
                 }}
               >
-                Далее →
-              </button>
-            </div>
-          )}
-
-          {/* ШАГ 3 — подтверждение */}
-          {currentStep === 3 && (
-            <div>
-              <h2 className="text-lg font-bold text-white mb-4">
-                Детали записи
+                Выберите мастера
               </h2>
-
-              {/* карточка барбершопа */}
-              <div
-                className="flex items-center gap-3 px-4 py-3 rounded-xl mb-4"
-                style={{ backgroundColor: colors.light }}
-              >
-                <Scissors size={iconSize.lg} style={{ color: colors.accent }} />
-                <div>
-                  <p className="text-white text-sm font-medium">{shop.name}</p>
-                  <p className="text-xs" style={{ color: colors.gray }}>
-                    <span className="inline-flex items-center gap-1">
-                      <MapPin size={iconSize.xs} />
-                      {shop.address}
-                    </span>
-                  </p>
-                </div>
-              </div>
-
-              {/* таблица деталей */}
-              <div
-                className="rounded-2xl px-5 py-2 mb-4"
-                style={{ backgroundColor: colors.dark }}
-              >
-                {[
-                  ["Мастер", selectedMaster ? selectedMaster.name : "Любой доступный"],
-                  ["Услуга", selectedService?.name],
-                  ["Дата", selectedDate],
-                  ["Время", selectedTime],
-                  ["Длительность", selectedService?.duration ? `~${selectedService.duration}` : "—"],
-                ].map(([label, value], i, arr) => (
-                  <div
-                    key={label}
-                    className="flex items-center justify-between py-3"
-                    style={{
-                      borderBottom:
-                        i < arr.length - 1
-                          ? "1px solid rgba(255,255,255,0.05)"
-                          : "none",
-                    }}
-                  >
-                    <span className="text-sm" style={{ color: colors.gray }}>
-                      {label}
-                    </span>
-                    <span className="text-sm text-white font-medium">{value}</span>
-                  </div>
-                ))}
-
-                <div
-                  className="flex items-center justify-between py-3 border-t"
-                  style={{ borderColor: "rgba(255,255,255,0.08)" }}
-                >
-                  <span className="text-base font-bold text-white">Итого</span>
-                  <span
-                    className="text-lg font-bold"
-                    style={{ color: colors.accent }}
-                  >
-                    {selectedService?.price.toLocaleString("ru-RU")}₸
-                  </span>
-                </div>
-              </div>
-
-              {/* комментарий */}
-              <div className="mb-4">
-                <label className="text-sm text-white mb-2 block">
-                  Комментарий для мастера
-                </label>
-                <textarea
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  placeholder="Например: хочу фейд с переходом..."
-                  rows={3}
-                  className="w-full px-4 py-3 rounded-xl text-white text-sm focus:outline-none resize-none"
-                  style={{
-                    backgroundColor: colors.light,
-                    border: "1px solid rgba(255,255,255,0.08)",
-                  }}
+              <div style={{ marginBottom: "32px" }}>
+                <MasterSelector
+                  masters={step2Masters}
+                  selectedId={selectedMaster?.id}
+                  onSelect={setSelectedMaster}
                 />
               </div>
 
-              {/* напоминание */}
-              <div
-                className="flex items-center justify-between px-4 py-3 rounded-xl mb-2"
-                style={{ backgroundColor: colors.light }}
+              <h2
+                className="text-white"
+                style={{
+                  fontSize: "18px",
+                  fontWeight: 700,
+                  marginBottom: "16px",
+                }}
               >
-                <span className="text-sm text-white">
-                  <span className="inline-flex items-center gap-1.5">
-                    <Bell size={iconSize.sm} />
-                    Напоминание · За 2 часа до записи
-                  </span>
-                </span>
-                <button
-                  onClick={() => setReminder(!reminder)}
-                  className="w-11 h-6 rounded-full flex items-center px-1 transition-colors"
-                  style={{ backgroundColor: reminder ? colors.accent : "rgba(255,255,255,0.15)" }}
-                >
-                  <div
-                    className="w-4 h-4 rounded-full bg-white transition-transform"
-                    style={{ transform: reminder ? "translateX(20px)" : "translateX(0)" }}
-                  />
-                </button>
+                Выберите дату
+              </h2>
+              <div style={{ marginBottom: "32px" }}>
+                <DateSelector
+                  days={days}
+                  selectedKey={selectedDay?.key}
+                  onSelect={setSelectedDay}
+                />
               </div>
 
-              <p className="text-xs mb-5 text-center" style={{ color: colors.gray }}>
-                <span className="inline-flex items-center gap-1">
-                  <Info size={iconSize.xs} />
-                  Бесплатная отмена до 2 часов до записи
-                </span>
-              </p>
-
-              <button
-                onClick={handleConfirm}
-                disabled={isSubmitting}
-                className="w-full py-3 rounded-xl font-semibold text-white text-base hover:opacity-90 transition-opacity disabled:opacity-60"
-                style={{ backgroundColor: colors.accent }}
+              <h2
+                className="text-white"
+                style={{
+                  fontSize: "18px",
+                  fontWeight: 700,
+                  marginBottom: "16px",
+                }}
               >
-                {isSubmitting ? "Подтверждаем..." : "Подтвердить запись ✓"}
-              </button>
+                Выберите время
+              </h2>
+              <TimeSlotGrid
+                slots={timeSlots}
+                selectedSlot={selectedTime}
+                onSelect={setSelectedTime}
+              />
             </div>
+          )}
+
+          {currentStep === 3 && (
+            <Step3Details
+              shop={shop}
+              masterName={
+                selectedMaster ? selectedMaster.name : "Любой доступный"
+              }
+              serviceName={selectedService?.name}
+              dateDisplay={selectedDate}
+              time={selectedTime}
+              duration={selectedService?.duration}
+              price={selectedService?.price}
+              comment={comment}
+              onCommentChange={setComment}
+              reminder={reminder}
+              onReminderChange={setReminder}
+            />
           )}
         </div>
 
-        {/* правый sidebar — сводка заказа */}
-        {selectedService && (
-          <div
-            className="hidden lg:block w-64 shrink-0 rounded-2xl p-5 sticky top-24"
-            style={{ backgroundColor: colors.light }}
-          >
-            <h3 className="text-base font-semibold text-white mb-4">
-              Ваш заказ
-            </h3>
-            <div className="flex flex-col gap-2.5">
-              {[
-                ["Услуга", selectedService?.name],
-                selectedMaster && ["Мастер", selectedMaster.name],
-                selectedDate && ["Дата", selectedDate],
-                selectedTime && ["Время", selectedTime],
-                ["Длительность", selectedService?.duration],
-                ["Стоимость", selectedService ? `${selectedService.price.toLocaleString("ru-RU")}₸` : null],
-              ]
-                .filter(Boolean)
-                .map(([label, value]) =>
-                  value ? (
-                    <div key={label} className="flex flex-col gap-0.5">
-                      <span className="text-xs" style={{ color: colors.gray }}>
-                        {label}
-                      </span>
-                      <span className="text-sm text-white font-medium">{value}</span>
-                    </div>
-                  ) : null
-                )}
-            </div>
+        {currentStep === 1 && (
+          <OrderWidget
+            service={selectedService}
+            onNext={() => selectedService && setCurrentStep(2)}
+          />
+        )}
 
-            <div
-              className="border-t mt-4 pt-4 flex items-center justify-between"
-              style={{ borderColor: "rgba(255,255,255,0.08)" }}
-            >
-              <span className="text-sm text-white font-semibold">Итого</span>
-              <span className="text-base font-bold" style={{ color: colors.accent }}>
-                {selectedService.price.toLocaleString("ru-RU")}₸
-              </span>
-            </div>
+        {currentStep === 2 && (
+          <Step2OrderWidget
+            master={selectedMaster}
+            service={selectedService}
+            date={selectedDate}
+            time={selectedTime}
+            canProceed={!!selectedMaster && !!selectedDay && !!selectedTime}
+            onNext={() => setCurrentStep(3)}
+          />
+        )}
 
-            {currentStep < 3 && (
-              <button
-                disabled={
-                  (currentStep === 1 && !selectedService) ||
-                  (currentStep === 2 && !selectedTime)
-                }
-                onClick={() => setCurrentStep(currentStep + 1)}
-                className="w-full mt-4 py-2.5 rounded-xl font-semibold text-white text-sm transition-opacity disabled:opacity-40"
-                style={{ backgroundColor: colors.accent }}
-              >
-                Далее →
-              </button>
-            )}
-          </div>
+        {currentStep === 3 && (
+          <BookingSummary
+            shopName={shop.name}
+            dateTime={
+              selectedDay && selectedTime
+                ? `${selectedDay.summaryDisplay} · ${selectedTime}`
+                : "—"
+            }
+            masterName={selectedMaster ? selectedMaster.name : "Любой доступный"}
+            serviceShortName={
+              selectedService?.shortName || selectedService?.name || "—"
+            }
+            duration={selectedService?.duration}
+            price={selectedService?.price}
+            isSubmitting={isSubmitting}
+            onConfirm={handleConfirm}
+          />
         )}
       </div>
+    </div>
+  );
+}
+
+function OrderWidget({ service, onNext }) {
+  const hasService = !!service;
+
+  return (
+    <aside
+      className="shrink-0"
+      style={{
+        backgroundColor: "#1E2A3A",
+        borderRadius: "16px",
+        padding: "24px",
+        position: "sticky",
+        top: "24px",
+      }}
+    >
+      <h2
+        className="text-white"
+        style={{ fontSize: "18px", fontWeight: 700, marginBottom: "20px" }}
+      >
+        Ваш заказ
+      </h2>
+
+      {hasService ? (
+        <div
+          className="grid"
+          style={{
+            gridTemplateColumns: "1fr 1fr",
+            rowGap: "12px",
+            marginBottom: "20px",
+          }}
+        >
+          <span style={{ fontSize: "14px", color: "#A8B2C1" }}>Услуга</span>
+          <span
+            className="text-white"
+            style={{ fontSize: "14px", fontWeight: 600, textAlign: "right" }}
+          >
+            {service.shortName || service.name}
+          </span>
+
+          <span style={{ fontSize: "14px", color: "#A8B2C1" }}>
+            Длительность
+          </span>
+          <span
+            className="text-white"
+            style={{ fontSize: "14px", fontWeight: 600, textAlign: "right" }}
+          >
+            {service.duration} мин
+          </span>
+
+          <span style={{ fontSize: "14px", color: "#A8B2C1" }}>Стоимость</span>
+          <span
+            className="text-white"
+            style={{ fontSize: "14px", fontWeight: 600, textAlign: "right" }}
+          >
+            {service.price.toLocaleString("ru-RU")}₸
+          </span>
+        </div>
+      ) : (
+        <p
+          style={{
+            textAlign: "center",
+            color: "#A8B2C1",
+            padding: "20px 0",
+            marginBottom: "20px",
+          }}
+        >
+          Выберите услугу
+        </p>
+      )}
+
+      <div
+        style={{
+          height: "1px",
+          backgroundColor: "#2a3a4a",
+          marginBottom: "16px",
+        }}
+      />
+
+      <div
+        className="flex items-center justify-between"
+        style={{ marginBottom: "20px" }}
+      >
+        <span
+          className="text-white"
+          style={{ fontSize: "16px", fontWeight: 600 }}
+        >
+          Итого
+        </span>
+        <span
+          style={{
+            fontSize: "20px",
+            fontWeight: 700,
+            color: "#E94560",
+          }}
+        >
+          {hasService ? `${service.price.toLocaleString("ru-RU")}₸` : "0₸"}
+        </span>
+      </div>
+
+      <button
+        type="button"
+        onClick={onNext}
+        disabled={!hasService}
+        className="text-white"
+        style={{
+          width: "100%",
+          backgroundColor: "#E94560",
+          borderRadius: "12px",
+          padding: "14px",
+          fontSize: "16px",
+          fontWeight: 700,
+          border: "none",
+          cursor: hasService ? "pointer" : "not-allowed",
+          opacity: hasService ? 1 : 0.5,
+        }}
+      >
+        Далее →
+      </button>
+    </aside>
+  );
+}
+
+function Step2OrderWidget({ master, service, date, time, canProceed, onNext }) {
+  const rows = [
+    ["Мастер", master?.name || "—"],
+    ["Услуга", service?.shortName || service?.name || "—"],
+    ["Дата", date || "—"],
+    ["Время", time || "—"],
+    [
+      "Стоимость",
+      service ? `${service.price.toLocaleString("ru-RU")}₸` : "—",
+    ],
+  ];
+
+  return (
+    <aside
+      className="shrink-0"
+      style={{
+        backgroundColor: "#1E2A3A",
+        borderRadius: "16px",
+        padding: "24px",
+        position: "sticky",
+        top: "24px",
+      }}
+    >
+      <h2
+        className="text-white"
+        style={{ fontSize: "18px", fontWeight: 700, marginBottom: "16px" }}
+      >
+        Ваш заказ
+      </h2>
+
+      <div
+        className="grid"
+        style={{
+          gridTemplateColumns: "1fr 1fr",
+          rowGap: "12px",
+          marginBottom: "16px",
+        }}
+      >
+        {rows.map(([label, value]) => (
+          <Step2Row key={label} label={label} value={value} />
+        ))}
+      </div>
+
+      <div
+        style={{
+          height: "1px",
+          backgroundColor: "#2a3a4a",
+          marginBottom: "16px",
+        }}
+      />
+
+      <div
+        className="flex items-center justify-between"
+        style={{ marginBottom: "20px" }}
+      >
+        <span
+          className="text-white"
+          style={{ fontSize: "16px", fontWeight: 600 }}
+        >
+          Итого
+        </span>
+        <span
+          style={{
+            fontSize: "20px",
+            fontWeight: 700,
+            color: "#E94560",
+          }}
+        >
+          {service ? `${service.price.toLocaleString("ru-RU")}₸` : "0₸"}
+        </span>
+      </div>
+
+      <button
+        type="button"
+        onClick={onNext}
+        disabled={!canProceed}
+        className="text-white"
+        style={{
+          width: "100%",
+          backgroundColor: "#E94560",
+          borderRadius: "12px",
+          padding: "14px",
+          fontSize: "16px",
+          fontWeight: 700,
+          border: "none",
+          cursor: canProceed ? "pointer" : "not-allowed",
+          opacity: canProceed ? 1 : 0.5,
+        }}
+      >
+        Далее →
+      </button>
+    </aside>
+  );
+}
+
+function Step2Row({ label, value }) {
+  return (
+    <>
+      <span style={{ fontSize: "14px", color: "#A8B2C1" }}>{label}</span>
+      <span
+        className="text-white"
+        style={{ fontSize: "14px", fontWeight: 600, textAlign: "right" }}
+      >
+        {value}
+      </span>
+    </>
+  );
+}
+
+function Step3Details({
+  shop,
+  masterName,
+  serviceName,
+  dateDisplay,
+  time,
+  duration,
+  price,
+  comment,
+  onCommentChange,
+  reminder,
+  onReminderChange,
+}) {
+  const rows = [
+    ["Мастер", masterName || "—"],
+    ["Услуга", serviceName || "—"],
+    ["Дата", dateDisplay || "—"],
+    ["Время", time || "—"],
+    ["Длительность", duration ? `~${duration} минут` : "—"],
+  ];
+
+  return (
+    <div>
+      <h2
+        className="text-white"
+        style={{ fontSize: "20px", fontWeight: 700, marginBottom: "16px" }}
+      >
+        Детали записи
+      </h2>
+
+      <div
+        className="flex items-center"
+        style={{
+          backgroundColor: "#1E2A3A",
+          borderRadius: "12px",
+          padding: "16px",
+          gap: "14px",
+          marginBottom: "24px",
+        }}
+      >
+        <div
+          className="flex items-center justify-center"
+          style={{
+            width: "44px",
+            height: "44px",
+            borderRadius: "10px",
+            backgroundColor: "#16213E",
+            fontSize: "22px",
+            flexShrink: 0,
+          }}
+        >
+          💈
+        </div>
+        <div>
+          <div
+            className="text-white"
+            style={{ fontSize: "16px", fontWeight: 700 }}
+          >
+            {shop.name}
+          </div>
+          <div
+            style={{
+              fontSize: "13px",
+              color: "#A8B2C1",
+              marginTop: "4px",
+            }}
+          >
+            📍 {shop.address}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ marginBottom: "24px" }}>
+        {rows.map(([label, value]) => (
+          <div
+            key={label}
+            className="flex items-center justify-between"
+            style={{
+              padding: "14px 0",
+              borderBottom: "1px solid #2a3a4a",
+            }}
+          >
+            <span style={{ fontSize: "14px", color: "#A8B2C1" }}>
+              {label}
+            </span>
+            <span
+              className="text-white"
+              style={{ fontSize: "15px", fontWeight: 700 }}
+            >
+              {value}
+            </span>
+          </div>
+        ))}
+
+        <div
+          className="flex items-center justify-between"
+          style={{ padding: "14px 0", marginTop: "4px" }}
+        >
+          <span
+            className="text-white"
+            style={{ fontSize: "16px", fontWeight: 600 }}
+          >
+            Итого
+          </span>
+          <span
+            style={{
+              fontSize: "20px",
+              fontWeight: 700,
+              color: "#E94560",
+            }}
+          >
+            {price ? `${price.toLocaleString("ru-RU")}₸` : "—"}
+          </span>
+        </div>
+      </div>
+
+      <div style={{ marginBottom: "16px" }}>
+        <label
+          style={{
+            display: "block",
+            fontSize: "14px",
+            color: "#A8B2C1",
+            marginBottom: "8px",
+          }}
+        >
+          Комментарий для мастера
+        </label>
+        <textarea
+          value={comment}
+          onChange={(e) => onCommentChange(e.target.value)}
+          placeholder="Например: хочу фейд с переходом..."
+          className="booking-comment-textarea"
+          style={{
+            width: "100%",
+            minHeight: "80px",
+            backgroundColor: "#1E2A3A",
+            border: "1px solid #2a3a4a",
+            borderRadius: "12px",
+            padding: "14px 16px",
+            color: "#ffffff",
+            fontSize: "14px",
+            resize: "vertical",
+            outline: "none",
+            fontFamily: "inherit",
+          }}
+          onFocus={(e) => {
+            e.currentTarget.style.borderColor = "#E94560";
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.borderColor = "#2a3a4a";
+          }}
+        />
+      </div>
+
+      <div style={{ marginBottom: "16px" }}>
+        <ReminderToggle enabled={reminder} onChange={onReminderChange} />
+      </div>
+
+      <p style={{ fontSize: "13px", color: "#A8B2C1" }}>
+        ℹ️ Бесплатная отмена до 2 часов до записи
+      </p>
     </div>
   );
 }
