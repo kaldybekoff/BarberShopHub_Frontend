@@ -5,7 +5,7 @@ import StatsCard from "../../components/barbershop/StatsCard";
 import UsersTable from "../../components/admin/UsersTable";
 import BarbershopsTable from "../../components/admin/BarbershopsTable";
 import ReviewModerationTable from "../../components/admin/ReviewModerationTable";
-import colors from "../../styles/colors";
+import colors from "../../constants/colors";
 
 function AdminDashboardPage() {
   const [userList, setUserList] = useState([]);
@@ -37,7 +37,7 @@ function AdminDashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center"
+      <div className="min-h-full flex items-center justify-center"
         style={{ backgroundColor: colors.primary }}>
         <p className="text-sm" style={{ color: colors.gray }}>Загрузка...</p>
       </div>
@@ -46,7 +46,7 @@ function AdminDashboardPage() {
 
   if (errorMessage) {
     return (
-      <div className="min-h-screen flex items-center justify-center"
+      <div className="min-h-full flex items-center justify-center"
         style={{ backgroundColor: colors.primary }}>
         <p className="text-sm" style={{ color: colors.accent }}>{errorMessage}</p>
       </div>
@@ -55,7 +55,7 @@ function AdminDashboardPage() {
 
   return (
     <div
-      className="min-h-screen px-8 py-6"
+      className="min-h-full max-w-7xl mx-auto px-4 md:px-6 py-6"
       style={{ backgroundColor: colors.primary }}
     >
       <div className="mb-6">
@@ -66,7 +66,7 @@ function AdminDashboardPage() {
       </div>
 
       {/* Stats cards */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {adminStatsCards.map((stat) => (
           <StatsCard
             key={stat.id}

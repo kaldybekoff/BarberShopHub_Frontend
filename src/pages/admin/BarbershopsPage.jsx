@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { getBarbershops } from "../../api/adminApi";
 import BarbershopsTable from "../../components/admin/BarbershopsTable";
-import Input from "../../components/common/Input";
-import EmptyState from "../../components/common/EmptyState";
-import SectionTitle from "../../components/common/SectionTitle";
-import colors from "../../styles/colors";
+import Input from "../../components/shared/Input";
+import EmptyState from "../../components/shared/EmptyState";
+import SectionTitle from "../../components/shared/SectionTitle";
+import colors from "../../constants/colors";
 
 const tabs = ["Все", "Активные", "Заблокированные"];
 
@@ -39,7 +39,7 @@ function BarbershopsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center"
+      <div className="min-h-full flex items-center justify-center"
         style={{ backgroundColor: colors.primary }}>
         <p className="text-sm" style={{ color: colors.gray }}>Загрузка...</p>
       </div>
@@ -48,7 +48,7 @@ function BarbershopsPage() {
 
   return (
     <div
-      className="min-h-screen px-4 py-6 max-w-4xl mx-auto"
+      className="min-h-full px-4 md:px-6 py-6 max-w-7xl mx-auto"
       style={{ backgroundColor: colors.primary }}
     >
       <SectionTitle title="Барбершопы" subtitle="Управление барбершопами платформы" />
@@ -62,7 +62,7 @@ function BarbershopsPage() {
       </div>
 
       {/* Табы */}
-      <div className="flex gap-2 mb-5">
+      <div className="flex gap-2 overflow-x-auto pb-1 mb-5">
         {tabs.map((tab) => {
           const isActive = tab === activeTab;
           return (
@@ -82,7 +82,7 @@ function BarbershopsPage() {
       </div>
 
       {filteredBarbershops.length === 0 ? (
-        <EmptyState icon="✂️" message="Барбершопы не найдены. Попробуйте изменить запрос или фильтр." />
+        <EmptyState icon="scissors" message="Барбершопы не найдены. Попробуйте изменить запрос или фильтр." />
       ) : (
         <BarbershopsTable barbershopList={filteredBarbershops} />
       )}

@@ -1,4 +1,4 @@
-import colors from "../../styles/colors";
+import colors from "../../constants/colors";
 
 const statusConfig = {
   active: { label: "Активен", color: colors.success },
@@ -14,13 +14,13 @@ function BarbershopsTable({ barbershopList }) {
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm table-fixed min-w-[820px]">
           <thead>
             <tr style={{ borderBottom: `1px solid ${colors.dark}` }}>
               {["Название", "Адрес", "Рейтинг", "Статус"].map((col) => (
                 <th
                   key={col}
-                  className="text-left px-5 py-3 font-medium text-xs uppercase tracking-wide"
+                  className="text-left px-4 py-2.5 font-medium text-xs uppercase tracking-wide"
                   style={{ color: colors.gray }}
                 >
                   {col}
@@ -37,10 +37,10 @@ function BarbershopsTable({ barbershopList }) {
                   key={shop.id}
                   style={isLast ? {} : { borderBottom: `1px solid ${colors.dark}` }}
                 >
-                  <td className="px-5 py-3 text-white font-medium">{shop.name}</td>
-                  <td className="px-5 py-3" style={{ color: colors.gray }}>{shop.address}</td>
-                  <td className="px-5 py-3" style={{ color: colors.gold }}>★ {shop.rating}</td>
-                  <td className="px-5 py-3">
+                  <td className="px-4 py-2.5 text-white font-medium truncate">{shop.name}</td>
+                  <td className="px-4 py-2.5 truncate" style={{ color: colors.gray }}>{shop.address}</td>
+                  <td className="px-4 py-2.5" style={{ color: colors.gold }}>★ {shop.rating}</td>
+                  <td className="px-4 py-2.5">
                     <span
                       className="text-xs font-medium px-2 py-0.5 rounded-full"
                       style={{ color: status.color, backgroundColor: `${status.color}20` }}

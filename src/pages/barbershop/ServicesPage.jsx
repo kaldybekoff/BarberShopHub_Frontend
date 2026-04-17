@@ -1,9 +1,9 @@
 import { useState } from "react";
 import mockShops from "../../data/mockShops";
-import Button from "../../components/common/Button";
-import EmptyState from "../../components/common/EmptyState";
-import SectionTitle from "../../components/common/SectionTitle";
-import colors from "../../styles/colors";
+import Button from "../../components/shared/Button";
+import EmptyState from "../../components/shared/EmptyState";
+import SectionTitle from "../../components/shared/SectionTitle";
+import colors from "../../constants/colors";
 
 // TODO: заменить на услуги текущего барбершопа из API
 const mockServiceList = mockShops[0]?.services ?? [];
@@ -13,16 +13,18 @@ function ServicesPage() {
 
   return (
     <div
-      className="min-h-screen px-4 py-6 max-w-2xl mx-auto"
+      className="min-h-full px-4 md:px-6 py-6 max-w-7xl mx-auto"
       style={{ backgroundColor: colors.primary }}
     >
-      <div className="flex items-center justify-between mb-6">
-        <SectionTitle title="Услуги" subtitle="Услуги вашего барбершопа" />
+      <div className="flex items-start md:items-center justify-between gap-3 mb-6">
+        <div>
+          <SectionTitle title="Услуги" subtitle="Услуги вашего барбершопа" compact />
+        </div>
         <Button label="+ Добавить" variant="primary" />
       </div>
 
       {serviceList.length === 0 ? (
-        <EmptyState icon="✂️" message="Добавьте первую услугу." />
+        <EmptyState icon="scissors" message="Добавьте первую услугу." />
       ) : (
         <div className="flex flex-col gap-3">
           {serviceList.map((service) => (

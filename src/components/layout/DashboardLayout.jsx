@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
-import colors from "../../styles/colors";
+import colors from "../../constants/colors";
 
 function DashboardLayout() {
   return (

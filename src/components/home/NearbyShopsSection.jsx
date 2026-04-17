@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
-import colors from "../../styles/colors";
+import { Scissors } from "lucide-react";
+import colors from "../../constants/colors";
 
 function NearbyShopsSection({ shops }) {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ function NearbyShopsSection({ shops }) {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
         {shops.map((shop) => (
           <div
             key={shop.id}
@@ -25,7 +26,7 @@ function NearbyShopsSection({ shops }) {
               className="w-full h-28 rounded-xl flex items-center justify-center text-3xl mb-1"
               style={{ backgroundColor: colors.dark }}
             >
-              ✂️
+              <Scissors size={30} style={{ color: colors.accent }} />
             </div>
 
             <div className="flex items-start justify-between gap-2">

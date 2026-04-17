@@ -1,6 +1,16 @@
 import { Link, useLocation } from "react-router-dom";
+import { House, Search, ClipboardList, User } from "lucide-react";
 import { userNavItems } from "../../constants/navItems";
-import colors from "../../styles/colors";
+import colors from "../../constants/colors";
+
+const bottomNavIconSize = 20;
+
+const iconMap = {
+  home: House,
+  search: Search,
+  clipboard: ClipboardList,
+  user: User,
+};
 
 function BottomNav() {
   const { pathname } = useLocation();
@@ -12,14 +22,15 @@ function BottomNav() {
     >
       {userNavItems.map((navItem) => {
         const isActive = pathname === navItem.path || pathname.startsWith(navItem.path + "/");
+        const Icon = iconMap[navItem.icon];
         return (
           <Link
             key={navItem.path}
             to={navItem.path}
             className="flex flex-col items-center gap-0.5 px-3 py-1"
           >
-            <span className="text-xl" style={{ color: isActive ? colors.accent : colors.gray }}>
-              {navItem.icon}
+            <span style={{ color: isActive ? colors.accent : colors.gray }}>
+              {Icon ? <Icon size={bottomNavIconSize} /> : null}
             </span>
             <span
               className="text-xs font-medium"

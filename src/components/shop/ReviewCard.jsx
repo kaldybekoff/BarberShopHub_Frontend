@@ -1,4 +1,4 @@
-import colors from "../../styles/colors";
+import colors from "../../constants/colors";
 
 function ReviewCard({ review }) {
   return (

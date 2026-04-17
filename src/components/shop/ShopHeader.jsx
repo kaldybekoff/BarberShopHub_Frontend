@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import colors from "../../styles/colors";
+import { Scissors } from "lucide-react";
+import colors from "../../constants/colors";
 
 function ShopHeader({ shop }) {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ function ShopHeader({ shop }) {
           <div
             className="w-32 h-32 rounded-xl flex items-center justify-center text-4xl shrink-0"
             style={{ backgroundColor: colors.light }}>
-            ✂
+            <Scissors size={38} style={{ color: colors.accent }} />
           </div>
         )}
 

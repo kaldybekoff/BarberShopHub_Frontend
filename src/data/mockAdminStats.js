@@ -1,8 +1,8 @@
 export const adminStatsCards = [
-  { id: 1, label: "Всего пользователей", value: "1 248", icon: "👥" },
-  { id: 2, label: "Всего барбершопов", value: "34", icon: "✂️" },
-  { id: 3, label: "Записей за месяц", value: "2 107", icon: "📅" },
-  { id: 4, label: "Отзывов на модерации", value: "8", icon: "💬" },
+  { id: 1, label: "Всего пользователей", value: "1 248", icon: "users" },
+  { id: 2, label: "Всего барбершопов", value: "34", icon: "scissors" },
+  { id: 3, label: "Записей за месяц", value: "2 107", icon: "calendar" },
+  { id: 4, label: "Отзывов на модерации", value: "8", icon: "message" },
 ];
 
 export const userList = [

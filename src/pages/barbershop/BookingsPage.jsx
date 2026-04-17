@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { getBookings } from "../../api/dashboardApi";
-import Button from "../../components/common/Button";
-import EmptyState from "../../components/common/EmptyState";
-import SectionTitle from "../../components/common/SectionTitle";
-import colors from "../../styles/colors";
+import Button from "../../components/shared/Button";
+import EmptyState from "../../components/shared/EmptyState";
+import SectionTitle from "../../components/shared/SectionTitle";
+import colors from "../../constants/colors";
 
 const tabs = ["Все", "Ожидает", "Подтверждено", "Отменено"];
 
@@ -38,7 +38,7 @@ function BookingsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center"
+      <div className="min-h-full flex items-center justify-center"
         style={{ backgroundColor: colors.primary }}>
         <p className="text-sm" style={{ color: colors.gray }}>Загрузка...</p>
       </div>
@@ -47,7 +47,7 @@ function BookingsPage() {
 
   return (
     <div
-      className="min-h-screen px-4 py-6 max-w-2xl mx-auto"
+      className="min-h-full px-4 md:px-6 py-6 max-w-7xl mx-auto"
       style={{ backgroundColor: colors.primary }}
     >
       <SectionTitle title="Записи" subtitle="Управляйте бронированиями" />
@@ -73,7 +73,7 @@ function BookingsPage() {
       </div>
 
       {filteredBookings.length === 0 ? (
-        <EmptyState icon="📭" message="В этой категории пока нет записей." />
+        <EmptyState icon="inbox" message="В этой категории пока нет записей." />
       ) : (
         <div className="flex flex-col gap-3">
           {filteredBookings.map((booking) => {

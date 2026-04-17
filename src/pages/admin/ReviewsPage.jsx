@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { getReviews } from "../../api/adminApi";
 import ReviewModerationTable from "../../components/admin/ReviewModerationTable";
-import EmptyState from "../../components/common/EmptyState";
-import SectionTitle from "../../components/common/SectionTitle";
-import colors from "../../styles/colors";
+import EmptyState from "../../components/shared/EmptyState";
+import SectionTitle from "../../components/shared/SectionTitle";
+import colors from "../../constants/colors";
 
 const tabs = ["Все", "Ожидает", "Одобрено", "Отклонено"];
 
@@ -32,7 +32,7 @@ function ReviewsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center"
+      <div className="min-h-full flex items-center justify-center"
         style={{ backgroundColor: colors.primary }}>
         <p className="text-sm" style={{ color: colors.gray }}>Загрузка...</p>
       </div>
@@ -41,7 +41,7 @@ function ReviewsPage() {
 
   return (
     <div
-      className="min-h-screen px-4 py-6 max-w-4xl mx-auto"
+      className="min-h-full px-4 md:px-6 py-6 max-w-7xl mx-auto"
       style={{ backgroundColor: colors.primary }}
     >
       <SectionTitle title="Модерация отзывов" subtitle="Проверка и управление отзывами" />
@@ -67,7 +67,7 @@ function ReviewsPage() {
       </div>
 
       {filteredReviews.length === 0 ? (
-        <EmptyState icon="💬" message="В этой категории пока нет отзывов." />
+        <EmptyState icon="message" message="В этой категории пока нет отзывов." />
       ) : (
         <ReviewModerationTable reviewList={filteredReviews} />
       )}

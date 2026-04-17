@@ -3,25 +3,25 @@ export const statsData = [
     id: 1,
     label: "Записей сегодня",
     value: "12",
-    icon: "📅",
+    icon: "calendar",
   },
   {
     id: 2,
     label: "Выручка за неделю",
     value: "84 500 ₸",
-    icon: "💰",
+    icon: "money",
   },
   {
     id: 3,
     label: "Рейтинг",
     value: "4.8 ★",
-    icon: "⭐",
+    icon: "chart",
   },
   {
     id: 4,
     label: "Новые клиенты",
     value: "7",
-    icon: "👤",
+    icon: "user",
   },
 ];
 
@@ -86,10 +86,10 @@ export const scheduleData = {
 };
 
 export const analyticsStats = [
-  { id: 1, label: "Выручка за период", value: "84 500 ₸", icon: "💰" },
-  { id: 2, label: "Количество записей", value: "47", icon: "📅" },
-  { id: 3, label: "Средний чек", value: "1 798 ₸", icon: "📊" },
-  { id: 4, label: "Новые клиенты", value: "12", icon: "👤" },
+  { id: 1, label: "Выручка за период", value: "84 500 ₸", icon: "money" },
+  { id: 2, label: "Количество записей", value: "47", icon: "calendar" },
+  { id: 3, label: "Средний чек", value: "1 798 ₸", icon: "chart" },
+  { id: 4, label: "Новые клиенты", value: "12", icon: "user" },
 ];
 
 export const topServices = [
