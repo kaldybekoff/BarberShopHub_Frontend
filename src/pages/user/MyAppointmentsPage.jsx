@@ -1,22 +1,52 @@
-import { useState } from "react";
-import mockAppointments from "../../data/mockAppointments";
+import { useState, useEffect } from "react";
 import AppointmentCard from "../../components/appointments/AppointmentCard";
+import { getMyAppointments } from "../../api/appointmentApi";
+
+function mapBooking(b) {
+  const dt = new Date(b.scheduled_at);
+  const barberName = b.barber_name ?? "—";
+  const initials = barberName
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+  return {
+    id: b.id,
+    shop: b.barbershop_name ?? "—",
+    master: barberName,
+    masterInitials: initials,
+    service: b.service_name ?? b.services?.[0]?.name ?? "—",
+    date: dt.toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" }),
+    time: dt.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }),
+    price: b.total_price ?? 0,
+    status: b.status,
+    reviewed: b.can_review === false,
+  };
+}
 
 function MyAppointmentsPage() {
   const [activeTab, setActiveTab] = useState("upcoming");
+  const [upcoming, setUpcoming] = useState([]);
+  const [past, setPast] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const upcoming = mockAppointments.filter((a) => a.type === "upcoming");
-  const past = mockAppointments.filter((a) => a.type === "past");
+  useEffect(() => {
+    Promise.all([getMyAppointments("upcoming"), getMyAppointments("past")])
+      .then(([upData, pastData]) => {
+        setUpcoming((upData ?? []).map(mapBooking));
+        setPast((pastData ?? []).map(mapBooking));
+      })
+      .catch((e) => console.error(e))
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <div
       className="min-h-full font-['Plus_Jakarta_Sans',system-ui]"
       style={{ backgroundColor: "#1A1A2E" }}
     >
-      <div
-        className="mx-auto"
-        style={{ maxWidth: "980px", padding: "28px 24px 48px" }}
-      >
+      <div className="mx-auto" style={{ maxWidth: "980px", padding: "28px 24px 48px" }}>
         <h1
           className="text-white"
           style={{ fontSize: "26px", fontWeight: 700, marginBottom: "24px" }}
@@ -46,7 +76,20 @@ function MyAppointmentsPage() {
           />
         </div>
 
-        {activeTab === "upcoming" ? (
+        {loading ? (
+          <div
+            className="flex items-center justify-center"
+            style={{
+              backgroundColor: "#1E2A3A",
+              borderRadius: "16px",
+              padding: "40px 20px",
+              color: "#A8B2C1",
+              fontSize: "14px",
+            }}
+          >
+            Загрузка...
+          </div>
+        ) : activeTab === "upcoming" ? (
           <UpcomingSection items={upcoming} />
         ) : (
           <PastSection items={past} />
@@ -108,10 +151,7 @@ function UpcomingSection({ items }) {
       <SectionLabel title="Предстоящие" count={items.length} />
       <div
         className="grid"
-        style={{
-          gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-          gap: "16px",
-        }}
+        style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "16px" }}
       >
         {items.map((appointment) => (
           <AppointmentCard key={appointment.id} appointment={appointment} />
@@ -171,10 +211,7 @@ function PastAppointmentRow({ appointment }) {
           {appointment.masterInitials}
         </div>
         <div>
-          <p
-            className="text-white"
-            style={{ fontWeight: 700, fontSize: "14px" }}
-          >
+          <p className="text-white" style={{ fontWeight: 700, fontSize: "14px" }}>
             {appointment.shop}
           </p>
           <p style={{ color: "#A8B2C1", fontSize: "12px", marginTop: "2px" }}>
@@ -185,10 +222,8 @@ function PastAppointmentRow({ appointment }) {
       </div>
 
       <div className="flex items-center" style={{ gap: "16px" }}>
-        <span
-          style={{ color: "#A8B2C1", fontWeight: 700, fontSize: "14px" }}
-        >
-          {appointment.price.toLocaleString("ru-RU")}₸
+        <span style={{ color: "#A8B2C1", fontWeight: 700, fontSize: "14px" }}>
+          {Number(appointment.price).toLocaleString("ru-RU")}₸
         </span>
 
         {appointment.reviewed ? (

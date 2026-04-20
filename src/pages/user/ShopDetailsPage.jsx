@@ -1,57 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ShopTabs from "../../components/shop/ShopTabs";
 import ServiceItem from "../../components/shop/ServiceItem";
-
-const mockShop = {
-  id: 1,
-  name: "BarbershopKZ",
-  rating: 4.9,
-  reviews: 312,
-  address: "ул. Абая 14",
-  status: "open",
-  closeTime: "21:00",
-  services: [
-    {
-      id: 1,
-      category: "Стрижки",
-      name: "Классическая стрижка",
-      icon: "✂️",
-      duration: 30,
-      price: 1500,
-    },
-    {
-      id: 2,
-      category: "Стрижки",
-      name: "Фейд + укладка",
-      icon: "👑",
-      duration: 50,
-      price: 2500,
-    },
-    {
-      id: 3,
-      category: "Борода",
-      name: "Стрижка бороды",
-      icon: "🪒",
-      duration: 25,
-      price: 1200,
-    },
-    {
-      id: 4,
-      category: "Борода",
-      name: "Комплекс: стрижка + борода",
-      icon: "💎",
-      duration: 60,
-      price: 3200,
-    },
-  ],
-};
+import { getShopBySlug } from "../../api/shopApi";
 
 function groupServicesByCategory(services) {
   const groups = {};
-  services.forEach((service) => {
-    if (!groups[service.category]) groups[service.category] = [];
-    groups[service.category].push(service);
+  (services ?? []).forEach((service) => {
+    const cat = service.category?.name ?? service.category ?? "Прочее";
+    if (!groups[cat]) groups[cat] = [];
+    groups[cat].push(service);
   });
   return groups;
 }
@@ -60,12 +18,43 @@ function ShopDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("services");
+  const [shop, setShop] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const shop = mockShop;
-  const shopId = id || shop.id;
+  useEffect(() => {
+    getShopBySlug(id)
+      .then(setShop)
+      .catch((e) => console.error(e))
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div
+        className="min-h-full flex items-center justify-center"
+        style={{ backgroundColor: "#1A1A2E" }}
+      >
+        <p style={{ color: "#A8B2C1" }}>Загрузка...</p>
+      </div>
+    );
+  }
+
+  if (!shop) {
+    return (
+      <div
+        className="min-h-full flex items-center justify-center"
+        style={{ backgroundColor: "#1A1A2E" }}
+      >
+        <p className="text-white">Барбершоп не найден</p>
+      </div>
+    );
+  }
 
   const servicesByCategory = groupServicesByCategory(shop.services);
   const isOpen = shop.status === "open";
+  const closeTime = shop.closes_at ?? "";
+  const reviewsCount = shop.reviews_count ?? 0;
+  const shopSlug = shop.slug ?? id;
 
   return (
     <div
@@ -73,10 +62,18 @@ function ShopDetailsPage() {
       style={{ backgroundColor: "#1A1A2E" }}
     >
       <div
-        className="flex items-center justify-center"
+        className="relative flex items-center justify-center"
         style={{ height: "220px", backgroundColor: "#16213E" }}
       >
-        <span style={{ fontSize: "72px" }}>💈</span>
+        {shop.logo ? (
+          <img
+            src={shop.logo}
+            alt={shop.name}
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
+        ) : (
+          <span style={{ fontSize: "72px" }}>💈</span>
+        )}
       </div>
 
       <div
@@ -102,29 +99,23 @@ function ShopDetailsPage() {
               {shop.name}
             </h1>
 
-            <div
-              className="flex items-center"
-              style={{ gap: "8px", marginBottom: "8px" }}
-            >
+            <div className="flex items-center" style={{ gap: "8px", marginBottom: "8px" }}>
               <span style={{ color: "#F5A623" }}>★★★★★</span>
-              <span
-                className="text-white"
-                style={{ fontWeight: 700 }}
-              >
+              <span className="text-white" style={{ fontWeight: 700 }}>
                 {shop.rating}
               </span>
-              <span style={{ color: "#A8B2C1" }}>
-                ({shop.reviews} отзывов)
-              </span>
+              <span style={{ color: "#A8B2C1" }}>({reviewsCount} отзывов)</span>
             </div>
 
             <div
               className="flex items-center"
               style={{ gap: "16px", marginBottom: "20px" }}
             >
-              <span style={{ color: "#A8B2C1", fontSize: "14px" }}>
-                📍 {shop.address}
-              </span>
+              {shop.address && (
+                <span style={{ color: "#A8B2C1", fontSize: "14px" }}>
+                  📍 {shop.address}
+                </span>
+              )}
               <span
                 className="flex items-center"
                 style={{
@@ -142,25 +133,16 @@ function ShopDetailsPage() {
                     display: "inline-block",
                   }}
                 />
-                {isOpen ? `Открыто · до ${shop.closeTime}` : "Закрыто"}
+                {isOpen ? `Открыто${closeTime ? ` · до ${closeTime}` : ""}` : "Закрыто"}
               </span>
             </div>
 
-            <div
-              className="flex"
-              style={{ gap: "10px", marginBottom: "24px" }}
-            >
+            <div className="flex" style={{ gap: "10px", marginBottom: "24px" }}>
               <PhotoSquare>✂️</PhotoSquare>
               <PhotoSquare>💈</PhotoSquare>
               <PhotoSquare>🪒</PhotoSquare>
               <PhotoSquare>
-                <span
-                  style={{
-                    color: "#A8B2C1",
-                    fontSize: "14px",
-                    fontWeight: 600,
-                  }}
-                >
+                <span style={{ color: "#A8B2C1", fontSize: "14px", fontWeight: 600 }}>
                   +12
                 </span>
               </PhotoSquare>
@@ -170,37 +152,29 @@ function ShopDetailsPage() {
 
             {activeTab === "services" ? (
               <div>
-                {Object.entries(servicesByCategory).map(
-                  ([category, services]) => (
-                    <div key={category}>
-                      <h3
-                        style={{
-                          fontSize: "13px",
-                          fontWeight: 600,
-                          color: "#A8B2C1",
-                          textTransform: "uppercase",
-                          letterSpacing: "0.08em",
-                          marginBottom: "10px",
-                          marginTop: "20px",
-                        }}
-                      >
-                        {category}
-                      </h3>
-                      {services.map((service) => (
-                        <ServiceItem key={service.id} service={service} />
-                      ))}
-                    </div>
-                  )
-                )}
+                {Object.entries(servicesByCategory).map(([category, services]) => (
+                  <div key={category}>
+                    <h3
+                      style={{
+                        fontSize: "13px",
+                        fontWeight: 600,
+                        color: "#A8B2C1",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.08em",
+                        marginBottom: "10px",
+                        marginTop: "20px",
+                      }}
+                    >
+                      {category}
+                    </h3>
+                    {services.map((service) => (
+                      <ServiceItem key={service.id} service={service} />
+                    ))}
+                  </div>
+                ))}
               </div>
             ) : (
-              <div
-                style={{
-                  textAlign: "center",
-                  padding: "40px",
-                  color: "#A8B2C1",
-                }}
-              >
+              <div style={{ textAlign: "center", padding: "40px", color: "#A8B2C1" }}>
                 Раздел в разработке
               </div>
             )}
@@ -217,18 +191,14 @@ function ShopDetailsPage() {
           >
             <h2
               className="text-white"
-              style={{
-                fontSize: "18px",
-                fontWeight: 700,
-                marginBottom: "20px",
-              }}
+              style={{ fontSize: "18px", fontWeight: 700, marginBottom: "20px" }}
             >
               📅 Записаться
             </h2>
 
             <button
               type="button"
-              onClick={() => navigate(`/booking/${shopId}`)}
+              onClick={() => navigate(`/booking/${shopSlug}`)}
               className="text-white transition-colors"
               style={{
                 width: "100%",
@@ -240,12 +210,8 @@ function ShopDetailsPage() {
                 border: "none",
                 cursor: "pointer",
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "#c73652";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "#E94560";
-              }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#c73652"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#E94560"; }}
             >
               Записаться
             </button>

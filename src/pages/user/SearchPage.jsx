@@ -1,15 +1,46 @@
-import { useMemo, useState } from "react";
-import { searchMockShops } from "../../data/mockShops";
+import { useMemo, useState, useEffect, useRef } from "react";
 import ShopCard from "../../components/shop/ShopCard";
+import { getShops } from "../../api/shopApi";
+
+function normalizeShop(s) {
+  return {
+    id: s.id,
+    slug: s.slug,
+    name: s.name,
+    rating: s.rating ?? 0,
+    reviews: s.reviews_count ?? 0,
+    distance: s.distance_km != null ? `${s.distance_km} км` : "",
+    price: s.price_from ?? 0,
+    status: s.status ?? "closed",
+  };
+}
 
 function SearchPage() {
-  const [searchQuery, setSearchQuery] = useState("барбершоп");
+  const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState([]);
   const [ratingFilter, setRatingFilter] = useState(null);
   const [distanceFilter, setDistanceFilter] = useState(null);
   const [priceFilters, setPriceFilters] = useState([]);
-  const [priceRange, setPriceRange] = useState(2000);
+  const [priceRange, setPriceRange] = useState(5000);
   const [activeView, setActiveView] = useState("list");
+  const [allShops, setAllShops] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const debounceRef = useRef(null);
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setLoading(true);
+      getShops({ search: searchQuery || undefined, per_page: 50 })
+        .then((data) => {
+          const list = Array.isArray(data) ? data : data.data ?? [];
+          setAllShops(list.map(normalizeShop));
+        })
+        .catch((e) => console.error(e))
+        .finally(() => setLoading(false));
+    }, 400);
+    return () => clearTimeout(debounceRef.current);
+  }, [searchQuery]);
 
   const toggleStatus = (value) => {
     setStatusFilter((prev) =>
@@ -24,18 +55,8 @@ function SearchPage() {
   };
 
   const filteredShops = useMemo(() => {
-    return searchMockShops.filter((shop) => {
-      if (
-        searchQuery.trim() &&
-        !shop.name.toLowerCase().includes(searchQuery.trim().toLowerCase())
-      ) {
-        return false;
-      }
-
-      if (statusFilter.length > 0 && !statusFilter.includes(shop.status)) {
-        return false;
-      }
-
+    return allShops.filter((shop) => {
+      if (statusFilter.length > 0 && !statusFilter.includes(shop.status)) return false;
       if (ratingFilter === "top" && shop.rating < 4.8) return false;
       if (ratingFilter === "good" && shop.rating < 4.0) return false;
 
@@ -54,7 +75,7 @@ function SearchPage() {
 
       return true;
     });
-  }, [searchQuery, statusFilter, ratingFilter, distanceFilter, priceRange, priceFilters]);
+  }, [allShops, statusFilter, ratingFilter, distanceFilter, priceRange, priceFilters]);
 
   return (
     <div
@@ -63,11 +84,7 @@ function SearchPage() {
     >
       <aside
         className="shrink-0"
-        style={{
-          width: "260px",
-          backgroundColor: "#000000",
-          padding: "24px",
-        }}
+        style={{ width: "260px", backgroundColor: "#000000", padding: "24px" }}
       >
         <h1
           className="text-white"
@@ -91,10 +108,7 @@ function SearchPage() {
           }}
         />
 
-        <h2
-          className="text-white"
-          style={{ fontWeight: 700, marginTop: "24px", marginBottom: "12px" }}
-        >
+        <h2 className="text-white" style={{ fontWeight: 700, marginTop: "24px", marginBottom: "12px" }}>
           Фильтры
         </h2>
 
@@ -118,17 +132,13 @@ function SearchPage() {
             icon="⭐"
             label="Топ (4.8+)"
             checked={ratingFilter === "top"}
-            onChange={() =>
-              setRatingFilter(ratingFilter === "top" ? null : "top")
-            }
+            onChange={() => setRatingFilter(ratingFilter === "top" ? null : "top")}
           />
           <FilterCheckbox
             icon="⭐"
             label="Хороший (4.0+)"
             checked={ratingFilter === "good"}
-            onChange={() =>
-              setRatingFilter(ratingFilter === "good" ? null : "good")
-            }
+            onChange={() => setRatingFilter(ratingFilter === "good" ? null : "good")}
           />
         </FilterSection>
 
@@ -137,25 +147,19 @@ function SearchPage() {
             icon="📍"
             label="До 1 км"
             checked={distanceFilter === "1"}
-            onChange={() =>
-              setDistanceFilter(distanceFilter === "1" ? null : "1")
-            }
+            onChange={() => setDistanceFilter(distanceFilter === "1" ? null : "1")}
           />
           <FilterRadio
             icon="📍"
             label="До 3 км"
             checked={distanceFilter === "3"}
-            onChange={() =>
-              setDistanceFilter(distanceFilter === "3" ? null : "3")
-            }
+            onChange={() => setDistanceFilter(distanceFilter === "3" ? null : "3")}
           />
           <FilterRadio
             icon="📍"
             label="До 5 км"
             checked={distanceFilter === "5"}
-            onChange={() =>
-              setDistanceFilter(distanceFilter === "5" ? null : "5")
-            }
+            onChange={() => setDistanceFilter(distanceFilter === "5" ? null : "5")}
           />
         </FilterSection>
 
@@ -192,14 +196,8 @@ function SearchPage() {
         </FilterSection>
       </aside>
 
-      <main
-        className="flex-1"
-        style={{ padding: "24px", backgroundColor: "#1A1A2E" }}
-      >
-        <div
-          className="flex items-center"
-          style={{ gap: "16px", marginBottom: "20px" }}
-        >
+      <main className="flex-1" style={{ padding: "24px", backgroundColor: "#1A1A2E" }}>
+        <div className="flex items-center" style={{ gap: "16px", marginBottom: "20px" }}>
           <button
             onClick={() => setActiveView("list")}
             className="font-semibold"
@@ -231,27 +229,24 @@ function SearchPage() {
             🗺 Карта
           </button>
 
-          <p
-            style={{
-              marginLeft: "auto",
-              color: "#A8B2C1",
-              fontSize: "14px",
-            }}
-          >
-            Найдено: {filteredShops.length} барбершопа
+          <p style={{ marginLeft: "auto", color: "#A8B2C1", fontSize: "14px" }}>
+            {loading ? "Поиск..." : `Найдено: ${filteredShops.length} барбершопа`}
           </p>
         </div>
 
         {activeView === "map" ? (
           <div
             className="flex items-center justify-center rounded-2xl text-white"
-            style={{
-              backgroundColor: "#1E2A3A",
-              minHeight: "400px",
-              fontSize: "16px",
-            }}
+            style={{ backgroundColor: "#1E2A3A", minHeight: "400px", fontSize: "16px" }}
           >
             🗺 Карта в разработке
+          </div>
+        ) : loading ? (
+          <div
+            className="flex items-center justify-center rounded-2xl"
+            style={{ backgroundColor: "#1E2A3A", padding: "60px 20px" }}
+          >
+            <p style={{ color: "#A8B2C1", fontSize: "14px" }}>Загрузка...</p>
           </div>
         ) : filteredShops.length === 0 ? (
           <div
@@ -283,15 +278,7 @@ function SearchPage() {
 function FilterSection({ title, children }) {
   return (
     <div style={{ marginTop: "16px" }}>
-      <p
-        style={{
-          color: "#A8B2C1",
-          fontSize: "12px",
-          marginBottom: "8px",
-        }}
-      >
-        {title}
-      </p>
+      <p style={{ color: "#A8B2C1", fontSize: "12px", marginBottom: "8px" }}>{title}</p>
       <div className="flex flex-col">{children}</div>
     </div>
   );

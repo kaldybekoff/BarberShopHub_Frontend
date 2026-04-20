@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ScheduleCalendar from "../../components/barbershop/ScheduleCalendar";
 import ScheduleSlot from "../../components/barbershop/ScheduleSlot";
+import { getSchedule } from "../../api/dashboardApi";
 
 const views = ["День", "Неделя", "Месяц"];
-
 const weekdayLabels = ["ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"];
 
 function getMondayOfCurrentWeek() {
@@ -28,46 +28,40 @@ function buildWeekDays() {
   });
 }
 
-const mockSlots = [
-  {
-    time: "09:00",
+function mapSlot(s) {
+  if (s.type === "free") return { time: s.time, type: "free" };
+  return {
+    time: s.time,
     type: "booked",
-    clientName: "Artyom N.",
-    service: "Стрижка",
-    master: "Amir",
-    duration: "30 мин",
-    status: "confirmed",
-  },
-  { time: "10:00", type: "free" },
-  {
-    time: "11:00",
-    type: "booked",
-    clientName: "Miras S.",
-    service: "Комплекс",
-    master: "Baur",
-    duration: "60 мин",
-    status: "pending",
-  },
-  { time: "12:30", type: "free" },
-  {
-    time: "13:30",
-    type: "booked",
-    clientName: "Yeskendir K.",
-    service: "Борода",
-    master: "Amir",
-    duration: "25 мин",
-    status: "confirmed",
-  },
-  { time: "15:00", type: "free" },
-];
+    clientName: s.client_name,
+    service: s.service,
+    master: s.barber_name,
+    duration: s.duration_minutes ? `${s.duration_minutes} мин` : "",
+    status: s.status,
+  };
+}
 
 function SchedulePage() {
   const [days] = useState(buildWeekDays);
   const [activeView, setActiveView] = useState("День");
   const todayKey = new Date().toISOString().slice(0, 10);
-  const defaultDay =
-    days.find((d) => d.key === todayKey) || days[days.length - 2] || days[0];
+  const defaultDay = days.find((d) => d.key === todayKey) || days[days.length - 2] || days[0];
   const [selectedDate, setSelectedDate] = useState(defaultDay);
+  const [slots, setSlots] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    getSchedule(selectedDate.key, selectedDate.key)
+      .then((data) => {
+        const dayData = Array.isArray(data)
+          ? data.find((d) => d.date === selectedDate.key)
+          : null;
+        setSlots((dayData?.slots ?? []).map(mapSlot));
+      })
+      .catch((e) => console.error(e))
+      .finally(() => setLoading(false));
+  }, [selectedDate]);
 
   function handleAddSlotClick() {
     console.log("add slot");
@@ -89,17 +83,11 @@ function SchedulePage() {
         className="flex items-center justify-between"
         style={{ marginBottom: "24px", gap: "16px", flexWrap: "wrap" }}
       >
-        <h1
-          className="text-white"
-          style={{ fontSize: "26px", fontWeight: 700 }}
-        >
+        <h1 className="text-white" style={{ fontSize: "26px", fontWeight: 700 }}>
           Расписание
         </h1>
 
-        <div
-          className="flex items-center"
-          style={{ gap: "8px", flexWrap: "wrap" }}
-        >
+        <div className="flex items-center" style={{ gap: "8px", flexWrap: "wrap" }}>
           {views.map((view) => {
             const isActive = view === activeView;
             return (
@@ -160,9 +148,13 @@ function SchedulePage() {
           marginTop: "24px",
         }}
       >
-        {mockSlots.map((slot, i) => (
-          <ScheduleSlot key={i} slot={slot} />
-        ))}
+        {loading ? (
+          <p style={{ color: "#A8B2C1", fontSize: "14px" }}>Загрузка...</p>
+        ) : slots.length === 0 ? (
+          <p style={{ color: "#A8B2C1", fontSize: "14px" }}>Нет слотов на этот день</p>
+        ) : (
+          slots.map((slot, i) => <ScheduleSlot key={i} slot={slot} />)
+        )}
       </div>
 
       <button

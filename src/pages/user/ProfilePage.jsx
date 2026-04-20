@@ -1,32 +1,45 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
-import mockAppointments from "../../data/mockAppointments";
+import { getMyAppointments } from "../../api/appointmentApi";
+
+function mapAppointment(b) {
+  const dt = new Date(b.scheduled_at);
+  return {
+    id: b.id,
+    shop: b.barbershop_name ?? "—",
+    service: b.service_name ?? b.services?.[0]?.name ?? "—",
+    date: dt.toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" }),
+    time: dt.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }),
+    status: b.status,
+  };
+}
 
 function ProfilePage() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const [recentAppointments, setRecentAppointments] = useState([]);
+  const [allCount, setAllCount] = useState(0);
+  const [completedCount, setCompletedCount] = useState(0);
 
-  const name = user?.name || "Артём Иванов";
-  const email = user?.email || "user@test.com";
-  const phone = user?.phone || "+7 (777) 000-00-00";
+  const name = user?.name || "";
+  const email = user?.email || "";
+  const phone = user?.phone || "";
   const role = user?.role || "User";
 
   const initials = name
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
+    ? name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2)
+    : "?";
 
-  const totalAppointments = mockAppointments.length;
-  const completedAppointments = mockAppointments.filter(
-    (a) => a.status === "done"
-  ).length;
-  const rating = 4.8;
-
-  const recentAppointments = mockAppointments
-    .filter((a) => a.status === "confirmed" || a.status === "pending")
-    .slice(0, 2);
+  useEffect(() => {
+    Promise.all([getMyAppointments("upcoming"), getMyAppointments("past")])
+      .then(([upcoming, past]) => {
+        setAllCount((upcoming?.length ?? 0) + (past?.length ?? 0));
+        setCompletedCount(past?.length ?? 0);
+        setRecentAppointments((upcoming ?? []).slice(0, 2).map(mapAppointment));
+      })
+      .catch((e) => console.error(e));
+  }, []);
 
   const menuItems = [
     { icon: "📅", label: "Мои записи", onClick: () => navigate("/appointments") },
@@ -44,16 +57,10 @@ function ProfilePage() {
       className="min-h-full font-['Plus_Jakarta_Sans',system-ui]"
       style={{ backgroundColor: "#1A1A2E" }}
     >
-      <div
-        className="mx-auto"
-        style={{ maxWidth: "1100px", padding: "32px 24px 48px" }}
-      >
+      <div className="mx-auto" style={{ maxWidth: "1100px", padding: "32px 24px 48px" }}>
         <div
           className="grid items-start"
-          style={{
-            gridTemplateColumns: "280px 1fr",
-            gap: "24px",
-          }}
+          style={{ gridTemplateColumns: "280px 1fr", gap: "24px" }}
         >
           <aside
             className="flex flex-col"
@@ -78,30 +85,15 @@ function ProfilePage() {
               >
                 {initials}
               </div>
-              <h1
-                className="text-white"
-                style={{ fontSize: "20px", fontWeight: 700 }}
-              >
+              <h1 className="text-white" style={{ fontSize: "20px", fontWeight: 700 }}>
                 {name}
               </h1>
-              <p
-                style={{
-                  color: "#A8B2C1",
-                  fontSize: "13px",
-                  marginTop: "4px",
-                }}
-              >
+              <p style={{ color: "#A8B2C1", fontSize: "13px", marginTop: "4px" }}>
                 Пользователь
               </p>
             </div>
 
-            <div
-              style={{
-                height: "1px",
-                backgroundColor: "#2a3a4a",
-                margin: "24px 0",
-              }}
-            />
+            <div style={{ height: "1px", backgroundColor: "#2a3a4a", margin: "24px 0" }} />
 
             <nav className="flex flex-col" style={{ gap: "4px" }}>
               {menuItems.map((item) => (
@@ -130,13 +122,7 @@ function ProfilePage() {
               ))}
             </nav>
 
-            <div
-              style={{
-                height: "1px",
-                backgroundColor: "#2a3a4a",
-                margin: "20px 0",
-              }}
-            />
+            <div style={{ height: "1px", backgroundColor: "#2a3a4a", margin: "20px 0" }} />
 
             <button
               type="button"
@@ -162,37 +148,22 @@ function ProfilePage() {
           <div className="flex flex-col" style={{ gap: "20px" }}>
             <div
               className="grid"
-              style={{
-                gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-                gap: "16px",
-              }}
+              style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "16px" }}
             >
-              <StatCard value={totalAppointments} label="Записей всего" />
-              <StatCard value={completedAppointments} label="Завершено" />
+              <StatCard value={allCount} label="Записей всего" />
+              <StatCard value={completedCount} label="Завершено" />
               <StatCard
-                value={rating}
-                label={
-                  <>
-                    <span style={{ color: "#F5A623" }}>★</span> Оценка
-                  </>
-                }
+                value="—"
+                label={<><span style={{ color: "#F5A623" }}>★</span> Оценка</>}
               />
             </div>
 
             <div
-              style={{
-                backgroundColor: "#1E2A3A",
-                borderRadius: "16px",
-                padding: "24px",
-              }}
+              style={{ backgroundColor: "#1E2A3A", borderRadius: "16px", padding: "24px" }}
             >
               <h2
                 className="text-white"
-                style={{
-                  fontSize: "18px",
-                  fontWeight: 700,
-                  marginBottom: "20px",
-                }}
+                style={{ fontSize: "18px", fontWeight: 700, marginBottom: "20px" }}
               >
                 Мои данные
               </h2>
@@ -223,26 +194,17 @@ function ProfilePage() {
             <div>
               <h2
                 className="text-white"
-                style={{
-                  fontSize: "18px",
-                  fontWeight: 700,
-                  marginBottom: "14px",
-                }}
+                style={{ fontSize: "18px", fontWeight: 700, marginBottom: "14px" }}
               >
                 Последние записи
               </h2>
 
               <div className="flex flex-col" style={{ gap: "10px" }}>
                 {recentAppointments.length === 0 ? (
-                  <p style={{ color: "#A8B2C1", fontSize: "14px" }}>
-                    Записей пока нет
-                  </p>
+                  <p style={{ color: "#A8B2C1", fontSize: "14px" }}>Записей пока нет</p>
                 ) : (
                   recentAppointments.map((appointment) => (
-                    <RecentAppointmentRow
-                      key={appointment.id}
-                      appointment={appointment}
-                    />
+                    <RecentAppointmentRow key={appointment.id} appointment={appointment} />
                   ))
                 )}
               </div>
@@ -258,27 +220,12 @@ function StatCard({ value, label }) {
   return (
     <div
       className="text-center"
-      style={{
-        backgroundColor: "#16213E",
-        borderRadius: "14px",
-        padding: "22px 16px",
-      }}
+      style={{ backgroundColor: "#16213E", borderRadius: "14px", padding: "22px 16px" }}
     >
-      <div
-        className="text-white"
-        style={{ fontSize: "30px", fontWeight: 700, lineHeight: 1.1 }}
-      >
+      <div className="text-white" style={{ fontSize: "30px", fontWeight: 700, lineHeight: 1.1 }}>
         {value}
       </div>
-      <div
-        style={{
-          color: "#A8B2C1",
-          fontSize: "13px",
-          marginTop: "8px",
-        }}
-      >
-        {label}
-      </div>
+      <div style={{ color: "#A8B2C1", fontSize: "13px", marginTop: "8px" }}>{label}</div>
     </div>
   );
 }
@@ -293,10 +240,7 @@ function InfoRow({ label, value, isLast }) {
       }}
     >
       <span style={{ color: "#A8B2C1", fontSize: "14px" }}>{label}</span>
-      <span
-        className="text-white"
-        style={{ fontSize: "14px", fontWeight: 600 }}
-      >
+      <span className="text-white" style={{ fontSize: "14px", fontWeight: 600 }}>
         {value}
       </span>
     </div>
@@ -314,26 +258,13 @@ function RecentAppointmentRow({ appointment }) {
   return (
     <div
       className="flex items-center justify-between"
-      style={{
-        backgroundColor: "#1E2A3A",
-        borderRadius: "14px",
-        padding: "16px 20px",
-      }}
+      style={{ backgroundColor: "#1E2A3A", borderRadius: "14px", padding: "16px 20px" }}
     >
       <div>
-        <p
-          className="text-white"
-          style={{ fontSize: "15px", fontWeight: 700 }}
-        >
+        <p className="text-white" style={{ fontSize: "15px", fontWeight: 700 }}>
           {appointment.shop}
         </p>
-        <p
-          style={{
-            color: "#A8B2C1",
-            fontSize: "13px",
-            marginTop: "4px",
-          }}
-        >
+        <p style={{ color: "#A8B2C1", fontSize: "13px", marginTop: "4px" }}>
           {appointment.service} · {appointment.date} · {appointment.time}
         </p>
       </div>

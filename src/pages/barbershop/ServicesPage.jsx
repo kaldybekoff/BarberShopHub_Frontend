@@ -1,42 +1,42 @@
-const mockServices = [
-  {
-    id: 1,
-    name: "Классическая стрижка",
-    duration: 30,
-    price: 2500,
-    category: "Стрижки",
-    icon: "✂️",
-  },
-  {
-    id: 2,
-    name: "Фейд + укладка",
-    duration: 50,
-    price: 3500,
-    category: "Стрижки",
-    icon: "👑",
-  },
-  {
-    id: 3,
-    name: "Стрижка бороды",
-    duration: 25,
-    price: 1500,
-    category: "Борода",
-    icon: "🪒",
-  },
-  {
-    id: 4,
-    name: "Комплекс",
-    duration: 60,
-    price: 4500,
-    category: "Борода",
-    icon: "💎",
-  },
-];
+import { useState, useEffect } from "react";
+import { getOwnerServices, deleteOwnerService } from "../../api/dashboardApi";
 
-const formatPrice = (price) => `${price.toLocaleString("ru-RU")}₸`;
+function formatPrice(price) {
+  return `${Number(price).toLocaleString("ru-RU")}₸`;
+}
+
+function mapService(s) {
+  return {
+    id: s.id,
+    name: s.name,
+    duration: s.duration_minutes ?? s.duration ?? 0,
+    price: s.price,
+    category: s.category?.name ?? s.category ?? "Прочее",
+    icon: "✂️",
+  };
+}
 
 function ServicesPage() {
-  const categories = [...new Set(mockServices.map((s) => s.category))];
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  async function loadServices() {
+    setLoading(true);
+    try {
+      const data = await getOwnerServices();
+      setServices(data.map(mapService));
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadServices();
+  }, []);
+
+  const categories = [...new Set(services.map((s) => s.category))];
 
   function handleAdd() {
     console.log("add service");
@@ -46,8 +46,13 @@ function ServicesPage() {
     console.log("edit service", id);
   }
 
-  function handleDelete(id) {
-    console.log("delete service", id);
+  async function handleDelete(id) {
+    try {
+      await deleteOwnerService(id);
+      setServices((prev) => prev.filter((s) => s.id !== id));
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   return (
@@ -63,19 +68,10 @@ function ServicesPage() {
         style={{ marginBottom: "24px", gap: "16px", flexWrap: "wrap" }}
       >
         <div>
-          <h1
-            className="text-white"
-            style={{ fontSize: "22px", fontWeight: 700 }}
-          >
+          <h1 className="text-white" style={{ fontSize: "22px", fontWeight: 700 }}>
             Услуги
           </h1>
-          <p
-            style={{
-              color: "#A8B2C1",
-              fontSize: "13px",
-              marginTop: "3px",
-            }}
-          >
+          <p style={{ color: "#A8B2C1", fontSize: "13px", marginTop: "3px" }}>
             Услуги вашего барбершопа
           </p>
         </div>
@@ -94,53 +90,77 @@ function ServicesPage() {
             cursor: "pointer",
             transition: "background-color 0.2s",
           }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "#c73652";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "#E94560";
-          }}
+          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#c73652"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#E94560"; }}
         >
           + Добавить услугу
         </button>
       </div>
 
-      {categories.map((category) => {
-        const items = mockServices.filter((s) => s.category === category);
-        return (
-          <div key={category} style={{ marginBottom: "24px" }}>
-            <p
-              style={{
-                color: "#A8B2C1",
-                fontSize: "11px",
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
-                fontWeight: 600,
-                marginBottom: "12px",
-              }}
-            >
-              {category}
-            </p>
+      {loading ? (
+        <div
+          className="text-center"
+          style={{
+            backgroundColor: "#1E2A3A",
+            borderRadius: "12px",
+            padding: "40px 20px",
+            color: "#A8B2C1",
+            fontSize: "14px",
+          }}
+        >
+          Загрузка...
+        </div>
+      ) : services.length === 0 ? (
+        <div
+          className="text-center"
+          style={{
+            backgroundColor: "#1E2A3A",
+            borderRadius: "12px",
+            padding: "40px 20px",
+            color: "#A8B2C1",
+            fontSize: "14px",
+          }}
+        >
+          Услуг пока нет
+        </div>
+      ) : (
+        categories.map((category) => {
+          const items = services.filter((s) => s.category === category);
+          return (
+            <div key={category} style={{ marginBottom: "24px" }}>
+              <p
+                style={{
+                  color: "#A8B2C1",
+                  fontSize: "11px",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                  fontWeight: 600,
+                  marginBottom: "12px",
+                }}
+              >
+                {category}
+              </p>
 
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                gap: "12px",
-              }}
-            >
-              {items.map((service) => (
-                <ServiceCard
-                  key={service.id}
-                  service={service}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                />
-              ))}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                  gap: "12px",
+                }}
+              >
+                {items.map((service) => (
+                  <ServiceCard
+                    key={service.id}
+                    service={service}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })
+      )}
     </div>
   );
 }
@@ -156,10 +176,7 @@ function ServiceCard({ service, onEdit, onDelete }) {
         gap: "16px",
       }}
     >
-      <div
-        className="flex items-center"
-        style={{ gap: "14px", flex: 1, minWidth: 0 }}
-      >
+      <div className="flex items-center" style={{ gap: "14px", flex: 1, minWidth: 0 }}>
         <div
           className="flex items-center justify-center"
           style={{
@@ -175,42 +192,21 @@ function ServiceCard({ service, onEdit, onDelete }) {
         </div>
 
         <div style={{ minWidth: 0 }}>
-          <div
-            className="text-white truncate"
-            style={{ fontSize: "15px", fontWeight: 600 }}
-          >
+          <div className="text-white truncate" style={{ fontSize: "15px", fontWeight: 600 }}>
             {service.name}
           </div>
-          <div
-            style={{
-              color: "#A8B2C1",
-              fontSize: "12px",
-              marginTop: "2px",
-            }}
-          >
+          <div style={{ color: "#A8B2C1", fontSize: "12px", marginTop: "2px" }}>
             ⏱ {service.duration} мин
           </div>
         </div>
       </div>
 
-      <div
-        className="flex items-center"
-        style={{ gap: "14px", flexShrink: 0 }}
-      >
-        <span
-          className="text-white"
-          style={{ fontSize: "16px", fontWeight: 700 }}
-        >
+      <div className="flex items-center" style={{ gap: "14px", flexShrink: 0 }}>
+        <span className="text-white" style={{ fontSize: "16px", fontWeight: 700 }}>
           {formatPrice(service.price)}
         </span>
 
-        <div
-          style={{
-            width: "1px",
-            height: "28px",
-            backgroundColor: "rgba(255,255,255,0.08)",
-          }}
-        />
+        <div style={{ width: "1px", height: "28px", backgroundColor: "rgba(255,255,255,0.08)" }} />
 
         <div className="flex items-center" style={{ gap: "8px" }}>
           <button

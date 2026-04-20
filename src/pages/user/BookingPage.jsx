@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import mockShops from "../../data/mockShops";
 import colors from "../../constants/colors";
+import { getShopBySlug, getAvailableSlots } from "../../api/shopApi";
 import { createBooking } from "../../api/bookingApi";
 import BookingSteps from "../../components/booking/BookingSteps";
 import ServiceSelector from "../../components/booking/ServiceSelector";
@@ -10,58 +10,6 @@ import DateSelector from "../../components/booking/DateSelector";
 import TimeSlotGrid from "../../components/booking/TimeSlotGrid";
 import BookingSummary from "../../components/booking/BookingSummary";
 import ReminderToggle from "../../components/booking/ReminderToggle";
-
-const step1Services = [
-  {
-    id: 1,
-    category: "Стрижки",
-    icon: "✂️",
-    name: "Классическая стрижка",
-    shortName: "Классич. стрижка",
-    duration: 30,
-    price: 1500,
-  },
-  {
-    id: 2,
-    category: "Стрижки",
-    icon: "👑",
-    name: "Фейд + укладка",
-    shortName: "Фейд + укладка",
-    duration: 50,
-    price: 2500,
-  },
-  {
-    id: 3,
-    category: "Борода",
-    icon: "🪒",
-    name: "Стрижка бороды",
-    shortName: "Стрижка бороды",
-    duration: 25,
-    price: 1200,
-  },
-  {
-    id: 4,
-    category: "Борода",
-    icon: "💎",
-    name: "Комплекс: стрижка + борода",
-    shortName: "Комплекс",
-    duration: 60,
-    price: 3200,
-  },
-];
-
-const timeSlots = [
-  "09:00", "09:30", "10:00", "10:30",
-  "11:00", "11:30", "12:00", "12:30",
-  "13:00", "14:00", "15:00", "16:00",
-];
-
-const step2Masters = [
-  { id: 0, initials: "⚡", name: "Любой", rating: null },
-  { id: 1, initials: "AS", name: "Amir", rating: 4.9 },
-  { id: 2, initials: "BM", name: "Baur", rating: 4.8 },
-  { id: 3, initials: "NK", name: "Nurlan", rating: 4.7 },
-];
 
 const dayNames = ["ВС", "ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"];
 const dayNamesShort = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
@@ -93,26 +41,106 @@ function buildDays(count) {
 }
 
 const initialDays = buildDays(6);
-
 const stepTitles = ["Выбор услуги", "Мастер и время", "Подтверждение"];
+
+function normalizeService(s) {
+  return {
+    id: s.id,
+    category: s.category?.name ?? s.category ?? "Прочее",
+    icon: "✂️",
+    name: s.name,
+    shortName: s.short_name ?? s.name,
+    duration: s.duration_minutes ?? s.duration ?? 30,
+    price: s.price,
+  };
+}
+
+function normalizeMaster(b, index) {
+  const name = b.name ?? b.barber_name ?? `Мастер ${index + 1}`;
+  const initials = name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
+  return {
+    id: b.id,
+    initials,
+    name,
+    rating: b.rating ?? null,
+  };
+}
 
 function BookingPage() {
   const { shopId } = useParams();
   const navigate = useNavigate();
 
-  const shop = mockShops.find((s) => s.id === Number(shopId));
+  const [shop, setShop] = useState(null);
+  const [loadingShop, setLoadingShop] = useState(true);
+
+  const [services, setServices] = useState([]);
+  const [masters, setMasters] = useState([]);
 
   const [currentStep, setCurrentStep] = useState(1);
-  const [selectedService, setSelectedService] = useState(step1Services[0]);
-  const [selectedMaster, setSelectedMaster] = useState(step2Masters[1]);
+  const [selectedService, setSelectedService] = useState(null);
+  const [selectedMaster, setSelectedMaster] = useState(null);
   const [selectedDay, setSelectedDay] = useState(initialDays[1]);
-  const [selectedTime, setSelectedTime] = useState("11:00");
+  const [selectedTime, setSelectedTime] = useState(null);
+  const [timeSlots, setTimeSlots] = useState([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
   const [comment, setComment] = useState("");
   const [reminder, setReminder] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const days = initialDays;
   const selectedDate = selectedDay?.display || null;
+
+  useEffect(() => {
+    getShopBySlug(shopId)
+      .then((data) => {
+        setShop(data);
+        const svcList = (data.services ?? []).map(normalizeService);
+        setServices(svcList);
+        if (svcList.length > 0) setSelectedService(svcList[0]);
+
+        const anyMaster = { id: 0, initials: "⚡", name: "Любой", rating: null };
+        const barbers = (data.barbers ?? data.masters ?? []).map(normalizeMaster);
+        const masterList = [anyMaster, ...barbers];
+        setMasters(masterList);
+        if (masterList.length > 1) setSelectedMaster(masterList[1]);
+        else setSelectedMaster(anyMaster);
+      })
+      .catch((e) => console.error(e))
+      .finally(() => setLoadingShop(false));
+  }, [shopId]);
+
+  useEffect(() => {
+    if (!shop || !selectedDay) return;
+    const slug = shop.slug ?? shopId;
+    setLoadingSlots(true);
+    setSelectedTime(null);
+    const params = { date: selectedDay.key };
+    if (selectedMaster?.id) params.barber_id = selectedMaster.id;
+    if (selectedService?.id) params.service_id = selectedService.id;
+    getAvailableSlots(slug, params)
+      .then((data) => {
+        const available = (data ?? [])
+          .filter((s) => s.available)
+          .map((s) => s.time);
+        setTimeSlots(available);
+      })
+      .catch((e) => {
+        console.error(e);
+        setTimeSlots([]);
+      })
+      .finally(() => setLoadingSlots(false));
+  }, [shop, selectedDay, selectedMaster, selectedService, shopId]);
+
+  if (loadingShop) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: colors.primary }}
+      >
+        <p style={{ color: "#A8B2C1" }}>Загрузка...</p>
+      </div>
+    );
+  }
 
   if (!shop) {
     return (
@@ -132,24 +160,29 @@ function BookingPage() {
 
   async function handleConfirm() {
     const bookingData = {
-      shopId: shop.id,
-      shopName: shop.name,
-      shopAddress: shop.address,
-      serviceName:
-        selectedService?.shortName || selectedService?.name || "",
-      masterName: selectedMaster?.name || "Любой доступный",
-      date: selectedDay?.key || null,
-      time: selectedTime,
-      duration: selectedService?.duration || 30,
-      price: selectedService?.price || 0,
+      barbershop_id: shop.id,
+      service_id: selectedService?.id,
+      barber_id: selectedMaster?.id !== 0 ? selectedMaster?.id : null,
+      scheduled_at: `${selectedDay?.key}T${selectedTime}:00`,
       comment,
-      reminder,
+      reminder_enabled: reminder,
     };
 
     setIsSubmitting(true);
     try {
       await createBooking(bookingData);
-      navigate("/booking-success", { state: bookingData });
+      navigate("/booking-success", {
+        state: {
+          shopName: shop.name,
+          shopAddress: shop.address,
+          serviceName: selectedService?.shortName || selectedService?.name || "",
+          masterName: selectedMaster?.name || "Любой доступный",
+          date: selectedDay?.key || null,
+          time: selectedTime,
+          duration: selectedService?.duration || 30,
+          price: selectedService?.price || 0,
+        },
+      });
     } catch (error) {
       console.error("Ошибка при создании записи:", error);
     } finally {
@@ -185,10 +218,7 @@ function BookingPage() {
           ←
         </button>
 
-        <h1
-          className="text-white"
-          style={{ fontSize: "20px", fontWeight: 700 }}
-        >
+        <h1 className="text-white" style={{ fontSize: "20px", fontWeight: 700 }}>
           {stepTitles[currentStep - 1]}
         </h1>
 
@@ -219,18 +249,11 @@ function BookingPage() {
         <div className="min-w-0">
           {currentStep === 1 && (
             <div>
-              <p
-                style={{
-                  fontSize: "14px",
-                  color: "#A8B2C1",
-                  marginBottom: "16px",
-                }}
-              >
+              <p style={{ fontSize: "14px", color: "#A8B2C1", marginBottom: "16px" }}>
                 {shop.name}
               </p>
-
               <ServiceSelector
-                services={step1Services}
+                services={services}
                 selectedId={selectedService?.id}
                 onSelect={setSelectedService}
               />
@@ -241,17 +264,13 @@ function BookingPage() {
             <div>
               <h2
                 className="text-white"
-                style={{
-                  fontSize: "18px",
-                  fontWeight: 700,
-                  marginBottom: "16px",
-                }}
+                style={{ fontSize: "18px", fontWeight: 700, marginBottom: "16px" }}
               >
                 Выберите мастера
               </h2>
               <div style={{ marginBottom: "32px" }}>
                 <MasterSelector
-                  masters={step2Masters}
+                  masters={masters}
                   selectedId={selectedMaster?.id}
                   onSelect={setSelectedMaster}
                 />
@@ -259,11 +278,7 @@ function BookingPage() {
 
               <h2
                 className="text-white"
-                style={{
-                  fontSize: "18px",
-                  fontWeight: 700,
-                  marginBottom: "16px",
-                }}
+                style={{ fontSize: "18px", fontWeight: 700, marginBottom: "16px" }}
               >
                 Выберите дату
               </h2>
@@ -277,28 +292,28 @@ function BookingPage() {
 
               <h2
                 className="text-white"
-                style={{
-                  fontSize: "18px",
-                  fontWeight: 700,
-                  marginBottom: "16px",
-                }}
+                style={{ fontSize: "18px", fontWeight: 700, marginBottom: "16px" }}
               >
                 Выберите время
               </h2>
-              <TimeSlotGrid
-                slots={timeSlots}
-                selectedSlot={selectedTime}
-                onSelect={setSelectedTime}
-              />
+              {loadingSlots ? (
+                <p style={{ color: "#A8B2C1", fontSize: "14px" }}>Загрузка слотов...</p>
+              ) : timeSlots.length === 0 ? (
+                <p style={{ color: "#A8B2C1", fontSize: "14px" }}>Нет свободных слотов</p>
+              ) : (
+                <TimeSlotGrid
+                  slots={timeSlots}
+                  selectedSlot={selectedTime}
+                  onSelect={setSelectedTime}
+                />
+              )}
             </div>
           )}
 
           {currentStep === 3 && (
             <Step3Details
               shop={shop}
-              masterName={
-                selectedMaster ? selectedMaster.name : "Любой доступный"
-              }
+              masterName={selectedMaster ? selectedMaster.name : "Любой доступный"}
               serviceName={selectedService?.name}
               dateDisplay={selectedDate}
               time={selectedTime}
@@ -339,9 +354,7 @@ function BookingPage() {
                 : "—"
             }
             masterName={selectedMaster ? selectedMaster.name : "Любой доступный"}
-            serviceShortName={
-              selectedService?.shortName || selectedService?.name || "—"
-            }
+            serviceShortName={selectedService?.shortName || selectedService?.name || "—"}
             duration={selectedService?.duration}
             price={selectedService?.price}
             isSubmitting={isSubmitting}
@@ -367,87 +380,42 @@ function OrderWidget({ service, onNext }) {
         top: "24px",
       }}
     >
-      <h2
-        className="text-white"
-        style={{ fontSize: "18px", fontWeight: 700, marginBottom: "20px" }}
-      >
+      <h2 className="text-white" style={{ fontSize: "18px", fontWeight: 700, marginBottom: "20px" }}>
         Ваш заказ
       </h2>
 
       {hasService ? (
         <div
           className="grid"
-          style={{
-            gridTemplateColumns: "1fr 1fr",
-            rowGap: "12px",
-            marginBottom: "20px",
-          }}
+          style={{ gridTemplateColumns: "1fr 1fr", rowGap: "12px", marginBottom: "20px" }}
         >
           <span style={{ fontSize: "14px", color: "#A8B2C1" }}>Услуга</span>
-          <span
-            className="text-white"
-            style={{ fontSize: "14px", fontWeight: 600, textAlign: "right" }}
-          >
+          <span className="text-white" style={{ fontSize: "14px", fontWeight: 600, textAlign: "right" }}>
             {service.shortName || service.name}
           </span>
 
-          <span style={{ fontSize: "14px", color: "#A8B2C1" }}>
-            Длительность
-          </span>
-          <span
-            className="text-white"
-            style={{ fontSize: "14px", fontWeight: 600, textAlign: "right" }}
-          >
+          <span style={{ fontSize: "14px", color: "#A8B2C1" }}>Длительность</span>
+          <span className="text-white" style={{ fontSize: "14px", fontWeight: 600, textAlign: "right" }}>
             {service.duration} мин
           </span>
 
           <span style={{ fontSize: "14px", color: "#A8B2C1" }}>Стоимость</span>
-          <span
-            className="text-white"
-            style={{ fontSize: "14px", fontWeight: 600, textAlign: "right" }}
-          >
-            {service.price.toLocaleString("ru-RU")}₸
+          <span className="text-white" style={{ fontSize: "14px", fontWeight: 600, textAlign: "right" }}>
+            {Number(service.price).toLocaleString("ru-RU")}₸
           </span>
         </div>
       ) : (
-        <p
-          style={{
-            textAlign: "center",
-            color: "#A8B2C1",
-            padding: "20px 0",
-            marginBottom: "20px",
-          }}
-        >
+        <p style={{ textAlign: "center", color: "#A8B2C1", padding: "20px 0", marginBottom: "20px" }}>
           Выберите услугу
         </p>
       )}
 
-      <div
-        style={{
-          height: "1px",
-          backgroundColor: "#2a3a4a",
-          marginBottom: "16px",
-        }}
-      />
+      <div style={{ height: "1px", backgroundColor: "#2a3a4a", marginBottom: "16px" }} />
 
-      <div
-        className="flex items-center justify-between"
-        style={{ marginBottom: "20px" }}
-      >
-        <span
-          className="text-white"
-          style={{ fontSize: "16px", fontWeight: 600 }}
-        >
-          Итого
-        </span>
-        <span
-          style={{
-            fontSize: "20px",
-            fontWeight: 700,
-            color: "#E94560",
-          }}
-        >
-          {hasService ? `${service.price.toLocaleString("ru-RU")}₸` : "0₸"}
+      <div className="flex items-center justify-between" style={{ marginBottom: "20px" }}>
+        <span className="text-white" style={{ fontSize: "16px", fontWeight: 600 }}>Итого</span>
+        <span style={{ fontSize: "20px", fontWeight: 700, color: "#E94560" }}>
+          {hasService ? `${Number(service.price).toLocaleString("ru-RU")}₸` : "0₸"}
         </span>
       </div>
 
@@ -480,10 +448,7 @@ function Step2OrderWidget({ master, service, date, time, canProceed, onNext }) {
     ["Услуга", service?.shortName || service?.name || "—"],
     ["Дата", date || "—"],
     ["Время", time || "—"],
-    [
-      "Стоимость",
-      service ? `${service.price.toLocaleString("ru-RU")}₸` : "—",
-    ],
+    ["Стоимость", service ? `${Number(service.price).toLocaleString("ru-RU")}₸` : "—"],
   ];
 
   return (
@@ -497,52 +462,25 @@ function Step2OrderWidget({ master, service, date, time, canProceed, onNext }) {
         top: "24px",
       }}
     >
-      <h2
-        className="text-white"
-        style={{ fontSize: "18px", fontWeight: 700, marginBottom: "16px" }}
-      >
+      <h2 className="text-white" style={{ fontSize: "18px", fontWeight: 700, marginBottom: "16px" }}>
         Ваш заказ
       </h2>
 
       <div
         className="grid"
-        style={{
-          gridTemplateColumns: "1fr 1fr",
-          rowGap: "12px",
-          marginBottom: "16px",
-        }}
+        style={{ gridTemplateColumns: "1fr 1fr", rowGap: "12px", marginBottom: "16px" }}
       >
         {rows.map(([label, value]) => (
           <Step2Row key={label} label={label} value={value} />
         ))}
       </div>
 
-      <div
-        style={{
-          height: "1px",
-          backgroundColor: "#2a3a4a",
-          marginBottom: "16px",
-        }}
-      />
+      <div style={{ height: "1px", backgroundColor: "#2a3a4a", marginBottom: "16px" }} />
 
-      <div
-        className="flex items-center justify-between"
-        style={{ marginBottom: "20px" }}
-      >
-        <span
-          className="text-white"
-          style={{ fontSize: "16px", fontWeight: 600 }}
-        >
-          Итого
-        </span>
-        <span
-          style={{
-            fontSize: "20px",
-            fontWeight: 700,
-            color: "#E94560",
-          }}
-        >
-          {service ? `${service.price.toLocaleString("ru-RU")}₸` : "0₸"}
+      <div className="flex items-center justify-between" style={{ marginBottom: "20px" }}>
+        <span className="text-white" style={{ fontSize: "16px", fontWeight: 600 }}>Итого</span>
+        <span style={{ fontSize: "20px", fontWeight: 700, color: "#E94560" }}>
+          {service ? `${Number(service.price).toLocaleString("ru-RU")}₸` : "0₸"}
         </span>
       </div>
 
@@ -573,10 +511,7 @@ function Step2Row({ label, value }) {
   return (
     <>
       <span style={{ fontSize: "14px", color: "#A8B2C1" }}>{label}</span>
-      <span
-        className="text-white"
-        style={{ fontSize: "14px", fontWeight: 600, textAlign: "right" }}
-      >
+      <span className="text-white" style={{ fontSize: "14px", fontWeight: 600, textAlign: "right" }}>
         {value}
       </span>
     </>
@@ -584,17 +519,8 @@ function Step2Row({ label, value }) {
 }
 
 function Step3Details({
-  shop,
-  masterName,
-  serviceName,
-  dateDisplay,
-  time,
-  duration,
-  price,
-  comment,
-  onCommentChange,
-  reminder,
-  onReminderChange,
+  shop, masterName, serviceName, dateDisplay, time,
+  duration, price, comment, onCommentChange, reminder, onReminderChange,
 }) {
   const rows = [
     ["Мастер", masterName || "—"],
@@ -606,10 +532,7 @@ function Step3Details({
 
   return (
     <div>
-      <h2
-        className="text-white"
-        style={{ fontSize: "20px", fontWeight: 700, marginBottom: "16px" }}
-      >
+      <h2 className="text-white" style={{ fontSize: "20px", fontWeight: 700, marginBottom: "16px" }}>
         Детали записи
       </h2>
 
@@ -637,21 +560,14 @@ function Step3Details({
           💈
         </div>
         <div>
-          <div
-            className="text-white"
-            style={{ fontSize: "16px", fontWeight: 700 }}
-          >
+          <div className="text-white" style={{ fontSize: "16px", fontWeight: 700 }}>
             {shop.name}
           </div>
-          <div
-            style={{
-              fontSize: "13px",
-              color: "#A8B2C1",
-              marginTop: "4px",
-            }}
-          >
-            📍 {shop.address}
-          </div>
+          {shop.address && (
+            <div style={{ fontSize: "13px", color: "#A8B2C1", marginTop: "4px" }}>
+              📍 {shop.address}
+            </div>
+          )}
         </div>
       </div>
 
@@ -660,54 +576,25 @@ function Step3Details({
           <div
             key={label}
             className="flex items-center justify-between"
-            style={{
-              padding: "14px 0",
-              borderBottom: "1px solid #2a3a4a",
-            }}
+            style={{ padding: "14px 0", borderBottom: "1px solid #2a3a4a" }}
           >
-            <span style={{ fontSize: "14px", color: "#A8B2C1" }}>
-              {label}
-            </span>
-            <span
-              className="text-white"
-              style={{ fontSize: "15px", fontWeight: 700 }}
-            >
+            <span style={{ fontSize: "14px", color: "#A8B2C1" }}>{label}</span>
+            <span className="text-white" style={{ fontSize: "15px", fontWeight: 700 }}>
               {value}
             </span>
           </div>
         ))}
 
-        <div
-          className="flex items-center justify-between"
-          style={{ padding: "14px 0", marginTop: "4px" }}
-        >
-          <span
-            className="text-white"
-            style={{ fontSize: "16px", fontWeight: 600 }}
-          >
-            Итого
-          </span>
-          <span
-            style={{
-              fontSize: "20px",
-              fontWeight: 700,
-              color: "#E94560",
-            }}
-          >
-            {price ? `${price.toLocaleString("ru-RU")}₸` : "—"}
+        <div className="flex items-center justify-between" style={{ padding: "14px 0", marginTop: "4px" }}>
+          <span className="text-white" style={{ fontSize: "16px", fontWeight: 600 }}>Итого</span>
+          <span style={{ fontSize: "20px", fontWeight: 700, color: "#E94560" }}>
+            {price ? `${Number(price).toLocaleString("ru-RU")}₸` : "—"}
           </span>
         </div>
       </div>
 
       <div style={{ marginBottom: "16px" }}>
-        <label
-          style={{
-            display: "block",
-            fontSize: "14px",
-            color: "#A8B2C1",
-            marginBottom: "8px",
-          }}
-        >
+        <label style={{ display: "block", fontSize: "14px", color: "#A8B2C1", marginBottom: "8px" }}>
           Комментарий для мастера
         </label>
         <textarea
@@ -728,12 +615,8 @@ function Step3Details({
             outline: "none",
             fontFamily: "inherit",
           }}
-          onFocus={(e) => {
-            e.currentTarget.style.borderColor = "#E94560";
-          }}
-          onBlur={(e) => {
-            e.currentTarget.style.borderColor = "#2a3a4a";
-          }}
+          onFocus={(e) => { e.currentTarget.style.borderColor = "#E94560"; }}
+          onBlur={(e) => { e.currentTarget.style.borderColor = "#2a3a4a"; }}
         />
       </div>
 
