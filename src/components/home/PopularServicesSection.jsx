@@ -27,13 +27,7 @@ function PopularServicesSection() {
         Популярные услуги
       </h2>
 
-      <div
-        className="grid"
-        style={{
-          gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
-          gap: "14px",
-        }}
-      >
+      <div className="grid grid-cols-2 md:grid-cols-4" style={{ gap: "14px" }}>
         {services.map((service) => (
           <button
             key={service.value}

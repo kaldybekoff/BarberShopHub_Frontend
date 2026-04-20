@@ -29,13 +29,7 @@ function NearbyShopsSection({ shops }) {
         </Link>
       </div>
 
-      <div
-        className="grid"
-        style={{
-          gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-          gap: "20px",
-        }}
-      >
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" style={{ gap: "20px" }}>
         {shops.map((shop) => (
           <ShopCard key={shop.id} shop={shop} variant="home" />
         ))}

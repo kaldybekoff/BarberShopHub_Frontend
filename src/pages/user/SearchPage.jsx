@@ -25,6 +25,7 @@ function SearchPage() {
   const [loading, setLoading] = useState(true);
   const [userCoords, setUserCoords] = useState(null);
   const [geoLoading, setGeoLoading] = useState(false);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
   const debounceRef = useRef(null);
 
   useEffect(() => {
@@ -83,155 +84,131 @@ function SearchPage() {
     return list;
   }, [allShops, ratingFilter, orderBy]);
 
+  const filtersContent = (
+    <>
+      <FilterSection title="Сортировка">
+        <select
+          value={orderBy}
+          onChange={(e) => setOrderBy(e.target.value)}
+          style={{ width: "100%", backgroundColor: "#1E2A3A", border: "1px solid #2a3a4a", borderRadius: "8px", padding: "8px 10px", color: "#ffffff", fontSize: "13px", cursor: "pointer", outline: "none" }}
+        >
+          <option value="">По умолчанию</option>
+          <option value="rating">По рейтингу</option>
+          {userCoords && <option value="distance">По расстоянию</option>}
+        </select>
+      </FilterSection>
+
+      <FilterSection title="Статус">
+        <FilterCheckbox icon="🟢" label="Только открытые" checked={onlyOpen} onChange={() => setOnlyOpen((v) => !v)} />
+      </FilterSection>
+
+      <FilterSection title="Рейтинг">
+        <FilterCheckbox icon="⭐" label="Топ (4.8+)" checked={ratingFilter === "top"} onChange={() => setRatingFilter(ratingFilter === "top" ? null : "top")} />
+        <FilterCheckbox icon="⭐" label="Хороший (4.0+)" checked={ratingFilter === "good"} onChange={() => setRatingFilter(ratingFilter === "good" ? null : "good")} />
+      </FilterSection>
+
+      <FilterSection title="Моё местоположение">
+        {userCoords ? (
+          <div className="flex items-center" style={{ gap: "6px" }}>
+            <span style={{ color: "#48BB78", fontSize: "13px" }}>✓ Определено</span>
+            <button type="button" onClick={requestLocation} style={{ color: "#A8B2C1", fontSize: "11px", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>
+              обновить
+            </button>
+          </div>
+        ) : (
+          <button type="button" onClick={requestLocation} disabled={geoLoading} style={{ width: "100%", backgroundColor: "#1E2A3A", border: "1px solid #2a3a4a", borderRadius: "8px", padding: "9px 12px", color: geoLoading ? "#A8B2C1" : "#ffffff", fontSize: "13px", fontWeight: 600, cursor: geoLoading ? "not-allowed" : "pointer", textAlign: "left" }}>
+            {geoLoading ? "Определяем..." : "📍 Определить местоположение"}
+          </button>
+        )}
+      </FilterSection>
+    </>
+  );
+
   return (
     <div
       className="flex min-h-[calc(100vh-54px)] w-full font-['Plus_Jakarta_Sans',system-ui]"
       style={{ backgroundColor: "#1A1A2E" }}
     >
-      <aside
-        className="shrink-0"
-        style={{ width: "260px", backgroundColor: "#000000", padding: "24px" }}
-      >
-        <h1
-          className="text-white"
-          style={{ fontSize: "24px", fontWeight: 700, marginBottom: "16px" }}
-        >
+      {/* Desktop sidebar */}
+      <aside className="hidden md:block shrink-0" style={{ width: "260px", backgroundColor: "#000000", padding: "24px" }}>
+        <h1 className="text-white" style={{ fontSize: "24px", fontWeight: 700, marginBottom: "16px" }}>
           Поиск
         </h1>
-
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="барбершоп"
           className="w-full text-white focus:outline-none"
-          style={{
-            border: "2px solid #E94560",
-            backgroundColor: "transparent",
-            borderRadius: "10px",
-            padding: "10px 14px",
-            fontSize: "14px",
-          }}
+          style={{ border: "2px solid #E94560", backgroundColor: "transparent", borderRadius: "10px", padding: "10px 14px", fontSize: "14px" }}
         />
-
         <h2 className="text-white" style={{ fontWeight: 700, marginTop: "24px", marginBottom: "12px" }}>
           Фильтры
         </h2>
-
-        <FilterSection title="Сортировка">
-          <select
-            value={orderBy}
-            onChange={(e) => setOrderBy(e.target.value)}
-            style={{
-              width: "100%",
-              backgroundColor: "#1E2A3A",
-              border: "1px solid #2a3a4a",
-              borderRadius: "8px",
-              padding: "8px 10px",
-              color: "#ffffff",
-              fontSize: "13px",
-              cursor: "pointer",
-              outline: "none",
-            }}
-          >
-            <option value="">По умолчанию</option>
-            <option value="rating">По рейтингу</option>
-            {userCoords && <option value="distance">По расстоянию</option>}
-          </select>
-        </FilterSection>
-
-        <FilterSection title="Статус">
-          <FilterCheckbox
-            icon="🟢"
-            label="Только открытые"
-            checked={onlyOpen}
-            onChange={() => setOnlyOpen((v) => !v)}
-          />
-        </FilterSection>
-
-        <FilterSection title="Рейтинг">
-          <FilterCheckbox
-            icon="⭐"
-            label="Топ (4.8+)"
-            checked={ratingFilter === "top"}
-            onChange={() => setRatingFilter(ratingFilter === "top" ? null : "top")}
-          />
-          <FilterCheckbox
-            icon="⭐"
-            label="Хороший (4.0+)"
-            checked={ratingFilter === "good"}
-            onChange={() => setRatingFilter(ratingFilter === "good" ? null : "good")}
-          />
-        </FilterSection>
-
-        <FilterSection title="Моё местоположение">
-          {userCoords ? (
-            <div className="flex items-center" style={{ gap: "6px" }}>
-              <span style={{ color: "#48BB78", fontSize: "13px" }}>✓ Определено</span>
-              <button
-                type="button"
-                onClick={requestLocation}
-                style={{ color: "#A8B2C1", fontSize: "11px", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}
-              >
-                обновить
-              </button>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={requestLocation}
-              disabled={geoLoading}
-              style={{
-                width: "100%",
-                backgroundColor: "#1E2A3A",
-                border: "1px solid #2a3a4a",
-                borderRadius: "8px",
-                padding: "9px 12px",
-                color: geoLoading ? "#A8B2C1" : "#ffffff",
-                fontSize: "13px",
-                fontWeight: 600,
-                cursor: geoLoading ? "not-allowed" : "pointer",
-                textAlign: "left",
-              }}
-            >
-              {geoLoading ? "Определяем..." : "📍 Определить местоположение"}
-            </button>
-          )}
-        </FilterSection>
-
+        {filtersContent}
       </aside>
 
-      <main className="flex-1" style={{ padding: "24px", backgroundColor: "#1A1A2E" }}>
-        <div className="flex items-center" style={{ marginBottom: "20px" }}>
+      <main className="flex-1 min-w-0" style={{ padding: "16px", backgroundColor: "#1A1A2E" }}>
+        {/* Mobile search + filter toggle */}
+        <div className="flex md:hidden items-center" style={{ gap: "10px", marginBottom: "14px" }}>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Поиск барбершопа..."
+            className="flex-1 text-white focus:outline-none"
+            style={{ border: "2px solid #E94560", backgroundColor: "#1E2A3A", borderRadius: "10px", padding: "10px 14px", fontSize: "14px" }}
+          />
+          <button
+            type="button"
+            onClick={() => setShowMobileFilters((v) => !v)}
+            style={{
+              backgroundColor: showMobileFilters ? "#E94560" : "#1E2A3A",
+              border: "1px solid #2a3a4a",
+              borderRadius: "10px",
+              padding: "10px 14px",
+              color: "#ffffff",
+              fontSize: "13px",
+              fontWeight: 600,
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+            }}
+          >
+            ⚙️ Фильтры
+          </button>
+        </div>
+
+        {/* Mobile filters panel */}
+        {showMobileFilters && (
+          <div className="md:hidden" style={{ backgroundColor: "#000000", borderRadius: "12px", padding: "16px", marginBottom: "14px" }}>
+            {filtersContent}
+            <button
+              type="button"
+              onClick={() => setShowMobileFilters(false)}
+              style={{ width: "100%", marginTop: "16px", backgroundColor: "#E94560", border: "none", borderRadius: "10px", padding: "10px", color: "#fff", fontSize: "14px", fontWeight: 700, cursor: "pointer" }}
+            >
+              Применить
+            </button>
+          </div>
+        )}
+
+        <div className="flex items-center" style={{ marginBottom: "16px" }}>
           <p style={{ marginLeft: "auto", color: "#A8B2C1", fontSize: "14px" }}>
             {loading ? "Поиск..." : `Найдено: ${filteredShops.length}`}
           </p>
         </div>
 
         {loading ? (
-          <div
-            className="flex items-center justify-center rounded-2xl"
-            style={{ backgroundColor: "#1E2A3A", padding: "60px 20px" }}
-          >
+          <div className="flex items-center justify-center rounded-2xl" style={{ backgroundColor: "#1E2A3A", padding: "60px 20px" }}>
             <p style={{ color: "#A8B2C1", fontSize: "14px" }}>Загрузка...</p>
           </div>
         ) : filteredShops.length === 0 ? (
-          <div
-            className="flex flex-col items-center justify-center rounded-2xl"
-            style={{ backgroundColor: "#1E2A3A", padding: "60px 20px" }}
-          >
-            <p className="text-white" style={{ fontSize: "16px", fontWeight: 600 }}>
-              Ничего не найдено
-            </p>
-            <p style={{ color: "#A8B2C1", fontSize: "14px", marginTop: "6px" }}>
-              Попробуйте изменить фильтры
-            </p>
+          <div className="flex flex-col items-center justify-center rounded-2xl" style={{ backgroundColor: "#1E2A3A", padding: "60px 20px" }}>
+            <p className="text-white" style={{ fontSize: "16px", fontWeight: 600 }}>Ничего не найдено</p>
+            <p style={{ color: "#A8B2C1", fontSize: "14px", marginTop: "6px" }}>Попробуйте изменить фильтры</p>
           </div>
         ) : (
-          <div
-            className="grid"
-            style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "16px" }}
-          >
+          <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: "16px" }}>
             {filteredShops.map((shop) => (
               <ShopCard key={shop.id} shop={shop} />
             ))}
@@ -255,45 +232,9 @@ function FilterCheckbox({ icon, label, checked, onChange }) {
   return (
     <label
       className="flex items-center cursor-pointer select-none"
-      style={{
-        gap: "8px",
-        fontSize: "14px",
-        color: "#ffffff",
-        marginBottom: "4px",
-        fontWeight: checked ? 700 : 400,
-      }}
+      style={{ gap: "8px", fontSize: "14px", color: "#ffffff", marginBottom: "4px", fontWeight: checked ? 700 : 400 }}
     >
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={onChange}
-        style={{ accentColor: "#E94560", display: "none" }}
-      />
-      <span>{icon}</span>
-      <span>{label}</span>
-    </label>
-  );
-}
-
-function FilterRadio({ icon, label, checked, onChange }) {
-  return (
-    <label
-      className="flex items-center cursor-pointer select-none"
-      style={{
-        gap: "8px",
-        fontSize: "14px",
-        color: "#ffffff",
-        marginBottom: "4px",
-        fontWeight: checked ? 700 : 400,
-      }}
-    >
-      <input
-        type="radio"
-        name="distance"
-        checked={checked}
-        onChange={onChange}
-        style={{ accentColor: "#E94560", display: "none" }}
-      />
+      <input type="checkbox" checked={checked} onChange={onChange} style={{ accentColor: "#E94560", display: "none" }} />
       <span>{icon}</span>
       <span>{label}</span>
     </label>
