@@ -17,6 +17,13 @@ export async function login(email, password) {
   return { access_token: token, user: { ...user, role } };
 }
 
+export async function loginWithGoogle(idToken) {
+  const res = await axiosInstance.post("/auth/google", { id_token: idToken });
+  const { user, token } = res.data.data;
+  const role = await detectRole(token);
+  return { access_token: token, user: { ...user, role } };
+}
+
 export async function register(name, email, password) {
   const res = await axiosInstance.post("/auth/register", {
     name,
@@ -41,6 +48,18 @@ export async function resendCode(email) {
 
 export function logout() {
   axiosInstance.post("/auth/logout").catch(() => {});
+}
+
+export async function getCurrentUser() {
+  const res = await axiosInstance.get("/auth/me");
+  return res.data.data;
+}
+
+export async function fetchMeWithRole() {
+  const user = await getCurrentUser();
+  const token = localStorage.getItem("token");
+  const role = token ? await detectRole(token) : "User";
+  return { ...user, role };
 }
 
 export async function forgotPassword(email) {

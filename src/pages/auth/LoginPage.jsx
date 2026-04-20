@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthBrandPanel from "../../components/auth/AuthBrandPanel";
-import { login as apiLogin } from "../../api/authApi";
+import { login as apiLogin, loginWithGoogle } from "../../api/authApi";
 import useAuth from "../../hooks/useAuth";
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
 const pageStyle = { backgroundColor: "#171A33" };
 
@@ -36,6 +38,8 @@ function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const googleInitRef = useRef(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -58,6 +62,63 @@ function LoginPage() {
     } finally {
       setIsLoading(false);
     }
+  }
+
+  async function handleGoogleCredential(credentialResponse) {
+    const idToken = credentialResponse?.credential;
+    if (!idToken) {
+      setErrorMessage("Не удалось получить токен Google");
+      return;
+    }
+    setIsGoogleLoading(true);
+    setErrorMessage("");
+    try {
+      const { access_token, user } = await loginWithGoogle(idToken);
+      login(user, access_token);
+      if (user.role === "Barbershop") navigate("/barbershop/dashboard");
+      else navigate("/home");
+    } catch (error) {
+      setErrorMessage(error?.response?.data?.message || "Не удалось войти через Google");
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (!GOOGLE_CLIENT_ID) return;
+    if (googleInitRef.current) return;
+
+    function init() {
+      const google = window.google;
+      if (!google?.accounts?.id) return false;
+      google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleGoogleCredential,
+      });
+      googleInitRef.current = true;
+      return true;
+    }
+
+    if (init()) return;
+
+    const interval = setInterval(() => {
+      if (init()) clearInterval(interval);
+    }, 200);
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function handleGoogleClick() {
+    if (!GOOGLE_CLIENT_ID) {
+      setErrorMessage("Google вход не настроен (нет VITE_GOOGLE_CLIENT_ID)");
+      return;
+    }
+    const google = window.google;
+    if (!google?.accounts?.id) {
+      setErrorMessage("Google SDK ещё не загружен, попробуйте через секунду");
+      return;
+    }
+    google.accounts.id.prompt();
   }
 
   return (
@@ -305,7 +366,8 @@ function LoginPage() {
 
           <button
             type="button"
-            onClick={() => console.log("google login")}
+            onClick={handleGoogleClick}
+            disabled={isGoogleLoading}
             className="flex items-center justify-center"
             style={{
               width: "100%",
@@ -317,12 +379,13 @@ function LoginPage() {
               color: "#ffffff",
               fontSize: "14px",
               fontWeight: 600,
-              cursor: "pointer",
+              cursor: isGoogleLoading ? "default" : "pointer",
+              opacity: isGoogleLoading ? 0.7 : 1,
               marginBottom: "20px",
             }}
           >
             <span>🌐</span>
-            Войти через Google
+            {isGoogleLoading ? "Входим через Google..." : "Войти через Google"}
           </button>
 
           <div
