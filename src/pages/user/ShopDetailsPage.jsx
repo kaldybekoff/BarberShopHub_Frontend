@@ -54,7 +54,7 @@ function ShopDetailsPage() {
     >
       <div
         className="relative flex items-center justify-center"
-        style={{ height: "220px", backgroundColor: "#16213E" }}
+        style={{ height: "200px", backgroundColor: "#16213E" }}
       >
         {shop.logo ? (
           <img
@@ -67,21 +67,20 @@ function ShopDetailsPage() {
         )}
       </div>
 
-      <div
-        style={{
-          maxWidth: "1100px",
-          margin: "0 auto",
-          padding: "0 40px 40px",
-        }}
-      >
-        <div
-          className="grid items-start"
-          style={{
-            gridTemplateColumns: "1fr 320px",
-            gap: "32px",
-            marginTop: "32px",
-          }}
+      {/* Mobile bottom bar */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-20" style={{ backgroundColor: "#000000", borderTop: "1px solid #1E2A3A", padding: "12px 16px" }}>
+        <button
+          type="button"
+          onClick={() => navigate(`/booking/${shopSlug}`)}
+          className="text-white w-full"
+          style={{ backgroundColor: "#E94560", borderRadius: "12px", padding: "14px", fontSize: "16px", fontWeight: 700, border: "none", cursor: "pointer" }}
         >
+          Записаться
+        </button>
+      </div>
+
+      <div style={{ maxWidth: "1100px", margin: "0 auto" }} className="px-4 pb-24 md:px-10 md:pb-10">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_320px] items-start" style={{ gap: "32px", marginTop: "24px" }}>
           <div>
             <h1
               className="text-white"
@@ -190,36 +189,19 @@ function ShopDetailsPage() {
             )}
           </div>
 
+          {/* Desktop sticky aside */}
           <aside
-            style={{
-              backgroundColor: "#000000",
-              borderRadius: "16px",
-              padding: "24px",
-              position: "sticky",
-              top: "24px",
-            }}
+            className="hidden md:block"
+            style={{ backgroundColor: "#000000", borderRadius: "16px", padding: "24px", position: "sticky", top: "24px" }}
           >
-            <h2
-              className="text-white"
-              style={{ fontSize: "18px", fontWeight: 700, marginBottom: "20px" }}
-            >
+            <h2 className="text-white" style={{ fontSize: "18px", fontWeight: 700, marginBottom: "20px" }}>
               📅 Записаться
             </h2>
-
             <button
               type="button"
               onClick={() => navigate(`/booking/${shopSlug}`)}
               className="text-white transition-colors"
-              style={{
-                width: "100%",
-                backgroundColor: "#E94560",
-                borderRadius: "12px",
-                padding: "14px",
-                fontSize: "16px",
-                fontWeight: 700,
-                border: "none",
-                cursor: "pointer",
-              }}
+              style={{ width: "100%", backgroundColor: "#E94560", borderRadius: "12px", padding: "14px", fontSize: "16px", fontWeight: 700, border: "none", cursor: "pointer" }}
               onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#c73652"; }}
               onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#E94560"; }}
             >

@@ -151,10 +151,7 @@ function UpcomingSection({ items }) {
   return (
     <>
       <SectionLabel title="Предстоящие" count={items.length} />
-      <div
-        className="grid"
-        style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "16px" }}
-      >
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ gap: "16px" }}>
         {items.map((appointment) => (
           <AppointmentCard key={appointment.id} appointment={appointment} />
         ))}

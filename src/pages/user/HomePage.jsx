@@ -22,7 +22,7 @@ function HomePage() {
       className="min-h-full font-['Plus_Jakarta_Sans',system-ui]"
       style={{ backgroundColor: "#1A1A2E" }}
     >
-      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "40px 40px" }}>
+      <div style={{ maxWidth: "1100px", margin: "0 auto" }} className="px-4 py-6 md:px-10 md:py-10">
         <GreetingBlock />
         <FilterChips />
         <NearbyShopsSection shops={shops} />

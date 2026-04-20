@@ -214,7 +214,7 @@ function BookingPage() {
     >
       <div
         className="flex items-center justify-center"
-        style={{ padding: "16px 32px", position: "relative" }}
+        style={{ padding: "16px", position: "relative" }}
       >
         <button
           type="button"
@@ -254,16 +254,11 @@ function BookingPage() {
       <BookingSteps currentStep={currentStep} />
 
       <div
-        className="grid items-start"
-        style={{
-          gridTemplateColumns: "1fr 320px",
-          gap: "24px",
-          padding: "0 32px",
-          maxWidth: "1100px",
-          margin: "0 auto",
-        }}
+        className="grid grid-cols-1 md:grid-cols-[1fr_320px] items-start"
+        style={{ gap: "24px", maxWidth: "1100px", margin: "0 auto" }}
       >
-        <div className="min-w-0">
+
+        <div className="min-w-0 px-4 md:px-0">
           {currentStep === 1 && (
             <div>
               <p style={{ fontSize: "14px", color: "#A8B2C1", marginBottom: "16px" }}>
@@ -345,39 +340,45 @@ function BookingPage() {
         </div>
 
         {currentStep === 1 && (
-          <OrderWidget
-            service={selectedService}
-            onNext={() => selectedService && setCurrentStep(2)}
-          />
+          <div className="px-4 md:px-0">
+            <OrderWidget
+              service={selectedService}
+              onNext={() => selectedService && setCurrentStep(2)}
+            />
+          </div>
         )}
 
         {currentStep === 2 && (
-          <Step2OrderWidget
-            master={selectedMaster}
-            service={selectedService}
-            date={selectedDate}
-            time={selectedTime}
-            canProceed={!!selectedMaster && !!selectedDay && !!selectedTime}
-            onNext={() => setCurrentStep(3)}
-          />
+          <div className="px-4 md:px-0">
+            <Step2OrderWidget
+              master={selectedMaster}
+              service={selectedService}
+              date={selectedDate}
+              time={selectedTime}
+              canProceed={!!selectedMaster && !!selectedDay && !!selectedTime}
+              onNext={() => setCurrentStep(3)}
+            />
+          </div>
         )}
 
         {currentStep === 3 && (
-          <BookingSummary
-            shopName={shop.name}
-            dateTime={
-              selectedDay && selectedTime
-                ? `${selectedDay.summaryDisplay} · ${selectedTime}`
-                : "—"
-            }
-            masterName={selectedMaster ? selectedMaster.name : "Любой доступный"}
-            serviceShortName={selectedService?.shortName || selectedService?.name || "—"}
-            duration={selectedService?.duration}
-            price={selectedService?.price}
-            isSubmitting={isSubmitting}
-            error={bookingError}
-            onConfirm={handleConfirm}
-          />
+          <div className="px-4 md:px-0">
+            <BookingSummary
+              shopName={shop.name}
+              dateTime={
+                selectedDay && selectedTime
+                  ? `${selectedDay.summaryDisplay} · ${selectedTime}`
+                  : "—"
+              }
+              masterName={selectedMaster ? selectedMaster.name : "Любой доступный"}
+              serviceShortName={selectedService?.shortName || selectedService?.name || "—"}
+              duration={selectedService?.duration}
+              price={selectedService?.price}
+              isSubmitting={isSubmitting}
+              error={bookingError}
+              onConfirm={handleConfirm}
+            />
+          </div>
         )}
       </div>
     </div>
