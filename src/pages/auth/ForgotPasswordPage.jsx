@@ -106,13 +106,13 @@ function ForgotPasswordPage() {
                 Письмо отправлено!
               </h1>
               <p style={{ color: "#A8B2C1", fontSize: "13px", lineHeight: 1.6, marginBottom: "28px" }}>
-                Мы отправили инструкцию по сбросу пароля на{" "}
+                Мы отправили код подтверждения на{" "}
                 <span style={{ color: "#ffffff", fontWeight: 600 }}>{email}</span>.
                 Проверьте папку «Спам», если письмо не пришло.
               </p>
               <button
                 type="button"
-                onClick={() => navigate("/login")}
+                onClick={() => navigate("/reset-password", { state: { email } })}
                 style={{
                   width: "100%",
                   backgroundColor: "#E94560",
@@ -126,7 +126,7 @@ function ForgotPasswordPage() {
                   marginBottom: "12px",
                 }}
               >
-                Вернуться к входу
+                Ввести код →
               </button>
               <button
                 type="button"
