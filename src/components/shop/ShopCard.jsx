@@ -3,14 +3,15 @@ import { useNavigate } from "react-router-dom";
 function ShopCard({ shop, variant = "search" }) {
   const navigate = useNavigate();
 
-  const price = shop.price ?? shop.priceFrom;
-  const reviewsCount = shop.reviews ?? shop.reviewCount;
-  const status = shop.status ?? (shop.isOpen ? "open" : "soon");
+  const price = shop.price_from ?? shop.price ?? shop.priceFrom;
+  const reviewsCount = shop.reviews_count ?? shop.reviews ?? shop.reviewCount ?? 0;
+  const rawDistance = shop.distance_km != null ? `${shop.distance_km} км` : (shop.distance ?? "");
+  const status = shop.status ?? "closed";
   const isOpen = status === "open";
 
   const isHome = variant === "home";
 
-  const handleClick = () => navigate(`/shops/${shop.id}`);
+  const handleClick = () => navigate(`/shops/${shop.slug ?? shop.id}`);
 
   return (
     <div
@@ -65,7 +66,7 @@ function ShopCard({ shop, variant = "search" }) {
               </span>
             </span>
             <span style={{ color: "#A8B2C1", fontSize: "13px" }}>
-              <span style={{ fontSize: "12px" }}>📍</span> {shop.distance}
+              <span style={{ fontSize: "12px" }}>📍</span> {rawDistance}
             </span>
           </div>
 
@@ -126,7 +127,7 @@ function ShopCard({ shop, variant = "search" }) {
               marginBottom: "12px",
             }}
           >
-            📍 {shop.distance}
+            📍 {rawDistance}
             {shop.address ? ` · ${shop.address}` : ""}
           </p>
 

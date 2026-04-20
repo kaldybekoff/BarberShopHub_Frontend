@@ -1,77 +1,5 @@
-import { useState } from "react";
-
-const mockBookings = [
-  {
-    id: 1,
-    clientName: "Алибек Джаксыбеков",
-    service: "Стрижка + борода",
-    master: "Марат",
-    date: "02.04.2026",
-    time: "10:00",
-    price: 4500,
-    status: "confirmed",
-  },
-  {
-    id: 2,
-    clientName: "Нурлан Сейткали",
-    service: "Классическая стрижка",
-    master: "Дамир",
-    date: "02.04.2026",
-    time: "11:30",
-    price: 2500,
-    status: "pending",
-  },
-  {
-    id: 3,
-    clientName: "Темирлан Ахметов",
-    service: "Fade",
-    master: "Марат",
-    date: "03.04.2026",
-    time: "13:00",
-    price: 3000,
-    status: "confirmed",
-  },
-  {
-    id: 4,
-    clientName: "Айдос Кенжебеков",
-    service: "Стрижка + укладка",
-    master: "Руслан",
-    date: "03.04.2026",
-    time: "14:30",
-    price: 3500,
-    status: "pending",
-  },
-  {
-    id: 5,
-    clientName: "Жандос Мухамедов",
-    service: "Борода",
-    master: "Дамир",
-    date: "04.04.2026",
-    time: "15:00",
-    price: 1500,
-    status: "cancelled",
-  },
-  {
-    id: 6,
-    clientName: "Серик Омаров",
-    service: "Fade + борода",
-    master: "Марат",
-    date: "04.04.2026",
-    time: "09:00",
-    price: 5000,
-    status: "confirmed",
-  },
-  {
-    id: 7,
-    clientName: "Даниар Касымов",
-    service: "Классическая стрижка",
-    master: "Руслан",
-    date: "05.04.2026",
-    time: "10:00",
-    price: 2500,
-    status: "cancelled",
-  },
-];
+import { useState, useEffect, useCallback } from "react";
+import { getOwnerBookings, confirmOwnerBooking, cancelOwnerBooking } from "../../api/dashboardApi";
 
 const filters = [
   { id: "all", label: "Все" },
@@ -98,22 +26,65 @@ const statusBadges = {
   },
 };
 
-const formatPrice = (price) => `${price.toLocaleString("ru-RU")}₸`;
+function formatPrice(price) {
+  return `${Number(price).toLocaleString("ru-RU")}₸`;
+}
+
+function mapBooking(b) {
+  const dt = new Date(b.scheduled_at);
+  const date = dt.toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" });
+  const time = dt.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+  const serviceName =
+    b.service_name ?? (Array.isArray(b.services) && b.services[0]?.name) ?? "—";
+  return {
+    id: b.id,
+    clientName: b.client_name,
+    service: serviceName,
+    master: b.barber_name,
+    date,
+    time,
+    price: b.total_price,
+    status: b.status,
+  };
+}
 
 function BookingsPage() {
   const [activeFilter, setActiveFilter] = useState("all");
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const filtered =
-    activeFilter === "all"
-      ? mockBookings
-      : mockBookings.filter((b) => b.status === activeFilter);
+  const loadBookings = useCallback(async (filter) => {
+    setLoading(true);
+    try {
+      const data = await getOwnerBookings(filter);
+      setBookings(data.map(mapBooking));
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  function handleConfirm(id) {
-    console.log("confirm booking", id);
+  useEffect(() => {
+    loadBookings(activeFilter);
+  }, [activeFilter, loadBookings]);
+
+  async function handleConfirm(id) {
+    try {
+      await confirmOwnerBooking(id);
+      await loadBookings(activeFilter);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
-  function handleCancel(id) {
-    console.log("cancel booking", id);
+  async function handleCancel(id) {
+    try {
+      await cancelOwnerBooking(id);
+      await loadBookings(activeFilter);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   return (
@@ -125,19 +96,10 @@ function BookingsPage() {
       }}
     >
       <div>
-        <h1
-          className="text-white"
-          style={{ fontSize: "22px", fontWeight: 700 }}
-        >
+        <h1 className="text-white" style={{ fontSize: "22px", fontWeight: 700 }}>
           Записи
         </h1>
-        <p
-          style={{
-            color: "#A8B2C1",
-            fontSize: "13px",
-            marginTop: "3px",
-          }}
-        >
+        <p style={{ color: "#A8B2C1", fontSize: "13px", marginTop: "3px" }}>
           Управляйте бронированиями клиентов
         </p>
       </div>
@@ -177,7 +139,20 @@ function BookingsPage() {
         })}
       </div>
 
-      {filtered.length === 0 ? (
+      {loading ? (
+        <div
+          className="text-center"
+          style={{
+            backgroundColor: "#1E2A3A",
+            borderRadius: "12px",
+            padding: "40px 20px",
+            color: "#A8B2C1",
+            fontSize: "14px",
+          }}
+        >
+          Загрузка...
+        </div>
+      ) : bookings.length === 0 ? (
         <div
           className="text-center"
           style={{
@@ -192,7 +167,7 @@ function BookingsPage() {
         </div>
       ) : (
         <div>
-          {filtered.map((booking) => (
+          {bookings.map((booking) => (
             <BookingCard
               key={booking.id}
               booking={booking}
@@ -222,33 +197,20 @@ function BookingCard({ booking, onConfirm, onCancel }) {
         opacity: isCancelled ? 0.6 : 1,
       }}
     >
-      <div
-        className="flex items-start justify-between"
-        style={{ gap: "12px" }}
-      >
+      <div className="flex items-start justify-between" style={{ gap: "12px" }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div
-            className="text-white"
-            style={{ fontSize: "15px", fontWeight: 600 }}
-          >
+          <div className="text-white" style={{ fontSize: "15px", fontWeight: 600 }}>
             {booking.clientName}
           </div>
           <div
             className="flex flex-wrap"
-            style={{
-              marginTop: "4px",
-              gap: "20px",
-              fontSize: "13px",
-              color: "#A8B2C1",
-            }}
+            style={{ marginTop: "4px", gap: "20px", fontSize: "13px", color: "#A8B2C1" }}
           >
             <span>
-              Услуга:{" "}
-              <span style={{ color: "#C8D0DC" }}>{booking.service}</span>
+              Услуга: <span style={{ color: "#C8D0DC" }}>{booking.service}</span>
             </span>
             <span>
-              Мастер:{" "}
-              <span style={{ color: "#C8D0DC" }}>{booking.master}</span>
+              Мастер: <span style={{ color: "#C8D0DC" }}>{booking.master}</span>
             </span>
           </div>
         </div>
@@ -292,13 +254,7 @@ function BookingCard({ booking, onConfirm, onCancel }) {
       </div>
 
       {isPending && (
-        <div
-          style={{
-            display: "flex",
-            gap: "8px",
-            marginTop: "12px",
-          }}
-        >
+        <div style={{ display: "flex", gap: "8px", marginTop: "12px" }}>
           <button
             type="button"
             onClick={() => onConfirm(booking.id)}

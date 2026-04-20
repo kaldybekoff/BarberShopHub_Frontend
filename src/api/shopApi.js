@@ -27,3 +27,8 @@ export async function getShopServices(slug) {
   const shop = await getShopBySlug(slug);
   return shop.services;
 }
+
+export async function getAvailableSlots(slug, params = {}) {
+  const res = await axiosInstance.get(`/barbershops/${slug}/available-slots`, { params });
+  return res.data.data;
+}
