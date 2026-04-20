@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import AppointmentCard from "../../components/appointments/AppointmentCard";
 import { getMyAppointments } from "../../api/appointmentApi";
+import { createReview } from "../../api/reviewApi";
 
 function mapBooking(b) {
   const dt = new Date(b.scheduled_at);
@@ -22,6 +23,7 @@ function mapBooking(b) {
     price: b.total_price ?? 0,
     status: b.status,
     reviewed: b.can_review === false,
+    barbershopSlug: b.barbershop_slug ?? null,
   };
 }
 
@@ -162,6 +164,9 @@ function UpcomingSection({ items }) {
 }
 
 function PastSection({ items }) {
+  const [reviewingId, setReviewingId] = useState(null);
+  const [reviewedIds, setReviewedIds] = useState(new Set());
+
   if (items.length === 0) {
     return (
       <>
@@ -176,14 +181,31 @@ function PastSection({ items }) {
       <SectionLabel title="Прошедшие" count={items.length} />
       <div>
         {items.map((appointment) => (
-          <PastAppointmentRow key={appointment.id} appointment={appointment} />
+          <div key={appointment.id}>
+            <PastAppointmentRow
+              appointment={appointment}
+              alreadyReviewed={reviewedIds.has(appointment.id)}
+              onReview={() => setReviewingId(appointment.id)}
+            />
+            {reviewingId === appointment.id && (
+              <InlineReviewForm
+                slug={appointment.barbershopSlug}
+                onClose={() => setReviewingId(null)}
+                onSuccess={() => {
+                  setReviewedIds((prev) => new Set([...prev, appointment.id]));
+                  setReviewingId(null);
+                }}
+              />
+            )}
+          </div>
         ))}
       </div>
     </>
   );
 }
 
-function PastAppointmentRow({ appointment }) {
+function PastAppointmentRow({ appointment, alreadyReviewed, onReview }) {
+  const isReviewed = appointment.reviewed || alreadyReviewed;
   return (
     <div
       className="flex items-center justify-between"
@@ -226,7 +248,7 @@ function PastAppointmentRow({ appointment }) {
           {Number(appointment.price).toLocaleString("ru-RU")}₸
         </span>
 
-        {appointment.reviewed ? (
+        {isReviewed ? (
           <button
             type="button"
             style={{
@@ -245,6 +267,7 @@ function PastAppointmentRow({ appointment }) {
         ) : (
           <button
             type="button"
+            onClick={onReview}
             style={{
               border: "1px solid #E94560",
               color: "#E94560",
@@ -261,6 +284,76 @@ function PastAppointmentRow({ appointment }) {
         )}
       </div>
     </div>
+  );
+}
+
+function InlineReviewForm({ slug, onClose, onSuccess }) {
+  const [rating, setRating] = useState(0);
+  const [hovered, setHovered] = useState(0);
+  const [comment, setComment] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (!rating) { setError("Выберите оценку"); return; }
+    if (!slug) { setError("Не удалось определить барбершоп. Попробуйте через страницу барбершопа."); return; }
+    setLoading(true);
+    setError("");
+    try {
+      await createReview({ slug, rating, comment });
+      onSuccess();
+    } catch {
+      setError("Не удалось отправить отзыв. Попробуйте снова.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      style={{
+        backgroundColor: "#16213E",
+        borderRadius: "12px",
+        padding: "16px",
+        marginBottom: "10px",
+        marginTop: "-6px",
+        border: "1px solid #2a3a4a",
+      }}
+    >
+      <p className="text-white" style={{ fontWeight: 700, marginBottom: "12px", fontSize: "14px" }}>
+        Ваш отзыв
+      </p>
+      <div className="flex" style={{ gap: "6px", marginBottom: "12px" }}>
+        {[1, 2, 3, 4, 5].map((star) => (
+          <span
+            key={star}
+            onMouseEnter={() => setHovered(star)}
+            onMouseLeave={() => setHovered(0)}
+            onClick={() => setRating(star)}
+            style={{ fontSize: "28px", cursor: "pointer", color: star <= (hovered || rating) ? "#F5A623" : "#2a3a4a", transition: "color 0.15s" }}
+          >★</span>
+        ))}
+      </div>
+      <textarea
+        value={comment}
+        onChange={(e) => setComment(e.target.value)}
+        placeholder="Расскажите о вашем опыте..."
+        style={{ width: "100%", minHeight: "70px", backgroundColor: "#1E2A3A", border: "1px solid #2a3a4a", borderRadius: "10px", padding: "10px 12px", color: "#fff", fontSize: "14px", resize: "vertical", outline: "none", fontFamily: "inherit", marginBottom: "10px" }}
+        onFocus={(e) => { e.target.style.borderColor = "#E94560"; }}
+        onBlur={(e) => { e.target.style.borderColor = "#2a3a4a"; }}
+      />
+      {error && <p style={{ color: "#E94560", fontSize: "13px", marginBottom: "8px" }}>{error}</p>}
+      <div className="flex" style={{ gap: "8px" }}>
+        <button type="button" onClick={onClose} style={{ flex: 1, backgroundColor: "transparent", border: "1px solid #2a3a4a", color: "#A8B2C1", borderRadius: "10px", padding: "9px", fontSize: "13px", fontWeight: 600, cursor: "pointer" }}>
+          Отмена
+        </button>
+        <button type="submit" disabled={loading} style={{ flex: 2, backgroundColor: "#E94560", border: "none", color: "#fff", borderRadius: "10px", padding: "9px", fontSize: "13px", fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1 }}>
+          {loading ? "Отправка..." : "Отправить"}
+        </button>
+      </div>
+    </form>
   );
 }
 

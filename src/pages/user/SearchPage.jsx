@@ -10,6 +10,7 @@ function normalizeShop(s) {
     rating: s.rating ?? 0,
     reviews: s.reviews_count ?? 0,
     distance: s.distance_km != null ? `${s.distance_km} км` : "",
+    distanceKm: s.distance_km ?? null,
     price: s.price_from ?? 0,
     status: s.status ?? "closed",
   };
@@ -17,21 +18,51 @@ function normalizeShop(s) {
 
 function SearchPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState([]);
+  const [onlyOpen, setOnlyOpen] = useState(false);
+  const [orderBy, setOrderBy] = useState("");
   const [ratingFilter, setRatingFilter] = useState(null);
-  const [distanceFilter, setDistanceFilter] = useState(null);
-  const [priceFilters, setPriceFilters] = useState([]);
-  const [priceRange, setPriceRange] = useState(5000);
-  const [activeView, setActiveView] = useState("list");
   const [allShops, setAllShops] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [userCoords, setUserCoords] = useState(null);
+  const [geoLoading, setGeoLoading] = useState(false);
   const debounceRef = useRef(null);
+
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => setUserCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => {}
+    );
+  }, []);
+
+  function requestLocation() {
+    if (!navigator.geolocation) return;
+    setGeoLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setGeoLoading(false);
+      },
+      () => {
+        alert("Не удалось определить местоположение. Проверьте настройки браузера.");
+        setGeoLoading(false);
+      }
+    );
+  }
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       setLoading(true);
-      getShops({ search: searchQuery || undefined, per_page: 50 })
+      const params = { per_page: 50 };
+      if (searchQuery) params.search = searchQuery;
+      if (onlyOpen) params.is_open = true;
+      if (orderBy) params.order_by = orderBy;
+      if (userCoords) {
+        params.user_lat = userCoords.lat;
+        params.user_lng = userCoords.lng;
+      }
+      getShops(params)
         .then((data) => {
           const list = Array.isArray(data) ? data : data.data ?? [];
           setAllShops(list.map(normalizeShop));
@@ -40,42 +71,17 @@ function SearchPage() {
         .finally(() => setLoading(false));
     }, 400);
     return () => clearTimeout(debounceRef.current);
-  }, [searchQuery]);
-
-  const toggleStatus = (value) => {
-    setStatusFilter((prev) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
-    );
-  };
-
-  const togglePrice = (value) => {
-    setPriceFilters((prev) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
-    );
-  };
+  }, [searchQuery, onlyOpen, orderBy, userCoords]);
 
   const filteredShops = useMemo(() => {
-    return allShops.filter((shop) => {
-      if (statusFilter.length > 0 && !statusFilter.includes(shop.status)) return false;
+    let list = allShops.filter((shop) => {
       if (ratingFilter === "top" && shop.rating < 4.8) return false;
       if (ratingFilter === "good" && shop.rating < 4.0) return false;
-
-      if (distanceFilter) {
-        const km = parseFloat(shop.distance);
-        const limit = Number(distanceFilter);
-        if (!Number.isNaN(km) && km > limit) return false;
-      }
-
-      if (shop.price > priceRange) return false;
-
-      if (priceFilters.length > 0) {
-        const passes = priceFilters.some((limit) => shop.price <= limit);
-        if (!passes) return false;
-      }
-
       return true;
     });
-  }, [allShops, statusFilter, ratingFilter, distanceFilter, priceRange, priceFilters]);
+    if (orderBy === "rating") list = [...list].sort((a, b) => b.rating - a.rating);
+    return list;
+  }, [allShops, ratingFilter, orderBy]);
 
   return (
     <div
@@ -112,18 +118,34 @@ function SearchPage() {
           Фильтры
         </h2>
 
+        <FilterSection title="Сортировка">
+          <select
+            value={orderBy}
+            onChange={(e) => setOrderBy(e.target.value)}
+            style={{
+              width: "100%",
+              backgroundColor: "#1E2A3A",
+              border: "1px solid #2a3a4a",
+              borderRadius: "8px",
+              padding: "8px 10px",
+              color: "#ffffff",
+              fontSize: "13px",
+              cursor: "pointer",
+              outline: "none",
+            }}
+          >
+            <option value="">По умолчанию</option>
+            <option value="rating">По рейтингу</option>
+            {userCoords && <option value="distance">По расстоянию</option>}
+          </select>
+        </FilterSection>
+
         <FilterSection title="Статус">
           <FilterCheckbox
             icon="🟢"
-            label="Открыто"
-            checked={statusFilter.includes("open")}
-            onChange={() => toggleStatus("open")}
-          />
-          <FilterCheckbox
-            icon="🔴"
-            label="Скоро откроется"
-            checked={statusFilter.includes("soon")}
-            onChange={() => toggleStatus("soon")}
+            label="Только открытые"
+            checked={onlyOpen}
+            onChange={() => setOnlyOpen((v) => !v)}
           />
         </FilterSection>
 
@@ -142,106 +164,51 @@ function SearchPage() {
           />
         </FilterSection>
 
-        <FilterSection title="Расстояние">
-          <FilterRadio
-            icon="📍"
-            label="До 1 км"
-            checked={distanceFilter === "1"}
-            onChange={() => setDistanceFilter(distanceFilter === "1" ? null : "1")}
-          />
-          <FilterRadio
-            icon="📍"
-            label="До 3 км"
-            checked={distanceFilter === "3"}
-            onChange={() => setDistanceFilter(distanceFilter === "3" ? null : "3")}
-          />
-          <FilterRadio
-            icon="📍"
-            label="До 5 км"
-            checked={distanceFilter === "5"}
-            onChange={() => setDistanceFilter(distanceFilter === "5" ? null : "5")}
-          />
+        <FilterSection title="Моё местоположение">
+          {userCoords ? (
+            <div className="flex items-center" style={{ gap: "6px" }}>
+              <span style={{ color: "#48BB78", fontSize: "13px" }}>✓ Определено</span>
+              <button
+                type="button"
+                onClick={requestLocation}
+                style={{ color: "#A8B2C1", fontSize: "11px", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}
+              >
+                обновить
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={requestLocation}
+              disabled={geoLoading}
+              style={{
+                width: "100%",
+                backgroundColor: "#1E2A3A",
+                border: "1px solid #2a3a4a",
+                borderRadius: "8px",
+                padding: "9px 12px",
+                color: geoLoading ? "#A8B2C1" : "#ffffff",
+                fontSize: "13px",
+                fontWeight: 600,
+                cursor: geoLoading ? "not-allowed" : "pointer",
+                textAlign: "left",
+              }}
+            >
+              {geoLoading ? "Определяем..." : "📍 Определить местоположение"}
+            </button>
+          )}
         </FilterSection>
 
-        <FilterSection title="Цена">
-          <FilterCheckbox
-            icon="💰"
-            label="До 2000₸"
-            checked={priceFilters.includes(2000)}
-            onChange={() => togglePrice(2000)}
-          />
-          <FilterCheckbox
-            icon="💰"
-            label="До 5000₸"
-            checked={priceFilters.includes(5000)}
-            onChange={() => togglePrice(5000)}
-          />
-
-          <input
-            type="range"
-            min={0}
-            max={5000}
-            value={priceRange}
-            onChange={(e) => setPriceRange(Number(e.target.value))}
-            className="w-full"
-            style={{ accentColor: "#E94560", marginTop: "12px" }}
-          />
-          <div
-            className="flex items-center justify-between"
-            style={{ fontSize: "12px", color: "#A8B2C1", marginTop: "6px" }}
-          >
-            <span>от</span>
-            <span>{priceRange}₸</span>
-          </div>
-        </FilterSection>
       </aside>
 
       <main className="flex-1" style={{ padding: "24px", backgroundColor: "#1A1A2E" }}>
-        <div className="flex items-center" style={{ gap: "16px", marginBottom: "20px" }}>
-          <button
-            onClick={() => setActiveView("list")}
-            className="font-semibold"
-            style={{
-              padding: "8px 18px",
-              fontSize: "14px",
-              borderRadius: "10px",
-              backgroundColor: activeView === "list" ? "#E94560" : "#1E2A3A",
-              color: activeView === "list" ? "#ffffff" : "#A8B2C1",
-              cursor: "pointer",
-              border: "none",
-            }}
-          >
-            📋 Список
-          </button>
-          <button
-            onClick={() => setActiveView("map")}
-            className="font-semibold"
-            style={{
-              padding: "8px 18px",
-              fontSize: "14px",
-              borderRadius: "10px",
-              backgroundColor: activeView === "map" ? "#E94560" : "#1E2A3A",
-              color: activeView === "map" ? "#ffffff" : "#A8B2C1",
-              cursor: "pointer",
-              border: "none",
-            }}
-          >
-            🗺 Карта
-          </button>
-
+        <div className="flex items-center" style={{ marginBottom: "20px" }}>
           <p style={{ marginLeft: "auto", color: "#A8B2C1", fontSize: "14px" }}>
-            {loading ? "Поиск..." : `Найдено: ${filteredShops.length} барбершопа`}
+            {loading ? "Поиск..." : `Найдено: ${filteredShops.length}`}
           </p>
         </div>
 
-        {activeView === "map" ? (
-          <div
-            className="flex items-center justify-center rounded-2xl text-white"
-            style={{ backgroundColor: "#1E2A3A", minHeight: "400px", fontSize: "16px" }}
-          >
-            🗺 Карта в разработке
-          </div>
-        ) : loading ? (
+        {loading ? (
           <div
             className="flex items-center justify-center rounded-2xl"
             style={{ backgroundColor: "#1E2A3A", padding: "60px 20px" }}
@@ -278,7 +245,7 @@ function SearchPage() {
 function FilterSection({ title, children }) {
   return (
     <div style={{ marginTop: "16px" }}>
-      <p style={{ color: "#A8B2C1", fontSize: "12px", marginBottom: "8px" }}>{title}</p>
+      {title && <p style={{ color: "#A8B2C1", fontSize: "12px", marginBottom: "8px" }}>{title}</p>}
       <div className="flex flex-col">{children}</div>
     </div>
   );

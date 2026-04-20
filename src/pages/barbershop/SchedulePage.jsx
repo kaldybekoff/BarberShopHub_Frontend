@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import ScheduleCalendar from "../../components/barbershop/ScheduleCalendar";
 import ScheduleSlot from "../../components/barbershop/ScheduleSlot";
-import { getSchedule } from "../../api/dashboardApi";
+import { getCalendar } from "../../api/dashboardApi";
 
 const views = ["День", "Неделя", "Месяц"];
 const weekdayLabels = ["ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"];
@@ -28,16 +28,25 @@ function buildWeekDays() {
   });
 }
 
-function mapSlot(s) {
-  if (s.type === "free") return { time: s.time, type: "free" };
+function formatTime(isoString) {
+  if (!isoString) return "";
+  const d = new Date(isoString);
+  if (Number.isNaN(d.getTime())) return "";
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  return `${hh}:${mm}`;
+}
+
+function mapBookingToSlot(b) {
   return {
-    time: s.time,
+    time: formatTime(b.scheduled_at),
     type: "booked",
-    clientName: s.client_name,
-    service: s.service,
-    master: s.barber_name,
-    duration: s.duration_minutes ? `${s.duration_minutes} мин` : "",
-    status: s.status,
+    clientName: b.client_name,
+    service: b.services_count ? `${b.services_count} услуг` : "",
+    master: b.barber_name,
+    duration: "",
+    status: b.status,
+    totalPrice: b.total_price,
   };
 }
 
@@ -52,12 +61,12 @@ function SchedulePage() {
 
   useEffect(() => {
     setLoading(true);
-    getSchedule(selectedDate.key, selectedDate.key)
+    getCalendar(selectedDate.key, selectedDate.key)
       .then((data) => {
-        const dayData = Array.isArray(data)
-          ? data.find((d) => d.date === selectedDate.key)
-          : null;
-        setSlots((dayData?.slots ?? []).map(mapSlot));
+        const days = data?.days ?? [];
+        const dayData = days.find((d) => d.date === selectedDate.key);
+        const bookings = dayData?.bookings ?? [];
+        setSlots(bookings.map(mapBookingToSlot));
       })
       .catch((e) => console.error(e))
       .finally(() => setLoading(false));

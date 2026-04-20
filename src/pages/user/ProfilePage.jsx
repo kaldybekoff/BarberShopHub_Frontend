@@ -24,7 +24,6 @@ function ProfilePage() {
 
   const name = user?.name || "";
   const email = user?.email || "";
-  const phone = user?.phone || "";
   const role = user?.role || "User";
 
   const initials = name
@@ -148,14 +147,10 @@ function ProfilePage() {
           <div className="flex flex-col" style={{ gap: "20px" }}>
             <div
               className="grid"
-              style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "16px" }}
+              style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "16px" }}
             >
               <StatCard value={allCount} label="Записей всего" />
               <StatCard value={completedCount} label="Завершено" />
-              <StatCard
-                value="—"
-                label={<><span style={{ color: "#F5A623" }}>★</span> Оценка</>}
-              />
             </div>
 
             <div
@@ -170,7 +165,6 @@ function ProfilePage() {
 
               <InfoRow label="Имя" value={name} />
               <InfoRow label="Email" value={email} />
-              <InfoRow label="Телефон" value={phone} />
               <InfoRow
                 label="Роль"
                 value={

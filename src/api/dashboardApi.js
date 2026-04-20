@@ -5,13 +5,17 @@ export async function getDashboardStats() {
   return res.data.data;
 }
 
-export async function getSchedule(from, to) {
-  const params = {};
-  if (from) params.from = from;
-  if (to) params.to = to;
-  const res = await axiosInstance.get("/owner/schedule", { params });
+export async function getCalendar(from, to) {
+  if (!from || !to) {
+    throw new Error("Параметры from и to обязательны для /owner/calendar");
+  }
+  const res = await axiosInstance.get("/owner/calendar", {
+    params: { from, to },
+  });
   return res.data.data;
 }
+
+export const getSchedule = getCalendar;
 
 export async function getOwnerBookings(filter) {
   const params = {};

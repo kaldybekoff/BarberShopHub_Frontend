@@ -1,4 +1,5 @@
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
+import { fetchMeWithRole } from "../api/authApi";
 
 export const AuthContext = createContext(null);
 
@@ -19,6 +20,37 @@ function getSavedToken() {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(getSavedUser);
   const [token, setToken] = useState(getSavedToken);
+  const [isLoading, setIsLoading] = useState(!!getSavedToken());
+
+  useEffect(() => {
+    if (!token) {
+      setIsLoading(false);
+      return;
+    }
+    let cancelled = false;
+    fetchMeWithRole()
+      .then((fresh) => {
+        if (cancelled) return;
+        setUser(fresh);
+        localStorage.setItem("user", JSON.stringify(fresh));
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        const status = err?.response?.status;
+        if (status === 401 || status === 403) {
+          setUser(null);
+          setToken(null);
+          localStorage.removeItem("user");
+          localStorage.removeItem("token");
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   function login(userData, userToken) {
     setUser(userData);
@@ -34,6 +66,17 @@ export function AuthProvider({ children }) {
     localStorage.removeItem("token");
   }
 
+  async function refreshUser() {
+    try {
+      const fresh = await fetchMeWithRole();
+      setUser(fresh);
+      localStorage.setItem("user", JSON.stringify(fresh));
+      return fresh;
+    } catch (e) {
+      return null;
+    }
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -41,8 +84,10 @@ export function AuthProvider({ children }) {
         token,
         role: user?.role || null,
         isAuthenticated: !!token,
+        isLoading,
         login,
         logout,
+        refreshUser,
       }}
     >
       {children}
