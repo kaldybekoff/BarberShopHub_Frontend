@@ -34,12 +34,15 @@ export function AuthProvider({ children }) {
         setUser(fresh);
         localStorage.setItem("user", JSON.stringify(fresh));
       })
-      .catch(() => {
+      .catch((err) => {
         if (cancelled) return;
-        setUser(null);
-        setToken(null);
-        localStorage.removeItem("user");
-        localStorage.removeItem("token");
+        const status = err?.response?.status;
+        if (status === 401 || status === 403) {
+          setUser(null);
+          setToken(null);
+          localStorage.removeItem("user");
+          localStorage.removeItem("token");
+        }
       })
       .finally(() => {
         if (!cancelled) setIsLoading(false);

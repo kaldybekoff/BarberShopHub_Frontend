@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import GreetingBlock from "../../components/home/GreetingBlock";
-import SearchBar from "../../components/home/SearchBar";
 import FilterChips from "../../components/home/FilterChips";
 import NearbyShopsSection from "../../components/home/NearbyShopsSection";
 import PopularServicesSection from "../../components/home/PopularServicesSection";
@@ -25,7 +24,6 @@ function HomePage() {
     >
       <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "40px 40px" }}>
         <GreetingBlock />
-        <SearchBar />
         <FilterChips />
         <NearbyShopsSection shops={shops} />
         <PopularServicesSection />

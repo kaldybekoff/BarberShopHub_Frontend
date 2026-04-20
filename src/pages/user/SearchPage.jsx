@@ -22,7 +22,6 @@ function SearchPage() {
   const [distanceFilter, setDistanceFilter] = useState(null);
   const [priceFilters, setPriceFilters] = useState([]);
   const [priceRange, setPriceRange] = useState(5000);
-  const [activeView, setActiveView] = useState("list");
   const [allShops, setAllShops] = useState([]);
   const [loading, setLoading] = useState(true);
   const debounceRef = useRef(null);
@@ -197,51 +196,13 @@ function SearchPage() {
       </aside>
 
       <main className="flex-1" style={{ padding: "24px", backgroundColor: "#1A1A2E" }}>
-        <div className="flex items-center" style={{ gap: "16px", marginBottom: "20px" }}>
-          <button
-            onClick={() => setActiveView("list")}
-            className="font-semibold"
-            style={{
-              padding: "8px 18px",
-              fontSize: "14px",
-              borderRadius: "10px",
-              backgroundColor: activeView === "list" ? "#E94560" : "#1E2A3A",
-              color: activeView === "list" ? "#ffffff" : "#A8B2C1",
-              cursor: "pointer",
-              border: "none",
-            }}
-          >
-            📋 Список
-          </button>
-          <button
-            onClick={() => setActiveView("map")}
-            className="font-semibold"
-            style={{
-              padding: "8px 18px",
-              fontSize: "14px",
-              borderRadius: "10px",
-              backgroundColor: activeView === "map" ? "#E94560" : "#1E2A3A",
-              color: activeView === "map" ? "#ffffff" : "#A8B2C1",
-              cursor: "pointer",
-              border: "none",
-            }}
-          >
-            🗺 Карта
-          </button>
-
+        <div className="flex items-center" style={{ marginBottom: "20px" }}>
           <p style={{ marginLeft: "auto", color: "#A8B2C1", fontSize: "14px" }}>
             {loading ? "Поиск..." : `Найдено: ${filteredShops.length} барбершопа`}
           </p>
         </div>
 
-        {activeView === "map" ? (
-          <div
-            className="flex items-center justify-center rounded-2xl text-white"
-            style={{ backgroundColor: "#1E2A3A", minHeight: "400px", fontSize: "16px" }}
-          >
-            🗺 Карта в разработке
-          </div>
-        ) : loading ? (
+        {loading ? (
           <div
             className="flex items-center justify-center rounded-2xl"
             style={{ backgroundColor: "#1E2A3A", padding: "60px 20px" }}
