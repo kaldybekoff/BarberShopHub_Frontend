@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import ShopTabs from "../../components/shop/ShopTabs";
 import ServiceItem from "../../components/shop/ServiceItem";
 import { getShopBySlug } from "../../api/shopApi";
+import { createReview } from "../../api/reviewApi";
 
 
 function ShopDetailsPage() {
@@ -140,42 +141,52 @@ function ShopDetailsPage() {
 
             <ShopTabs activeTab={activeTab} onChange={setActiveTab} />
 
-            {activeTab === "services" ? (
+            {activeTab === "services" && (
               <div>
                 {(shop.services ?? []).map((cat) => (
                   <div key={cat.category_id}>
-                    <h3
-                      style={{
-                        fontSize: "13px",
-                        fontWeight: 600,
-                        color: "#A8B2C1",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.08em",
-                        marginBottom: "10px",
-                        marginTop: "20px",
-                      }}
-                    >
+                    <h3 style={{ fontSize: "13px", fontWeight: 600, color: "#A8B2C1", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "10px", marginTop: "20px" }}>
                       {cat.category_name}
                     </h3>
                     {(cat.items ?? []).map((item) => (
-                      <ServiceItem
-                        key={item.id}
-                        service={{
-                          id: item.id,
-                          name: item.name,
-                          duration: item.duration_minutes,
-                          price: item.price,
-                          icon: "✂️",
-                        }}
-                      />
+                      <ServiceItem key={item.id} service={{ id: item.id, name: item.name, duration: item.duration_minutes, price: item.price, icon: "✂️" }} />
                     ))}
                   </div>
                 ))}
               </div>
-            ) : (
-              <div style={{ textAlign: "center", padding: "40px", color: "#A8B2C1" }}>
-                Раздел в разработке
+            )}
+
+            {activeTab === "masters" && (
+              <div style={{ marginTop: "8px" }}>
+                {(shop.barbers ?? []).length === 0 ? (
+                  <p style={{ color: "#A8B2C1", textAlign: "center", padding: "40px" }}>Мастера не добавлены</p>
+                ) : (shop.barbers ?? []).map((barber) => (
+                  <div key={barber.id} className="flex items-center" style={{ backgroundColor: "#1E2A3A", borderRadius: "12px", padding: "16px", gap: "14px", marginBottom: "10px" }}>
+                    <div className="flex items-center justify-center shrink-0" style={{ width: "48px", height: "48px", borderRadius: "50%", backgroundColor: "#16213E", fontSize: "20px", overflow: "hidden" }}>
+                      {barber.avatar ? <img src={barber.avatar} alt={barber.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : "✂️"}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <p className="text-white" style={{ fontSize: "15px", fontWeight: 700 }}>{barber.name}</p>
+                      {barber.specialization && <p style={{ fontSize: "13px", color: "#A8B2C1", marginTop: "2px" }}>{barber.specialization}</p>}
+                      {barber.experience_years != null && <p style={{ fontSize: "12px", color: "#A8B2C1", marginTop: "2px" }}>Опыт: {barber.experience_years} лет</p>}
+                    </div>
+                    {barber.rating != null && (
+                      <div className="flex items-center" style={{ gap: "4px" }}>
+                        <span style={{ color: "#F5A623" }}>★</span>
+                        <span className="text-white" style={{ fontSize: "14px", fontWeight: 600 }}>{barber.rating}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
+            )}
+
+            {activeTab === "reviews" && (
+              <ReviewsTab slug={shopSlug} reviews={shop.reviews ?? []} />
+            )}
+
+            {activeTab === "photos" && (
+              <div style={{ textAlign: "center", padding: "40px", color: "#A8B2C1" }}>Раздел в разработке</div>
             )}
           </div>
 
@@ -217,6 +228,105 @@ function ShopDetailsPage() {
           </aside>
         </div>
       </div>
+    </div>
+  );
+}
+
+function ReviewsTab({ slug, reviews: initialReviews }) {
+  const [reviews, setReviews] = useState(initialReviews);
+  const [showForm, setShowForm] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [hovered, setHovered] = useState(0);
+  const [comment, setComment] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (!rating) { setError("Выберите оценку"); return; }
+    setLoading(true);
+    setError("");
+    try {
+      const newReview = await createReview({ slug, rating, comment });
+      setReviews((prev) => [newReview, ...prev]);
+      setShowForm(false);
+      setRating(0);
+      setComment("");
+    } catch {
+      setError("Не удалось отправить отзыв");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div style={{ marginTop: "8px" }}>
+      {!showForm ? (
+        <button
+          type="button"
+          onClick={() => setShowForm(true)}
+          style={{ width: "100%", backgroundColor: "#E94560", color: "#fff", border: "none", borderRadius: "12px", padding: "13px", fontSize: "15px", fontWeight: 700, cursor: "pointer", marginBottom: "16px" }}
+        >
+          + Оставить отзыв
+        </button>
+      ) : (
+        <form onSubmit={handleSubmit} style={{ backgroundColor: "#1E2A3A", borderRadius: "12px", padding: "16px", marginBottom: "16px" }}>
+          <p className="text-white" style={{ fontWeight: 700, marginBottom: "12px" }}>Ваш отзыв</p>
+
+          <div className="flex" style={{ gap: "6px", marginBottom: "12px" }}>
+            {[1, 2, 3, 4, 5].map((star) => (
+              <span
+                key={star}
+                onMouseEnter={() => setHovered(star)}
+                onMouseLeave={() => setHovered(0)}
+                onClick={() => setRating(star)}
+                style={{ fontSize: "28px", cursor: "pointer", color: star <= (hovered || rating) ? "#F5A623" : "#2a3a4a", transition: "color 0.15s" }}
+              >
+                ★
+              </span>
+            ))}
+          </div>
+
+          <textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="Расскажите о вашем опыте..."
+            style={{ width: "100%", minHeight: "80px", backgroundColor: "#16213E", border: "1px solid #2a3a4a", borderRadius: "10px", padding: "12px", color: "#fff", fontSize: "14px", resize: "vertical", outline: "none", fontFamily: "inherit", marginBottom: "12px" }}
+            onFocus={(e) => { e.target.style.borderColor = "#E94560"; }}
+            onBlur={(e) => { e.target.style.borderColor = "#2a3a4a"; }}
+          />
+
+          {error && <p style={{ color: "#E94560", fontSize: "13px", marginBottom: "8px" }}>{error}</p>}
+
+          <div className="flex" style={{ gap: "8px" }}>
+            <button type="button" onClick={() => { setShowForm(false); setError(""); }} style={{ flex: 1, backgroundColor: "transparent", border: "1px solid #2a3a4a", color: "#A8B2C1", borderRadius: "10px", padding: "10px", fontSize: "14px", fontWeight: 600, cursor: "pointer" }}>
+              Отмена
+            </button>
+            <button type="submit" disabled={loading} style={{ flex: 2, backgroundColor: "#E94560", border: "none", color: "#fff", borderRadius: "10px", padding: "10px", fontSize: "14px", fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1 }}>
+              {loading ? "Отправка..." : "Отправить"}
+            </button>
+          </div>
+        </form>
+      )}
+
+      {reviews.length === 0 ? (
+        <p style={{ color: "#A8B2C1", textAlign: "center", padding: "40px" }}>Отзывов пока нет</p>
+      ) : reviews.map((review) => (
+        <div key={review.id} style={{ backgroundColor: "#1E2A3A", borderRadius: "12px", padding: "16px", marginBottom: "10px" }}>
+          <div className="flex items-center justify-between" style={{ marginBottom: "6px" }}>
+            <span className="text-white" style={{ fontSize: "15px", fontWeight: 600 }}>{review.user_name}</span>
+            <span style={{ fontSize: "12px", color: "#A8B2C1" }}>
+              {review.created_at ? new Date(review.created_at).toLocaleDateString("ru-RU") : ""}
+            </span>
+          </div>
+          <div style={{ marginBottom: "6px" }}>
+            {[1, 2, 3, 4, 5].map((star) => (
+              <span key={star} style={{ color: star <= review.rating ? "#F5A623" : "#2a3a4a", fontSize: "14px" }}>★</span>
+            ))}
+          </div>
+          {review.comment && <p style={{ fontSize: "14px", color: "#A8B2C1" }}>{review.comment}</p>}
+        </div>
+      ))}
     </div>
   );
 }

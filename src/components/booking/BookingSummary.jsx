@@ -8,6 +8,7 @@ function BookingSummary({
   duration,
   price,
   isSubmitting,
+  error,
   onConfirm,
 }) {
   const rows = [
@@ -91,6 +92,12 @@ function BookingSummary({
           {price != null ? `${Number(price).toLocaleString("ru-RU")}₸` : "—"}
         </span>
       </div>
+
+      {error && (
+        <p style={{ color: "#E94560", fontSize: "13px", marginBottom: "12px", lineHeight: 1.4 }}>
+          {error}
+        </p>
+      )}
 
       <button
         onClick={onConfirm}

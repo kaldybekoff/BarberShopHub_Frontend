@@ -86,6 +86,7 @@ function BookingPage() {
   const [comment, setComment] = useState("");
   const [reminder, setReminder] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [bookingError, setBookingError] = useState("");
 
   const days = initialDays;
   const selectedDate = selectedDay?.display || null;
@@ -125,6 +126,7 @@ function BookingPage() {
           .filter((s) => s.available)
           .map((s) => s.time);
         setTimeSlots(available);
+        if (available.length > 0) setSelectedTime(available[0]);
       })
       .catch((e) => {
         console.error(e);
@@ -161,14 +163,20 @@ function BookingPage() {
   }
 
   async function handleConfirm() {
+    setBookingError("");
+    if (!selectedTime) { setBookingError("Выберите время записи"); return; }
+    if (!selectedService) { setBookingError("Выберите услугу"); return; }
+
+    const timeStr = selectedTime.split(":").length === 2 ? `${selectedTime}:00` : selectedTime;
     const bookingData = {
       barbershop_id: shop.id,
-      service_id: selectedService?.id,
+      service_ids: [selectedService.id],
       barber_id: selectedMaster?.id !== 0 ? selectedMaster?.id : null,
-      scheduled_at: `${selectedDay?.key}T${selectedTime}:00`,
-      comment,
-      reminder_enabled: reminder,
+      scheduled_at: `${selectedDay.key} ${timeStr}`,
+      comment: comment || undefined,
     };
+
+    console.log("Sending booking:", bookingData);
 
     setIsSubmitting(true);
     try {
@@ -187,6 +195,13 @@ function BookingPage() {
       });
     } catch (error) {
       console.error("Ошибка при создании записи:", error);
+      const msg =
+        error?.response?.data?.message ||
+        (error?.response?.data?.errors
+          ? Object.values(error.response.data.errors).flat().join(", ")
+          : null) ||
+        "Не удалось создать запись. Попробуйте снова.";
+      setBookingError(msg);
     } finally {
       setIsSubmitting(false);
     }
@@ -360,6 +375,7 @@ function BookingPage() {
             duration={selectedService?.duration}
             price={selectedService?.price}
             isSubmitting={isSubmitting}
+            error={bookingError}
             onConfirm={handleConfirm}
           />
         )}
