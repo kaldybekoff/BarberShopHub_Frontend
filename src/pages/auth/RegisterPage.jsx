@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthBrandPanel from "../../components/auth/AuthBrandPanel";
+import { register } from "../../api/authApi";
 
 const pageStyle = { backgroundColor: "#171A33" };
 
@@ -35,10 +36,32 @@ function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedRole, setSelectedRole] = useState("user");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    console.log({ name, email, password, role: selectedRole });
+    setError("");
+
+    if (password !== confirmPassword) {
+      setError("Пароли не совпадают");
+      return;
+    }
+    if (password.length < 8) {
+      setError("Пароль должен быть не менее 8 символов");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await register(name, email, password);
+      navigate("/verify", { state: { email } });
+    } catch (err) {
+      const msg = err?.response?.data?.message || "Ошибка регистрации";
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -296,8 +319,22 @@ function RegisterPage() {
               </div>
             </div>
 
+            {error && (
+              <p
+                style={{
+                  color: "#E94560",
+                  fontSize: "13px",
+                  marginTop: "8px",
+                  textAlign: "center",
+                }}
+              >
+                {error}
+              </p>
+            )}
+
             <button
               type="submit"
+              disabled={loading}
               style={{
                 width: "100%",
                 backgroundColor: "#E94560",
@@ -307,12 +344,13 @@ function RegisterPage() {
                 padding: "14px",
                 fontSize: "15px",
                 fontWeight: 700,
-                cursor: "pointer",
+                cursor: loading ? "not-allowed" : "pointer",
+                opacity: loading ? 0.7 : 1,
                 marginTop: "16px",
                 marginBottom: "16px",
               }}
             >
-              Зарегистрироваться
+              {loading ? "Отправка..." : "Зарегистрироваться"}
             </button>
           </form>
 

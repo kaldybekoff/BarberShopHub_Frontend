@@ -1,11 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { verifyEmail } from "../../api/authApi";
+import { verifyEmail, resendCode } from "../../api/authApi";
 import useAuth from "../../hooks/useAuth";
-import colors from "../../constants/colors";
-import AuthBrandPanel, { AuthBrandHeader } from "../../components/auth/AuthBrandPanel";
-
-const pageStyle = { backgroundColor: "#171A33" };
+import AuthBrandPanel from "../../components/auth/AuthBrandPanel";
 
 function VerifyPage() {
   const navigate = useNavigate();
@@ -17,95 +14,134 @@ function VerifyPage() {
   const [codeDigits, setCodeDigits] = useState(["", "", "", ""]);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [countdown, setCountdown] = useState(42);
+  const [countdown, setCountdown] = useState(60);
+  const [resending, setResending] = useState(false);
   const inputRefs = useRef([]);
 
   useEffect(() => {
+    inputRefs.current[0]?.focus();
+  }, []);
+
+  useEffect(() => {
     if (countdown <= 0) return;
-    const timer = setInterval(() => {
-      setCountdown((prev) => prev - 1);
-    }, 1000);
+    const timer = setInterval(() => setCountdown((p) => p - 1), 1000);
     return () => clearInterval(timer);
   }, [countdown]);
 
   function handleDigitChange(index, value) {
     if (!/^\d?$/.test(value)) return;
-
     const updated = [...codeDigits];
     updated[index] = value;
     setCodeDigits(updated);
-
-    if (value && index < 3) {
-      inputRefs.current[index + 1].focus();
-    }
+    if (value && index < 3) inputRefs.current[index + 1]?.focus();
   }
 
   function handleKeyDown(index, e) {
     if (e.key === "Backspace" && !codeDigits[index] && index > 0) {
-      inputRefs.current[index - 1].focus();
+      inputRefs.current[index - 1]?.focus();
     }
+  }
+
+  function handlePaste(e) {
+    e.preventDefault();
+    const text = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 4);
+    if (!text) return;
+    const updated = ["", "", "", ""];
+    text.split("").forEach((ch, i) => { updated[i] = ch; });
+    setCodeDigits(updated);
+    inputRefs.current[Math.min(text.length, 3)]?.focus();
   }
 
   async function handleConfirm() {
     setErrorMessage("");
     const code = codeDigits.join("");
-
     if (code.length < 4) {
       setErrorMessage("Введите все 4 цифры кода");
       return;
     }
-
     setIsLoading(true);
     try {
       const { access_token, user } = await verifyEmail(email, code);
       login(user, access_token);
-
-      if (user.role === "Barbershop") {
-        navigate("/barbershop/dashboard");
-      } else {
-        navigate("/home");
-      }
-    } catch (error) {
-      setErrorMessage(error.message || "Неверный код");
+      navigate(user.role === "Barbershop" ? "/barbershop/dashboard" : "/home");
+    } catch {
+      setErrorMessage("Неверный или истёкший код");
     } finally {
       setIsLoading(false);
     }
   }
 
-  function handleResend() {
-    setCountdown(42);
+  async function handleResend() {
+    if (resending || countdown > 0) return;
+    setResending(true);
+    setErrorMessage("");
+    try {
+      await resendCode(email);
+      setCountdown(60);
+      setCodeDigits(["", "", "", ""]);
+      inputRefs.current[0]?.focus();
+    } catch {
+      setErrorMessage("Не удалось отправить код повторно");
+    } finally {
+      setResending(false);
+    }
   }
 
   return (
     <div
       className="min-h-screen w-full overflow-hidden lg:grid lg:grid-cols-[43fr_57fr]"
-      style={pageStyle}
+      style={{ backgroundColor: "#171A33" }}
     >
       <AuthBrandPanel />
 
       <section
-        className="flex min-h-screen items-center justify-center px-4 py-10 sm:px-6 lg:px-16"
-        style={pageStyle}
+        style={{
+          backgroundColor: "#1A1A2E",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "40px",
+          minHeight: "100vh",
+        }}
       >
-        <div className="w-full max-w-[304px] sm:max-w-[332px] lg:max-w-[376px]">
-          <AuthBrandHeader className="mb-10 lg:hidden" />
+        <div
+          style={{
+            backgroundColor: "#16213E",
+            borderRadius: "20px",
+            padding: "40px 44px",
+            width: "100%",
+            maxWidth: "480px",
+            border: "1px solid rgba(255,255,255,0.07)",
+          }}
+        >
+          {/* Logo */}
+          <div className="flex items-center justify-center" style={{ gap: "8px", marginBottom: "28px" }}>
+            <span style={{ fontSize: "20px", color: "#E94560" }}>✂️</span>
+            <span style={{ fontSize: "20px", fontWeight: 800, color: "#ffffff" }}>
+              Barber<span style={{ color: "#E94560" }}>Hub</span>
+            </span>
+          </div>
 
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-1 text-sm mb-7 w-fit"
-            style={{ color: "rgba(168,178,193,0.72)" }}
-          >
-            ← Назад
-          </button>
-
-          <h1 className="text-[2.15rem] font-extrabold leading-[1.08] tracking-[-0.04em] text-white sm:text-[2.5rem] mb-2">
-            Введите код
+          {/* Header */}
+          <h1 style={{ color: "#ffffff", fontSize: "24px", fontWeight: 800, textAlign: "center" }}>
+            Подтверждение email
           </h1>
-          <p className="text-[0.97rem] font-medium mb-8" style={{ color: "rgba(168,178,193,0.72)" }}>
-            Код отправлен на ваш email
+          <p style={{ color: "#A8B2C1", fontSize: "13px", textAlign: "center", marginTop: "8px", marginBottom: "32px" }}>
+            Код отправлен на{" "}
+            {email && (
+              <span style={{ color: "#ffffff", fontWeight: 600 }}>{email}</span>
+            )}
           </p>
 
-          <div className="flex justify-between md:justify-start md:gap-3 gap-2 mb-5">
+          {/* OTP inputs */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: "12px",
+              marginBottom: "24px",
+            }}
+          >
             {codeDigits.map((digit, index) => (
               <input
                 key={index}
@@ -116,49 +152,103 @@ function VerifyPage() {
                 value={digit}
                 onChange={(e) => handleDigitChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
-                className="h-[46px] w-[70px] md:w-[82px] rounded-[10px] text-center text-[1.3rem] font-semibold text-white outline-none transition-colors"
+                onPaste={handlePaste}
                 style={{
-                  backgroundColor: "#243044",
-                  border: digit ? `1px solid ${colors.accent}` : "1px solid rgba(255,255,255,0.14)",
+                  width: "68px",
+                  height: "72px",
+                  backgroundColor: "#1E2A3A",
+                  border: digit
+                    ? "2px solid #E94560"
+                    : "2px solid rgba(255,255,255,0.12)",
+                  borderRadius: "14px",
+                  color: "#ffffff",
+                  fontSize: "28px",
+                  fontWeight: 700,
+                  textAlign: "center",
+                  outline: "none",
+                  transition: "border-color 0.2s",
+                }}
+                onFocus={(e) => {
+                  if (!digit) e.target.style.borderColor = "rgba(233,69,96,0.5)";
+                }}
+                onBlur={(e) => {
+                  if (!digit) e.target.style.borderColor = "rgba(255,255,255,0.12)";
                 }}
               />
             ))}
           </div>
 
+          {/* Error */}
           {errorMessage && (
-            <p className="text-sm mb-4" style={{ color: colors.accent }}>
+            <p style={{ color: "#E94560", fontSize: "13px", textAlign: "center", marginBottom: "16px" }}>
               {errorMessage}
             </p>
           )}
 
+          {/* Confirm button */}
           <button
+            type="button"
             onClick={handleConfirm}
             disabled={isLoading}
-            className="h-[50px] w-full rounded-[12px] text-[1.05rem] font-bold text-white transition-transform duration-200 hover:-translate-y-0.5 disabled:translate-y-0 disabled:opacity-60 mb-4"
             style={{
-              background:
-                "linear-gradient(180deg, #ee4766 0%, #ea4262 52%, #e83f5f 100%)",
-              boxShadow:
-                "0 0 0 1px rgba(255,255,255,0.03) inset, 0 0 22px rgba(233,69,96,0.30)",
+              width: "100%",
+              backgroundColor: "#E94560",
+              color: "#ffffff",
+              border: "none",
+              borderRadius: "10px",
+              padding: "14px",
+              fontSize: "15px",
+              fontWeight: 700,
+              cursor: isLoading ? "not-allowed" : "pointer",
+              opacity: isLoading ? 0.7 : 1,
+              marginBottom: "20px",
             }}
           >
             {isLoading ? "Проверяем..." : "Подтвердить"}
           </button>
 
-          <p className="text-sm text-center" style={{ color: colors.gray }}>
+          {/* Resend */}
+          <p style={{ textAlign: "center", color: "#A8B2C1", fontSize: "13px" }}>
             Не получили код?{" "}
             {countdown > 0 ? (
               <span>Отправить повторно через {countdown}с</span>
             ) : (
               <button
+                type="button"
                 onClick={handleResend}
-                className="underline"
-                style={{ color: colors.accent }}
+                disabled={resending}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#E94560",
+                  fontWeight: 600,
+                  fontSize: "13px",
+                  cursor: "pointer",
+                  padding: 0,
+                  textDecoration: "underline",
+                }}
               >
-                Отправить повторно
+                {resending ? "Отправка..." : "Отправить повторно"}
               </button>
             )}
           </p>
+
+          {/* Back */}
+          <div style={{ textAlign: "center", marginTop: "20px" }}>
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              style={{
+                background: "none",
+                border: "none",
+                color: "#A8B2C1",
+                fontSize: "13px",
+                cursor: "pointer",
+              }}
+            >
+              ← Назад
+            </button>
+          </div>
         </div>
       </section>
     </div>

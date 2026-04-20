@@ -223,10 +223,10 @@ function LoginPage() {
             <div
               role="button"
               tabIndex={0}
-              onClick={() => console.log("forgot password")}
+              onClick={() => navigate("/forgot-password")}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ")
-                  console.log("forgot password");
+                  navigate("/forgot-password");
               }}
               style={{
                 textAlign: "right",
