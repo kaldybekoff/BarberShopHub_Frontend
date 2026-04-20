@@ -43,10 +43,10 @@ function buildDays(count) {
 const initialDays = buildDays(6);
 const stepTitles = ["Выбор услуги", "Мастер и время", "Подтверждение"];
 
-function normalizeService(s) {
+function normalizeService(s, categoryName) {
   return {
     id: s.id,
-    category: s.category?.name ?? s.category ?? "Прочее",
+    category: categoryName ?? s.category?.name ?? s.category ?? "Прочее",
     icon: "✂️",
     name: s.name,
     shortName: s.short_name ?? s.name,
@@ -94,7 +94,9 @@ function BookingPage() {
     getShopBySlug(shopId)
       .then((data) => {
         setShop(data);
-        const svcList = (data.services ?? []).map(normalizeService);
+        const svcList = (data.services ?? []).flatMap((cat) =>
+          (cat.items ?? []).map((item) => normalizeService(item, cat.category_name))
+        );
         setServices(svcList);
         if (svcList.length > 0) setSelectedService(svcList[0]);
 

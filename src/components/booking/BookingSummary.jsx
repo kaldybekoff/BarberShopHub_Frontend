@@ -88,7 +88,7 @@ function BookingSummary({
             color: "#E94560",
           }}
         >
-          {price ? `${price.toLocaleString("ru-RU")}₸` : "—"}
+          {price != null ? `${Number(price).toLocaleString("ru-RU")}₸` : "—"}
         </span>
       </div>
 

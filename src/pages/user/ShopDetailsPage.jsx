@@ -4,15 +4,6 @@ import ShopTabs from "../../components/shop/ShopTabs";
 import ServiceItem from "../../components/shop/ServiceItem";
 import { getShopBySlug } from "../../api/shopApi";
 
-function groupServicesByCategory(services) {
-  const groups = {};
-  (services ?? []).forEach((service) => {
-    const cat = service.category?.name ?? service.category ?? "Прочее";
-    if (!groups[cat]) groups[cat] = [];
-    groups[cat].push(service);
-  });
-  return groups;
-}
 
 function ShopDetailsPage() {
   const { id } = useParams();
@@ -50,7 +41,6 @@ function ShopDetailsPage() {
     );
   }
 
-  const servicesByCategory = groupServicesByCategory(shop.services);
   const isOpen = shop.status === "open";
   const closeTime = shop.closes_at ?? "";
   const reviewsCount = shop.reviews_count ?? 0;
@@ -152,8 +142,8 @@ function ShopDetailsPage() {
 
             {activeTab === "services" ? (
               <div>
-                {Object.entries(servicesByCategory).map(([category, services]) => (
-                  <div key={category}>
+                {(shop.services ?? []).map((cat) => (
+                  <div key={cat.category_id}>
                     <h3
                       style={{
                         fontSize: "13px",
@@ -165,10 +155,19 @@ function ShopDetailsPage() {
                         marginTop: "20px",
                       }}
                     >
-                      {category}
+                      {cat.category_name}
                     </h3>
-                    {services.map((service) => (
-                      <ServiceItem key={service.id} service={service} />
+                    {(cat.items ?? []).map((item) => (
+                      <ServiceItem
+                        key={item.id}
+                        service={{
+                          id: item.id,
+                          name: item.name,
+                          duration: item.duration_minutes,
+                          price: item.price,
+                          icon: "✂️",
+                        }}
+                      />
                     ))}
                   </div>
                 ))}

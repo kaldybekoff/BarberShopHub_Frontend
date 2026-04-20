@@ -24,7 +24,6 @@ function ProfilePage() {
 
   const name = user?.name || "";
   const email = user?.email || "";
-  const phone = user?.phone || "";
   const role = user?.role || "User";
 
   const initials = name
@@ -170,7 +169,6 @@ function ProfilePage() {
 
               <InfoRow label="Имя" value={name} />
               <InfoRow label="Email" value={email} />
-              <InfoRow label="Телефон" value={phone} />
               <InfoRow
                 label="Роль"
                 value={

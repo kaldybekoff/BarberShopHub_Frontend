@@ -90,7 +90,7 @@ function ServiceSelector({ services, selectedId, onSelect }) {
                     marginLeft: "auto",
                   }}
                 >
-                  {service.price.toLocaleString("ru-RU")}₸
+                  {Number(service.price).toLocaleString("ru-RU")}₸
                 </span>
 
                 {isSelected && (

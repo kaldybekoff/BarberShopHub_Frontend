@@ -84,7 +84,7 @@ function AppointmentCard({ appointment }) {
         <span
           style={{ color: "#E94560", fontWeight: 700, fontSize: "16px" }}
         >
-          {appointment.price.toLocaleString("ru-RU")}₸
+          {Number(appointment.price).toLocaleString("ru-RU")}₸
         </span>
       </div>
 
