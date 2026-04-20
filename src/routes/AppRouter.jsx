@@ -9,6 +9,8 @@ import WelcomePage from "../pages/auth/WelcomePage";
 import LoginPage from "../pages/auth/LoginPage";
 import RegisterPage from "../pages/auth/RegisterPage";
 import VerifyPage from "../pages/auth/VerifyPage";
+import ForgotPasswordPage from "../pages/auth/ForgotPasswordPage";
+import ResetPasswordPage from "../pages/auth/ResetPasswordPage";
 
 import HomePage from "../pages/user/HomePage";
 import SearchPage from "../pages/user/SearchPage";
@@ -36,6 +38,8 @@ function AppRouter() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/verify" element={<VerifyPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
       </Route>
 
       {/* user — Header + BottomNav */}

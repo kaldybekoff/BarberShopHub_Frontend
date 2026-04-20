@@ -42,3 +42,17 @@ export async function resendCode(email) {
 export function logout() {
   axiosInstance.post("/auth/logout").catch(() => {});
 }
+
+export async function forgotPassword(email) {
+  const res = await axiosInstance.post("/auth/forgot-password", { email });
+  return res.data;
+}
+
+export async function resetPassword(token, password) {
+  const res = await axiosInstance.post("/auth/reset-password", {
+    token,
+    password,
+    password_confirmation: password,
+  });
+  return res.data;
+}
