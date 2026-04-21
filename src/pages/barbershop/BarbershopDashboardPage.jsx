@@ -3,43 +3,89 @@ import { useNavigate } from "react-router-dom";
 import StatsCard from "../../components/barbershop/StatsCard";
 import RevenueChart from "../../components/barbershop/RevenueChart";
 import DashboardAppointments from "../../components/barbershop/DashboardAppointments";
-import { getDashboardStats, getAnalytics } from "../../api/dashboardApi";
+import { getDashboardStats } from "../../api/dashboardApi";
 
 const DAY_LABELS = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
 
 function formatPrice(value) {
-  return `${Number(value).toLocaleString("ru-RU")}₸`;
+  return `${Number(value ?? 0).toLocaleString("ru-RU")}₸`;
 }
 
-function mapStats(stats) {
+function formatDeltaAbs(delta) {
+  if (delta == null) return "";
+  const sign = delta > 0 ? "+" : delta < 0 ? "−" : "";
+  return `${sign}${Math.abs(delta)} за сутки`;
+}
+
+function formatDeltaPct(pct) {
+  if (pct == null) return "";
+  const sign = pct > 0 ? "▲ +" : pct < 0 ? "▼ −" : "";
+  return `${sign}${Math.abs(pct)}% к пред. неделе`;
+}
+
+function mapStats(dash) {
+  const today = dash.today_bookings ?? {};
+  const week = dash.week_revenue ?? {};
   return [
-    { icon: "📅", label: "ЗАПИСИ СЕГОДНЯ", value: String(stats.bookings_today ?? 0), delta: "" },
-    { icon: "💰", label: "ВЫРУЧКА НЕДЕЛЯ", value: formatPrice(stats.weekly_revenue ?? 0), delta: "" },
-    { icon: "⭐", label: "РЕЙТИНГ", value: String(stats.rating ?? "—"), delta: "" },
-    { icon: "👥", label: "НОВЫЕ КЛИЕНТЫ", value: String(stats.new_clients ?? 0), delta: "" },
+    {
+      icon: "📅",
+      label: "ЗАПИСИ СЕГОДНЯ",
+      value: String(today.count ?? 0),
+      delta: formatDeltaAbs(today.delta_vs_yesterday),
+    },
+    {
+      icon: "💰",
+      label: "ВЫРУЧКА ЗА НЕДЕЛЮ",
+      value: formatPrice(week.amount),
+      delta: formatDeltaPct(week.delta_pct_vs_prev),
+    },
+    {
+      icon: "⭐",
+      label: "РЕЙТИНГ",
+      value: dash.barbershop?.rating != null ? String(dash.barbershop.rating) : "—",
+      delta: "",
+    },
+    {
+      icon: "👥",
+      label: "НОВЫЕ КЛИЕНТЫ",
+      value: String(dash.new_clients_this_week ?? 0),
+      delta: "за неделю",
+    },
   ];
 }
 
-function mapUpcomingBookings(bookings) {
+function mapNearestBookings(bookings) {
   return (bookings ?? []).map((b) => {
     const dt = new Date(b.scheduled_at);
     const time = dt.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+    const count = b.services_count ?? 0;
     return {
       time,
       clientName: b.client_name,
-      service: b.service,
+      service: count > 0 ? `${count} ${pluralServices(count)}` : formatPrice(b.total_price),
       master: b.barber_name,
       status: b.status,
     };
   });
 }
 
+function pluralServices(count) {
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  if (mod10 === 1 && mod100 !== 11) return "услуга";
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return "услуги";
+  return "услуг";
+}
+
 function mapRevenueData(revenueByDay) {
   if (!revenueByDay?.length) return [];
-  const maxIdx = revenueByDay.reduce((m, d, i) => (d.amount > revenueByDay[m].amount ? i : m), 0);
+  const maxIdx = revenueByDay.reduce(
+    (m, d, i) => (d.revenue > revenueByDay[m].revenue ? i : m),
+    0
+  );
   return revenueByDay.map((d, i) => ({
     day: DAY_LABELS[new Date(d.date).getDay()],
-    value: d.amount,
+    value: d.revenue,
     isActive: i === maxIdx,
   }));
 }
@@ -47,31 +93,20 @@ function mapRevenueData(revenueByDay) {
 function BarbershopDashboardPage() {
   const navigate = useNavigate();
   const [dashData, setDashData] = useState(null);
-  const [revenueData, setRevenueData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function load() {
-      try {
-        const [dash, analytics] = await Promise.all([
-          getDashboardStats(),
-          getAnalytics("week"),
-        ]);
-        setDashData(dash);
-        setRevenueData(mapRevenueData(analytics.revenue_by_day));
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
+    getDashboardStats()
+      .then((dash) => setDashData(dash))
+      .catch((e) => console.error(e))
+      .finally(() => setLoading(false));
   }, []);
 
-  const stats = dashData ? mapStats(dashData.stats) : [];
-  const appointments = dashData ? mapUpcomingBookings(dashData.upcoming_bookings) : [];
+  const stats = dashData ? mapStats(dashData) : [];
+  const appointments = dashData ? mapNearestBookings(dashData.nearest_bookings) : [];
+  const revenueData = dashData ? mapRevenueData(dashData.revenue_last_7_days) : [];
   const shopName = dashData?.barbershop?.name ?? "";
-  const weeklyRevenue = dashData ? formatPrice(dashData.stats?.weekly_revenue ?? 0) : "—";
+  const weeklyRevenue = formatPrice(dashData?.week_revenue?.amount);
 
   if (loading) {
     return (

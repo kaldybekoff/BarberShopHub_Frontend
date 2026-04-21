@@ -157,7 +157,7 @@ function ShopCard({ shop, variant = "search" }) {
                 cursor: "pointer",
               }}
             >
-              {isOpen ? "Записаться" : "Посмотреть"}
+              Посмотреть
             </button>
           </div>
         </div>

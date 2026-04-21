@@ -3,22 +3,9 @@ import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import { getMyAppointments } from "../../api/appointmentApi";
 
-function mapAppointment(b) {
-  const dt = new Date(b.scheduled_at);
-  return {
-    id: b.id,
-    shop: b.barbershop_name ?? "—",
-    service: b.service_name ?? b.services?.[0]?.name ?? "—",
-    date: dt.toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" }),
-    time: dt.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }),
-    status: b.status,
-  };
-}
-
 function ProfilePage() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const [recentAppointments, setRecentAppointments] = useState([]);
   const [allCount, setAllCount] = useState(0);
   const [completedCount, setCompletedCount] = useState(0);
 
@@ -35,7 +22,6 @@ function ProfilePage() {
       .then(([upcoming, past]) => {
         setAllCount((upcoming?.length ?? 0) + (past?.length ?? 0));
         setCompletedCount(past?.length ?? 0);
-        setRecentAppointments((upcoming ?? []).slice(0, 2).map(mapAppointment));
       })
       .catch((e) => console.error(e));
   }, []);
@@ -184,25 +170,6 @@ function ProfilePage() {
                 isLast
               />
             </div>
-
-            <div>
-              <h2
-                className="text-white"
-                style={{ fontSize: "18px", fontWeight: 700, marginBottom: "14px" }}
-              >
-                Последние записи
-              </h2>
-
-              <div className="flex flex-col" style={{ gap: "10px" }}>
-                {recentAppointments.length === 0 ? (
-                  <p style={{ color: "#A8B2C1", fontSize: "14px" }}>Записей пока нет</p>
-                ) : (
-                  recentAppointments.map((appointment) => (
-                    <RecentAppointmentRow key={appointment.id} appointment={appointment} />
-                  ))
-                )}
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -236,44 +203,6 @@ function InfoRow({ label, value, isLast }) {
       <span style={{ color: "#A8B2C1", fontSize: "14px" }}>{label}</span>
       <span className="text-white" style={{ fontSize: "14px", fontWeight: 600 }}>
         {value}
-      </span>
-    </div>
-  );
-}
-
-function RecentAppointmentRow({ appointment }) {
-  const isConfirmed = appointment.status === "confirmed";
-  const statusLabel = isConfirmed ? "Подтверждено" : "Ожидает";
-  const statusColor = isConfirmed ? "#48BB78" : "#F6AD55";
-  const statusBg = isConfirmed
-    ? "rgba(72, 187, 120, 0.15)"
-    : "rgba(246, 173, 85, 0.15)";
-
-  return (
-    <div
-      className="flex items-center justify-between"
-      style={{ backgroundColor: "#1E2A3A", borderRadius: "14px", padding: "16px 20px" }}
-    >
-      <div>
-        <p className="text-white" style={{ fontSize: "15px", fontWeight: 700 }}>
-          {appointment.shop}
-        </p>
-        <p style={{ color: "#A8B2C1", fontSize: "13px", marginTop: "4px" }}>
-          {appointment.service} · {appointment.date} · {appointment.time}
-        </p>
-      </div>
-
-      <span
-        style={{
-          backgroundColor: statusBg,
-          color: statusColor,
-          borderRadius: "999px",
-          padding: "5px 14px",
-          fontSize: "12px",
-          fontWeight: 600,
-        }}
-      >
-        {statusLabel}
       </span>
     </div>
   );

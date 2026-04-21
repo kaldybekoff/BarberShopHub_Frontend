@@ -1,11 +1,24 @@
 import { useState } from "react";
 import { cancelAppointment, rescheduleAppointment } from "../../api/appointmentApi";
 
+function extractError(e, fallback) {
+  const data = e?.response?.data;
+  if (!data) return fallback;
+  if (typeof data.message === "string" && data.message) return data.message;
+  if (data.errors) {
+    try { return Object.values(data.errors).flat().join(", "); } catch { /* ignore */ }
+  }
+  return fallback;
+}
+
+const todayStr = new Date().toISOString().slice(0, 10);
+
 function AppointmentCard({ appointment, onCancelled, onRescheduled }) {
   const [showReschedule, setShowReschedule] = useState(false);
   const [newDate, setNewDate] = useState("");
   const [newTime, setNewTime] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const isConfirmed = appointment.status === "confirmed";
   const statusLabel = isConfirmed ? "Подтверждено" : "Ожидает";
@@ -15,11 +28,14 @@ function AppointmentCard({ appointment, onCancelled, onRescheduled }) {
   async function handleCancel() {
     if (!window.confirm("Отменить запись?")) return;
     setLoading(true);
+    setError("");
     try {
       await cancelAppointment(appointment.id);
       onCancelled?.(appointment.id);
-    } catch {
-      alert("Не удалось отменить запись");
+    } catch (e) {
+      const msg = extractError(e, "Не удалось отменить запись");
+      setError(msg);
+      alert(msg);
     } finally {
       setLoading(false);
     }
@@ -27,13 +43,23 @@ function AppointmentCard({ appointment, onCancelled, onRescheduled }) {
 
   async function handleReschedule() {
     if (!newDate || !newTime) return;
+    const localDt = new Date(`${newDate}T${newTime}:00`);
+    if (Number.isNaN(localDt.getTime())) {
+      setError("Некорректная дата или время");
+      return;
+    }
+    const scheduledAtUtc = localDt.toISOString();
     setLoading(true);
+    setError("");
     try {
-      await rescheduleAppointment(appointment.id, `${newDate}T${newTime}:00`);
+      await rescheduleAppointment(appointment.id, scheduledAtUtc);
       setShowReschedule(false);
-      onRescheduled?.(appointment.id, newDate, newTime);
-    } catch {
-      alert("Не удалось перенести запись");
+      setNewDate("");
+      setNewTime("");
+      onRescheduled?.(appointment.id, localDt.toISOString());
+    } catch (e) {
+      const msg = extractError(e, "Не удалось перенести запись");
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -105,10 +131,14 @@ function AppointmentCard({ appointment, onCancelled, onRescheduled }) {
       {showReschedule && (
         <div style={{ padding: "12px 16px", borderTop: "1px solid #2a3a4a", backgroundColor: "#16213E" }}>
           <p style={{ color: "#A8B2C1", fontSize: "12px", marginBottom: "8px" }}>Новая дата и время</p>
+          {error && (
+            <p style={{ color: "#E94560", fontSize: "12px", marginBottom: "8px" }}>{error}</p>
+          )}
           <div className="flex" style={{ gap: "8px", marginBottom: "8px" }}>
             <input
               type="date"
               value={newDate}
+              min={todayStr}
               onChange={(e) => setNewDate(e.target.value)}
               style={{
                 flex: 1,

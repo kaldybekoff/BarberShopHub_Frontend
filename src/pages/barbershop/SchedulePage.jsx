@@ -37,12 +37,17 @@ function formatTime(isoString) {
   return `${hh}:${mm}`;
 }
 
+function formatPrice(value) {
+  if (value == null) return "";
+  return `${Number(value).toLocaleString("ru-RU")}₸`;
+}
+
 function mapBookingToSlot(b) {
   return {
     time: formatTime(b.scheduled_at),
     type: "booked",
     clientName: b.client_name,
-    service: b.services_count ? `${b.services_count} услуг` : "",
+    service: formatPrice(b.total_price),
     master: b.barber_name,
     duration: "",
     status: b.status,
