@@ -91,32 +91,6 @@ function Header() {
           Алматы
         </div>
 
-        <button
-          type="button"
-          className="relative hidden md:inline-flex transition-opacity hover:opacity-85"
-          style={{
-            color: "#A8B2C1",
-            fontSize: "18px",
-            background: "transparent",
-            border: "none",
-            cursor: "pointer",
-            position: "relative",
-          }}
-        >
-          🔔
-          <span
-            style={{
-              position: "absolute",
-              top: 0,
-              right: 0,
-              width: "8px",
-              height: "8px",
-              borderRadius: "50%",
-              backgroundColor: "#E94560",
-            }}
-          />
-        </button>
-
         <Link
           to="/profile"
           className="flex shrink-0 items-center justify-center text-white"

@@ -120,7 +120,7 @@ function BookingSuccessPage() {
           Данные записи не найдены
         </p>
         <button
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/home")}
           className="text-white"
           style={{
             backgroundColor: "#E94560",
@@ -175,26 +175,6 @@ function BookingSuccessPage() {
     }
 
     downloadFile("booking.ics", ics, "text/calendar;charset=utf-8");
-  }
-
-  async function handleShare() {
-    const text = `Записался в ${shopName} на ${dateShort} в ${time} — ${serviceName}`;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: "Моя запись в BarberHub", text });
-        return;
-      } catch (e) {
-        if (e?.name === "AbortError") return;
-      }
-    }
-
-    try {
-      await navigator.clipboard.writeText(text);
-      alert("Скопировано в буфер обмена");
-    } catch {
-      alert(text);
-    }
   }
 
   return (
@@ -296,47 +276,23 @@ function BookingSuccessPage() {
           📅 Добавить в календарь
         </button>
 
-        <div
+        <button
+          type="button"
+          onClick={() => navigate("/home")}
+          className="text-white"
           style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "12px",
             width: "100%",
+            backgroundColor: "#16213E",
+            borderRadius: "12px",
+            padding: "14px",
+            fontSize: "14px",
+            fontWeight: 600,
+            border: "none",
+            cursor: "pointer",
           }}
         >
-          <button
-            type="button"
-            onClick={handleShare}
-            className="text-white"
-            style={{
-              backgroundColor: "#16213E",
-              borderRadius: "12px",
-              padding: "14px",
-              fontSize: "14px",
-              fontWeight: 600,
-              border: "none",
-              cursor: "pointer",
-            }}
-          >
-            📤 Поделиться
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate("/")}
-            className="text-white"
-            style={{
-              backgroundColor: "#16213E",
-              borderRadius: "12px",
-              padding: "14px",
-              fontSize: "14px",
-              fontWeight: 600,
-              border: "none",
-              cursor: "pointer",
-            }}
-          >
-            На главную
-          </button>
-        </div>
+          На главную
+        </button>
       </div>
     </div>
   );
