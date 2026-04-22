@@ -19,6 +19,7 @@ import BookingPage from "../pages/user/BookingPage";
 import BookingSuccessPage from "../pages/user/BookingSuccessPage";
 import MyAppointmentsPage from "../pages/user/MyAppointmentsPage";
 import ProfilePage from "../pages/user/ProfilePage";
+import MyReviewsPage from "../pages/user/MyReviewsPage";
 
 import BarbershopDashboardPage from "../pages/barbershop/BarbershopDashboardPage";
 import SchedulePage from "../pages/barbershop/SchedulePage";
@@ -52,6 +53,7 @@ function AppRouter() {
           <Route path="/booking-success" element={<BookingSuccessPage />} />
           <Route path="/appointments" element={<MyAppointmentsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/my-reviews" element={<MyReviewsPage />} />
         </Route>
       </Route>
 
