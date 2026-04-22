@@ -18,10 +18,10 @@ function ProfilePage() {
     : "?";
 
   useEffect(() => {
-    Promise.all([getMyAppointments("upcoming"), getMyAppointments("past")])
-      .then(([upcoming, past]) => {
-        setAllCount((upcoming?.length ?? 0) + (past?.length ?? 0));
-        setCompletedCount(past?.length ?? 0);
+    Promise.all([getMyAppointments("upcoming", 1), getMyAppointments("past", 1)])
+      .then(([upRes, pastRes]) => {
+        setAllCount((upRes.meta.total ?? 0) + (pastRes.meta.total ?? 0));
+        setCompletedCount(pastRes.meta.total ?? 0);
       })
       .catch((e) => console.error(e));
   }, []);
