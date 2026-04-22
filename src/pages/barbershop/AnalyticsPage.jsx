@@ -11,7 +11,7 @@ const SERVICE_COLORS = ["#E94560", "#48BB78", "#F6AD55", "#A8B2C1", "#9F7AEA"];
 const DAY_LABELS = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
 
 function formatPrice(value) {
-  return `${Number(value).toLocaleString("ru-RU")}₸`;
+  return `${Number(value ?? 0).toLocaleString("ru-RU")}₸`;
 }
 
 function formatDelta(pct, label) {
@@ -47,19 +47,17 @@ function mapAnalytics(data, period) {
       up: (data.stats.new_clients_change_percent ?? 0) >= 0,
     },
     {
-      icon: "⭐",
+      icon: "💳",
       label: "СРЕДНИЙ ЧЕК",
-      value: formatPrice(data.stats.average_check),
+      value: data.stats.average_check != null ? formatPrice(data.stats.average_check) : "—",
       delta: formatDelta(data.stats.average_check_change_percent, periodLabel),
       up: (data.stats.average_check_change_percent ?? 0) >= 0,
     },
   ];
 
-  const maxIdx = (data.revenue_by_day ?? []).reduce(
-    (m, d, i, arr) => (d.amount > arr[m].amount ? i : m),
-    0
-  );
-  const revenueData = (data.revenue_by_day ?? []).map((d, i) => ({
+  const days = data.revenue_by_day ?? [];
+  const maxIdx = days.reduce((m, d, i) => (d.amount > (days[m]?.amount ?? 0) ? i : m), 0);
+  const revenueData = days.map((d, i) => ({
     day: DAY_LABELS[new Date(d.date).getDay()],
     value: d.amount,
     isActive: i === maxIdx,
@@ -93,13 +91,7 @@ function AnalyticsPage() {
   }, [activeTab]);
 
   return (
-    <div
-      style={{
-        backgroundColor: "#1A1A2E",
-        padding: "28px 32px",
-        minHeight: "100vh",
-      }}
-    >
+    <div style={{ backgroundColor: "#1A1A2E", padding: "28px 32px", minHeight: "100vh" }}>
       <div style={{ marginBottom: "20px" }}>
         <h1 className="text-white" style={{ fontSize: "22px", fontWeight: 700 }}>
           Аналитика
@@ -109,14 +101,7 @@ function AnalyticsPage() {
         </p>
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          gap: "8px",
-          marginBottom: "24px",
-          flexWrap: "wrap",
-        }}
-      >
+      <div style={{ display: "flex", gap: "8px", marginBottom: "24px", flexWrap: "wrap" }}>
         {periods.map((p) => {
           const isActive = p.id === activeTab;
           return (
@@ -161,13 +146,7 @@ function AnalyticsPage() {
             ))}
           </div>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1.6fr 1fr",
-              gap: "16px",
-            }}
-          >
+          <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: "16px" }}>
             <RevenueChart data={analytics.revenueData} total={analytics.total} />
             <PopularServices items={analytics.popularServices} />
           </div>
@@ -181,13 +160,7 @@ function StatCard({ stat }) {
   const deltaColor = stat.up ? "#48BB78" : "#E94560";
 
   return (
-    <div
-      style={{
-        backgroundColor: "#1E2A3A",
-        borderRadius: "12px",
-        padding: "18px 20px",
-      }}
-    >
+    <div style={{ backgroundColor: "#1E2A3A", borderRadius: "12px", padding: "18px 20px" }}>
       <div className="flex items-center" style={{ gap: "8px", marginBottom: "10px" }}>
         <span style={{ fontSize: "14px" }}>{stat.icon}</span>
         <span
@@ -203,10 +176,7 @@ function StatCard({ stat }) {
         </span>
       </div>
 
-      <div
-        className="text-white"
-        style={{ fontSize: "24px", fontWeight: 700, lineHeight: 1.1, marginBottom: "8px" }}
-      >
+      <div className="text-white" style={{ fontSize: "24px", fontWeight: 700, lineHeight: 1.1, marginBottom: "8px" }}>
         {stat.value}
       </div>
 
@@ -221,13 +191,7 @@ function RevenueChart({ data, total }) {
   const maxValue = Math.max(...(data ?? []).map((d) => d.value), 1);
 
   return (
-    <div
-      style={{
-        backgroundColor: "#1E2A3A",
-        borderRadius: "12px",
-        padding: "20px 22px",
-      }}
-    >
+    <div style={{ backgroundColor: "#1E2A3A", borderRadius: "12px", padding: "20px 22px" }}>
       <div className="flex items-center justify-between">
         <h3 className="text-white" style={{ fontSize: "15px", fontWeight: 700 }}>
           Выручка по дням
@@ -237,72 +201,56 @@ function RevenueChart({ data, total }) {
         </span>
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          alignItems: "flex-end",
-          gap: "8px",
-          height: "140px",
-          marginTop: "20px",
-        }}
-      >
-        {(data ?? []).map((d, i) => {
-          const height = (d.value / maxValue) * 120;
-          return (
-            <div
-              key={i}
-              style={{
-                flex: 1,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "flex-end",
-                height: "100%",
-              }}
-            >
+      {data && data.length > 0 ? (
+        <div style={{ display: "flex", alignItems: "flex-end", gap: "8px", height: "140px", marginTop: "20px" }}>
+          {data.map((d, i) => {
+            const height = (d.value / maxValue) * 120;
+            return (
               <div
-                style={{
-                  height: `${height}px`,
-                  backgroundColor: d.isActive ? "#E94560" : "#2A3A4A",
-                  borderRadius: "4px 4px 0 0",
-                  transition: "height 0.3s",
-                }}
-              />
-              <div
-                style={{
-                  color: d.isActive ? "#E94560" : "#A8B2C1",
-                  fontSize: "12px",
-                  fontWeight: d.isActive ? 600 : 500,
-                  textAlign: "center",
-                  marginTop: "8px",
-                }}
+                key={i}
+                style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-end", height: "100%" }}
               >
-                {d.day}
+                <div
+                  style={{
+                    height: `${height}px`,
+                    backgroundColor: d.isActive ? "#E94560" : "#2A3A4A",
+                    borderRadius: "4px 4px 0 0",
+                    transition: "height 0.3s",
+                    minHeight: d.value > 0 ? "4px" : "0",
+                  }}
+                />
+                <div
+                  style={{
+                    color: d.isActive ? "#E94560" : "#A8B2C1",
+                    fontSize: "12px",
+                    fontWeight: d.isActive ? 600 : 500,
+                    textAlign: "center",
+                    marginTop: "8px",
+                  }}
+                >
+                  {d.day}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      ) : (
+        <p style={{ color: "#A8B2C1", fontSize: "13px", marginTop: "20px", textAlign: "center" }}>
+          Нет данных за этот период
+        </p>
+      )}
     </div>
   );
 }
 
 function PopularServices({ items }) {
   return (
-    <div
-      style={{
-        backgroundColor: "#1E2A3A",
-        borderRadius: "12px",
-        padding: "20px 22px",
-      }}
-    >
-      <h3
-        className="text-white"
-        style={{ fontSize: "15px", fontWeight: 700, marginBottom: "16px" }}
-      >
+    <div style={{ backgroundColor: "#1E2A3A", borderRadius: "12px", padding: "20px 22px" }}>
+      <h3 className="text-white" style={{ fontSize: "15px", fontWeight: 700, marginBottom: "16px" }}>
         Популярные услуги
       </h3>
 
-      {(!items || items.length === 0) ? (
+      {!items || items.length === 0 ? (
         <p style={{ color: "#A8B2C1", fontSize: "13px" }}>Нет данных</p>
       ) : (
         <div>
@@ -317,48 +265,18 @@ function PopularServices({ items }) {
 
 function ServiceRow({ item, isLast }) {
   return (
-    <div
-      style={{
-        padding: "12px 0",
-        borderBottom: isLast ? "none" : "1px solid rgba(255,255,255,0.05)",
-      }}
-    >
+    <div style={{ padding: "12px 0", borderBottom: isLast ? "none" : "1px solid rgba(255,255,255,0.05)" }}>
       <div className="flex items-start justify-between" style={{ gap: "12px" }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="flex items-center" style={{ gap: "8px" }}>
-            <span
-              style={{
-                width: "8px",
-                height: "8px",
-                borderRadius: "50%",
-                backgroundColor: item.color,
-                flexShrink: 0,
-              }}
-            />
+            <span style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: item.color, flexShrink: 0 }} />
             <span className="text-white truncate" style={{ fontSize: "13px", fontWeight: 500 }}>
               {item.name}
             </span>
           </div>
 
-          <div
-            style={{
-              height: "4px",
-              backgroundColor: "rgba(255,255,255,0.08)",
-              borderRadius: "2px",
-              marginTop: "8px",
-              marginLeft: "16px",
-              overflow: "hidden",
-            }}
-          >
-            <div
-              style={{
-                width: `${item.percent}%`,
-                height: "100%",
-                backgroundColor: item.color,
-                borderRadius: "2px",
-                transition: "width 0.3s",
-              }}
-            />
+          <div style={{ height: "4px", backgroundColor: "rgba(255,255,255,0.08)", borderRadius: "2px", marginTop: "8px", marginLeft: "16px", overflow: "hidden" }}>
+            <div style={{ width: `${item.percent}%`, height: "100%", backgroundColor: item.color, borderRadius: "2px", transition: "width 0.3s" }} />
           </div>
         </div>
 

@@ -144,33 +144,6 @@ function BarbershopDashboardPage() {
           </p>
         </div>
 
-        <button
-          type="button"
-          aria-label="Уведомления"
-          style={{
-            position: "relative",
-            width: "40px",
-            height: "40px",
-            borderRadius: "10px",
-            backgroundColor: "transparent",
-            border: "none",
-            fontSize: "20px",
-            cursor: "pointer",
-          }}
-        >
-          🔔
-          <span
-            style={{
-              position: "absolute",
-              top: "6px",
-              right: "6px",
-              width: "8px",
-              height: "8px",
-              borderRadius: "50%",
-              backgroundColor: "#E94560",
-            }}
-          />
-        </button>
       </div>
 
       <div

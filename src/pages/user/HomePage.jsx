@@ -7,15 +7,30 @@ import { getShops } from "../../api/shopApi";
 
 function HomePage() {
   const [shops, setShops] = useState([]);
+  const [userCoords, setUserCoords] = useState(null);
 
   useEffect(() => {
-    getShops({ per_page: 3 })
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => setUserCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => {}
+    );
+  }, []);
+
+  useEffect(() => {
+    const params = { per_page: 6 };
+    if (userCoords) {
+      params.user_lat = userCoords.lat;
+      params.user_lng = userCoords.lng;
+      params.order_by = "distance";
+    }
+    getShops(params)
       .then((data) => {
         const list = Array.isArray(data) ? data : data.data ?? [];
         setShops(list);
       })
       .catch((e) => console.error(e));
-  }, []);
+  }, [userCoords]);
 
   return (
     <div

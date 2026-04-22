@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "WebFetch(domain:bbs-production-6580.up.railway.app)"
+    ]
+  }
+}
