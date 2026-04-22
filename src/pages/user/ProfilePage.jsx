@@ -20,8 +20,10 @@ function ProfilePage() {
   useEffect(() => {
     Promise.all([getMyAppointments("upcoming", 1), getMyAppointments("past", 1)])
       .then(([upRes, pastRes]) => {
-        setAllCount((upRes.meta.total ?? 0) + (pastRes.meta.total ?? 0));
-        setCompletedCount(pastRes.meta.total ?? 0);
+        const upTotal = upRes.meta.total || upRes.data.length;
+        const pastTotal = pastRes.meta.total || pastRes.data.length;
+        setAllCount(upTotal + pastTotal);
+        setCompletedCount(pastTotal);
       })
       .catch((e) => console.error(e));
   }, []);
@@ -29,7 +31,7 @@ function ProfilePage() {
   const menuItems = [
     { icon: "📅", label: "Мои записи", onClick: () => navigate("/appointments") },
     { icon: "✂️", label: "Найти барбершоп", onClick: () => navigate("/search") },
-    { icon: "⭐", label: "Мои отзывы", onClick: () => {} },
+    { icon: "⭐", label: "Мои отзывы", onClick: () => navigate("/my-reviews") },
   ];
 
   function handleLogout() {

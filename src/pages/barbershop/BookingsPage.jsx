@@ -5,6 +5,7 @@ const filters = [
   { id: "all", label: "Все" },
   { id: "pending", label: "Ожидает" },
   { id: "confirmed", label: "Подтверждено" },
+  { id: "completed", label: "Выполнено" },
   { id: "cancelled", label: "Отменено" },
 ];
 

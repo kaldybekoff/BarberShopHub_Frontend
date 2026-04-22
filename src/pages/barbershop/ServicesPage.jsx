@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getOwnerServices, deleteOwnerService, createOwnerService } from "../../api/dashboardApi";
+import { getOwnerServices, deleteOwnerService, createOwnerService, updateOwnerService } from "../../api/dashboardApi";
 
 function formatPrice(price) {
   return `${Number(price).toLocaleString("ru-RU")}₸`;
@@ -53,11 +53,14 @@ function ServicesPage() {
 
   async function handleModalSubmit(formData) {
     try {
-      await createOwnerService(formData);
+      if (editTarget) {
+        await updateOwnerService(editTarget.id, formData);
+      } else {
+        await createOwnerService(formData);
+      }
       setShowModal(false);
       await loadServices();
     } catch (e) {
-      // Endpoint not implemented yet — backend needs POST /owner/services
       console.error(e);
       setShowModal(false);
     }
@@ -142,8 +145,8 @@ function ServicesPage() {
 
               <div
                 style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                  display: "flex",
+                  flexWrap: "wrap",
                   gap: "12px",
                 }}
               >
@@ -198,7 +201,7 @@ function ServiceModal({ initial, onClose, onSubmit }) {
     setError("");
     await onSubmit({
       name: form.name.trim(),
-      category: form.category.trim() || "Прочее",
+      category_name: form.category.trim() || "Прочее",
       price: Number(form.price),
       duration_minutes: Number(form.duration),
     });
@@ -366,7 +369,15 @@ function ServiceCard({ service, onEdit, onDelete }) {
   return (
     <div
       className="flex items-center justify-between"
-      style={{ backgroundColor: "#1E2A3A", borderRadius: "12px", padding: "18px 20px", gap: "16px" }}
+      style={{
+        backgroundColor: "#1E2A3A",
+        borderRadius: "12px",
+        padding: "16px 20px",
+        gap: "16px",
+        flex: "1 1 440px",
+        minWidth: 0,
+        border: "1px solid rgba(255,255,255,0.04)",
+      }}
     >
       <div className="flex items-center" style={{ gap: "14px", flex: 1, minWidth: 0 }}>
         <div
@@ -387,14 +398,14 @@ function ServiceCard({ service, onEdit, onDelete }) {
           <div className="text-white truncate" style={{ fontSize: "15px", fontWeight: 600 }}>
             {service.name}
           </div>
-          <div style={{ color: "#A8B2C1", fontSize: "12px", marginTop: "2px" }}>
+          <div style={{ color: "#A8B2C1", fontSize: "12px", marginTop: "3px" }}>
             ⏱ {service.duration} мин
           </div>
         </div>
       </div>
 
-      <div className="flex items-center" style={{ gap: "14px", flexShrink: 0 }}>
-        <span className="text-white" style={{ fontSize: "16px", fontWeight: 700 }}>
+      <div className="flex items-center" style={{ gap: "16px", flexShrink: 0 }}>
+        <span className="text-white" style={{ fontSize: "16px", fontWeight: 700, whiteSpace: "nowrap" }}>
           {formatPrice(service.price)}
         </span>
 
@@ -406,16 +417,19 @@ function ServiceCard({ service, onEdit, onDelete }) {
             onClick={() => onEdit(service.id)}
             style={{
               backgroundColor: "rgba(255,255,255,0.06)",
-              color: "#A8B2C1",
+              color: "#C8D0DC",
               border: "1px solid rgba(255,255,255,0.1)",
-              borderRadius: "6px",
-              padding: "6px 12px",
+              borderRadius: "8px",
+              padding: "8px 14px",
               fontSize: "12px",
-              fontWeight: 500,
+              fontWeight: 600,
               cursor: "pointer",
+              transition: "background-color 0.15s",
             }}
+            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.12)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.06)"; }}
           >
-            Ред.
+            Редактировать
           </button>
           <button
             type="button"
@@ -424,12 +438,15 @@ function ServiceCard({ service, onEdit, onDelete }) {
               backgroundColor: "rgba(233, 69, 96, 0.1)",
               color: "#E94560",
               border: "1px solid rgba(233, 69, 96, 0.2)",
-              borderRadius: "6px",
-              padding: "6px 12px",
+              borderRadius: "8px",
+              padding: "8px 14px",
               fontSize: "12px",
-              fontWeight: 500,
+              fontWeight: 600,
               cursor: "pointer",
+              transition: "background-color 0.15s",
             }}
+            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(233, 69, 96, 0.18)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(233, 69, 96, 0.1)"; }}
           >
             Удалить
           </button>
