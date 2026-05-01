@@ -1,11 +1,8 @@
 function TimeSlotGrid({ slots, selectedSlot, onSelect }) {
   return (
     <div
-      className="grid"
-      style={{
-        gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
-        gap: "10px",
-      }}
+      className="grid grid-cols-3 md:grid-cols-4"
+      style={{ gap: "10px" }}
     >
       {slots.map((slot) => {
         const isSelected = slot === selectedSlot;

@@ -6,7 +6,7 @@ const steps = [
 
 function BookingSteps({ currentStep }) {
   return (
-    <div style={{ padding: "16px 32px 24px" }}>
+    <div className="px-4 pt-4 pb-6 md:px-8">
       <div
         className="grid"
         style={{ gridTemplateColumns: "repeat(3, 1fr)", gap: "8px" }}
