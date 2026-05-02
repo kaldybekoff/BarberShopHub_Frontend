@@ -46,8 +46,8 @@ function ProfilePage() {
     >
       <div className="mx-auto" style={{ maxWidth: "1100px", padding: "32px 24px 48px" }}>
         <div
-          className="grid items-start"
-          style={{ gridTemplateColumns: "280px 1fr", gap: "24px" }}
+          className="grid items-start grid-cols-1 md:grid-cols-[280px_1fr]"
+          style={{ gap: "24px" }}
         >
           <aside
             className="flex flex-col"

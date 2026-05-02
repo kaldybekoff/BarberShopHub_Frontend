@@ -23,12 +23,11 @@ function Header() {
 
   return (
     <header
-      className="sticky top-0 z-20 flex items-center border-b"
+      className="sticky top-0 z-20 flex items-center border-b px-4 md:px-10"
       style={{
         backgroundColor: "#000000",
         borderColor: "#1E2A3A",
         height: "56px",
-        padding: "0 40px",
         position: "sticky",
       }}
     >
