@@ -35,7 +35,6 @@ function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [selectedRole, setSelectedRole] = useState("user");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -280,45 +279,6 @@ function RegisterPage() {
               </div>
             </div>
 
-            <div style={{ marginBottom: "16px" }}>
-              <span style={labelStyle}>Я регистрируюсь как</span>
-              <div
-                className="grid grid-cols-2"
-                style={{ gap: "10px" }}
-              >
-                {[
-                  { value: "user", label: "Клиент", icon: "👤" },
-                  { value: "business", label: "Бизнес", icon: "✂️" },
-                ].map((option) => {
-                  const isActive = selectedRole === option.value;
-                  return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => setSelectedRole(option.value)}
-                      style={{
-                        backgroundColor: isActive ? "#E94560" : "#1E2A3A",
-                        color: isActive ? "#ffffff" : "#A8B2C1",
-                        border: "none",
-                        borderRadius: "10px",
-                        padding: "12px",
-                        fontSize: "14px",
-                        fontWeight: 600,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: "8px",
-                      }}
-                    >
-                      <span>{option.icon}</span>
-                      {option.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
             {error && (
               <p
                 style={{
@@ -406,6 +366,28 @@ function RegisterPage() {
             >
               Войти
             </span>
+          </div>
+
+          <div
+            style={{
+              marginTop: "16px",
+              padding: "12px 14px",
+              backgroundColor: "#1E2A3A",
+              border: "1px solid rgba(255,255,255,0.06)",
+              borderRadius: "10px",
+              color: "#A8B2C1",
+              fontSize: "12px",
+              lineHeight: 1.5,
+              textAlign: "center",
+            }}
+          >
+            Владельцам барбершопов: для регистрации бизнеса свяжитесь с нами —{" "}
+            <a
+              href="mailto:business@barberhub.app"
+              style={{ color: "#E94560", fontWeight: 600 }}
+            >
+              business@barberhub.app
+            </a>
           </div>
         </div>
       </section>

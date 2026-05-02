@@ -31,6 +31,11 @@ export async function completeOwnerBooking(id) {
   return res.data;
 }
 
+export async function confirmOwnerBooking(id) {
+  const res = await axiosInstance.post(`/owner/bookings/${id}/confirm`);
+  return res.data;
+}
+
 export async function getOwnerServices() {
   const res = await axiosInstance.get("/owner/services");
   const raw = res.data.data;
