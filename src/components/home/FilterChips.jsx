@@ -1,10 +1,10 @@
 import { useState } from "react";
 
 const filters = [
-  { label: "🏆 Топ рейтинг", value: "top" },
-  { label: "📍 Рядом", value: "nearby" },
-  { label: "⚡ Сейчас открыто", value: "open" },
-  { label: "💰 До 2000₸", value: "cheap" },
+  { label: "🏆 Top rated", value: "top" },
+  { label: "📍 Nearby", value: "nearby" },
+  { label: "⚡ Open now", value: "open" },
+  { label: "💰 Under 2000₸", value: "cheap" },
 ];
 
 function FilterChips() {

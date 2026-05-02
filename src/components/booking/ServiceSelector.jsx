@@ -78,7 +78,7 @@ function ServiceSelector({ services, selectedId, onSelect }) {
                       marginTop: "3px",
                     }}
                   >
-                    ⏱ {service.duration} мин
+                    ⏱ {service.duration} min
                   </p>
                 </div>
 
@@ -90,7 +90,7 @@ function ServiceSelector({ services, selectedId, onSelect }) {
                     marginLeft: "auto",
                   }}
                 >
-                  {Number(service.price).toLocaleString("ru-RU")}₸
+                  {Number(service.price).toLocaleString("en-US")}₸
                 </span>
 
                 {isSelected && (

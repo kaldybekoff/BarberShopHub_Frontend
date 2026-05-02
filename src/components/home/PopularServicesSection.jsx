@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router-dom";
 
 const services = [
-  { label: "Стрижка", icon: "✂️", value: "haircut" },
-  { label: "Борода", icon: "🪒", value: "beard" },
-  { label: "Комплекс", icon: "💎", value: "complex" },
-  { label: "Детская", icon: "👦", value: "kids" },
+  { label: "Haircut", icon: "✂️", value: "haircut" },
+  { label: "Beard", icon: "🪒", value: "beard" },
+  { label: "Full service", icon: "💎", value: "complex" },
+  { label: "Kids", icon: "👦", value: "kids" },
 ];
 
 function PopularServicesSection() {
@@ -24,7 +24,7 @@ function PopularServicesSection() {
         className="text-white"
         style={{ fontSize: "20px", fontWeight: 700, marginBottom: "16px" }}
       >
-        Популярные услуги
+        Popular services
       </h2>
 
       <div className="grid grid-cols-2 md:grid-cols-4" style={{ gap: "14px" }}>

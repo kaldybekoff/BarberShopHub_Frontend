@@ -3,36 +3,32 @@ import { getOwnerBookings, cancelOwnerBooking, completeOwnerBooking, confirmOwne
 import useIsMobile from "../../hooks/useIsMobile";
 
 const filters = [
-  { id: "all", label: "Все" },
-  { id: "pending", label: "Ожидает" },
-  { id: "confirmed", label: "Подтверждено" },
-  { id: "completed", label: "Выполнено" },
-  { id: "cancelled", label: "Отменено" },
+  { id: "all", label: "All" },
+  { id: "pending", label: "Pending" },
+  { id: "confirmed", label: "Confirmed" },
+  { id: "completed", label: "Completed" },
+  { id: "cancelled", label: "Cancelled" },
 ];
 
 const statusBadges = {
-  confirmed: { label: "✓ Подтверждено", color: "#48BB78", background: "rgba(72, 187, 120, 0.15)" },
-  pending: { label: "⏳ Ожидает", color: "#F6AD55", background: "rgba(246, 173, 85, 0.15)" },
-  cancelled: { label: "Отменено", color: "#A8B2C1", background: "rgba(168, 178, 193, 0.1)" },
-  completed: { label: "✓ Завершено", color: "#48BB78", background: "rgba(72, 187, 120, 0.1)" },
+  confirmed: { label: "✓ Confirmed", color: "#48BB78", background: "rgba(72, 187, 120, 0.15)" },
+  pending: { label: "⏳ Pending", color: "#F6AD55", background: "rgba(246, 173, 85, 0.15)" },
+  cancelled: { label: "Cancelled", color: "#A8B2C1", background: "rgba(168, 178, 193, 0.1)" },
+  completed: { label: "✓ Completed", color: "#48BB78", background: "rgba(72, 187, 120, 0.1)" },
 };
 
 function formatPrice(price) {
-  return `${Number(price).toLocaleString("ru-RU")}₸`;
+  return `${Number(price).toLocaleString("en-US")}₸`;
 }
 
 function pluralServices(n) {
-  const mod10 = n % 10;
-  const mod100 = n % 100;
-  if (mod10 === 1 && mod100 !== 11) return "услуга";
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return "услуги";
-  return "услуг";
+  return n === 1 ? "service" : "services";
 }
 
 function mapBooking(b) {
   const dt = new Date(b.scheduled_at);
-  const date = dt.toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" });
-  const time = dt.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+  const date = dt.toLocaleDateString("en-US", { day: "2-digit", month: "2-digit", year: "numeric" });
+  const time = dt.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
   const serviceLabel =
     b.service_name ??
     (Array.isArray(b.services) && b.services[0]?.name) ??
@@ -111,10 +107,10 @@ function BookingsPage() {
     <div style={{ backgroundColor: "#1A1A2E", padding: pad, minHeight: "100vh" }}>
       <div>
         <h1 className="text-white" style={{ fontSize: "22px", fontWeight: 700 }}>
-          Записи
+          Bookings
         </h1>
         <p style={{ color: "#A8B2C1", fontSize: "13px", marginTop: "3px" }}>
-          Управляйте бронированиями клиентов
+          {"Manage your clients' appointments"}
         </p>
       </div>
 
@@ -146,11 +142,11 @@ function BookingsPage() {
 
       {loading ? (
         <div className="text-center" style={{ backgroundColor: "#1E2A3A", borderRadius: "12px", padding: "40px 20px", color: "#A8B2C1", fontSize: "14px" }}>
-          Загрузка...
+          Loading...
         </div>
       ) : bookings.length === 0 ? (
         <div className="text-center" style={{ backgroundColor: "#1E2A3A", borderRadius: "12px", padding: "40px 20px", color: "#A8B2C1", fontSize: "14px" }}>
-          В этой категории пока нет записей
+          No bookings in this category yet
         </div>
       ) : (
         <div>
@@ -193,14 +189,14 @@ function BookingCard({ booking, onConfirm, onComplete, onCancel }) {
           </div>
           <div className="flex flex-wrap" style={{ marginTop: "4px", gap: "12px 20px", fontSize: "13px", color: "#A8B2C1" }}>
             <span>
-              Услуга: <span style={{ color: "#C8D0DC" }}>{booking.service}</span>
+              Service: <span style={{ color: "#C8D0DC" }}>{booking.service}</span>
             </span>
             <span>
-              Мастер: <span style={{ color: "#C8D0DC" }}>{booking.master}</span>
+              Barber: <span style={{ color: "#C8D0DC" }}>{booking.master}</span>
             </span>
             {booking.clientPhone && (
               <span>
-                Тел: <a href={`tel:${booking.clientPhone}`} style={{ color: "#C8D0DC", textDecoration: "none" }}>{booking.clientPhone}</a>
+                Tel: <a href={`tel:${booking.clientPhone}`} style={{ color: "#C8D0DC", textDecoration: "none" }}>{booking.clientPhone}</a>
               </span>
             )}
           </div>
@@ -251,7 +247,7 @@ function BookingCard({ booking, onConfirm, onComplete, onCancel }) {
               cursor: "pointer",
             }}
           >
-            ✓ Подтвердить
+            ✓ Confirm
           </button>
           <button
             type="button"
@@ -268,7 +264,7 @@ function BookingCard({ booking, onConfirm, onComplete, onCancel }) {
               cursor: "pointer",
             }}
           >
-            ✕ Отменить
+            ✕ Cancel
           </button>
         </div>
       )}
@@ -290,7 +286,7 @@ function BookingCard({ booking, onConfirm, onComplete, onCancel }) {
               cursor: "pointer",
             }}
           >
-            ✅ Выполнено
+            ✅ Mark complete
           </button>
           <button
             type="button"
@@ -307,7 +303,7 @@ function BookingCard({ booking, onConfirm, onComplete, onCancel }) {
               cursor: "pointer",
             }}
           >
-            ✕ Отменить
+            ✕ Cancel
           </button>
         </div>
       )}

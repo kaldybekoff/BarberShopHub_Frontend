@@ -4,11 +4,11 @@ import useAuth from "../../hooks/useAuth";
 import colors from "../../constants/colors";
 
 const pageTitles = {
-  "/barbershop/dashboard": "Дашборд",
-  "/barbershop/schedule": "Расписание",
-  "/barbershop/bookings": "Записи",
-  "/barbershop/services": "Услуги",
-  "/barbershop/analytics": "Аналитика",
+  "/barbershop/dashboard": "Dashboard",
+  "/barbershop/schedule": "Schedule",
+  "/barbershop/bookings": "Bookings",
+  "/barbershop/services": "Services",
+  "/barbershop/analytics": "Analytics",
 };
 
 function Topbar() {
@@ -32,7 +32,7 @@ function Topbar() {
 
       <div className="flex items-center gap-2">
         <span className="text-sm hidden sm:block" style={{ color: colors.gray }}>
-          {user?.name || "Пользователь"}
+          {user?.name || "User"}
         </span>
         <div
           className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white"
@@ -46,7 +46,7 @@ function Topbar() {
           style={{ color: colors.gray }}
         >
           <LogOut size={14} />
-          Выйти
+          Log out
         </button>
       </div>
     </header>

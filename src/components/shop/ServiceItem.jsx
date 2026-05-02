@@ -37,7 +37,7 @@ function ServiceItem({ service }) {
             marginTop: "3px",
           }}
         >
-          ⏱ {service.duration} мин
+          ⏱ {service.duration} min
         </p>
       </div>
 
@@ -49,7 +49,7 @@ function ServiceItem({ service }) {
           marginLeft: "auto",
         }}
       >
-        {Number(service.price).toLocaleString("ru-RU")}₸
+        {Number(service.price).toLocaleString("en-US")}₸
       </span>
     </div>
   );

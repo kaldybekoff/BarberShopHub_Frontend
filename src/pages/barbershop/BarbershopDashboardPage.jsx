@@ -6,22 +6,22 @@ import DashboardAppointments from "../../components/barbershop/DashboardAppointm
 import { getDashboardStats } from "../../api/dashboardApi";
 import useIsMobile from "../../hooks/useIsMobile";
 
-const DAY_LABELS = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
+const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 function formatPrice(value) {
-  return `${Number(value ?? 0).toLocaleString("ru-RU")}₸`;
+  return `${Number(value ?? 0).toLocaleString("en-US")}₸`;
 }
 
 function formatDeltaAbs(delta) {
   if (delta == null) return "";
   const sign = delta > 0 ? "+" : delta < 0 ? "−" : "";
-  return `${sign}${Math.abs(delta)} за сутки`;
+  return `${sign}${Math.abs(delta)} vs yesterday`;
 }
 
 function formatDeltaPct(pct) {
   if (pct == null) return "";
   const sign = pct > 0 ? "▲ +" : pct < 0 ? "▼ −" : "";
-  return `${sign}${Math.abs(pct)}% к пред. неделе`;
+  return `${sign}${Math.abs(pct)}% vs prev. week`;
 }
 
 function mapStats(dash) {
@@ -30,27 +30,27 @@ function mapStats(dash) {
   return [
     {
       icon: "📅",
-      label: "ЗАПИСИ СЕГОДНЯ",
+      label: "BOOKINGS TODAY",
       value: String(today.count ?? 0),
       delta: formatDeltaAbs(today.delta_vs_yesterday),
     },
     {
       icon: "💰",
-      label: "ВЫРУЧКА ЗА НЕДЕЛЮ",
+      label: "WEEKLY REVENUE",
       value: formatPrice(week.amount),
       delta: formatDeltaPct(week.delta_pct_vs_prev),
     },
     {
       icon: "⭐",
-      label: "РЕЙТИНГ",
+      label: "RATING",
       value: dash.barbershop?.rating != null ? String(dash.barbershop.rating) : "—",
       delta: "",
     },
     {
       icon: "👥",
-      label: "НОВЫЕ КЛИЕНТЫ",
+      label: "NEW CLIENTS",
       value: String(dash.new_clients_this_week ?? 0),
-      delta: "за неделю",
+      delta: "this week",
     },
   ];
 }
@@ -58,7 +58,7 @@ function mapStats(dash) {
 function mapNearestBookings(bookings) {
   return (bookings ?? []).map((b) => {
     const dt = new Date(b.scheduled_at);
-    const time = dt.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+    const time = dt.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
     const count = b.services_count ?? 0;
     return {
       time,
@@ -71,11 +71,7 @@ function mapNearestBookings(bookings) {
 }
 
 function pluralServices(count) {
-  const mod10 = count % 10;
-  const mod100 = count % 100;
-  if (mod10 === 1 && mod100 !== 11) return "услуга";
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return "услуги";
-  return "услуг";
+  return count === 1 ? "service" : "services";
 }
 
 function mapRevenueData(revenueByDay) {
@@ -118,7 +114,7 @@ function BarbershopDashboardPage() {
         style={{ backgroundColor: "#1A1A2E", padding: pad, minHeight: "100%" }}
         className="flex items-center justify-center"
       >
-        <p style={{ color: "#A8B2C1" }}>Загрузка...</p>
+        <p style={{ color: "#A8B2C1" }}>Loading...</p>
       </div>
     );
   }
@@ -141,7 +137,7 @@ function BarbershopDashboardPage() {
             className="text-white"
             style={{ fontSize: isMobile ? "22px" : "28px", fontWeight: 700, lineHeight: 1.2 }}
           >
-            Добрый день 👋
+            Hello 👋
           </h1>
           <p style={{ color: "#A8B2C1", fontSize: "14px", marginTop: "4px" }}>
             {shopName}

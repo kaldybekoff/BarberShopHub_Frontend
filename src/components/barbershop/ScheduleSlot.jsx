@@ -45,7 +45,7 @@ function FreeSlot() {
         fontSize: "13px",
       }}
     >
-      Свободно
+      Available
     </div>
   );
 }

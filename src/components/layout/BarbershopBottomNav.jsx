@@ -81,7 +81,7 @@ function BarbershopBottomNav() {
         }}
       >
         <LogOut size={20} />
-        <span style={{ fontSize: "10px", fontWeight: 500 }}>Выйти</span>
+        <span style={{ fontSize: "10px", fontWeight: 500 }}>Log out</span>
       </button>
     </nav>
   );

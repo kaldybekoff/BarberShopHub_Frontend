@@ -17,7 +17,7 @@ function ReminderToggle({ enabled, onChange }) {
           className="text-white"
           style={{ fontSize: "15px", fontWeight: 600 }}
         >
-          Напоминание
+          Reminder
         </span>
         <span
           style={{
@@ -26,7 +26,7 @@ function ReminderToggle({ enabled, onChange }) {
             marginLeft: "12px",
           }}
         >
-          За 2 часа до записи
+          2 hours before appointment
         </span>
       </div>
 

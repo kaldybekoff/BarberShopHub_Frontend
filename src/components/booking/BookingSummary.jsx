@@ -12,11 +12,11 @@ function BookingSummary({
   onConfirm,
 }) {
   const rows = [
-    ["Барбершоп", shopName],
-    ["Дата и время", dateTime],
-    ["Мастер", masterName],
-    ["Услуга", serviceShortName],
-    ["Длительность", duration ? `~${duration} минут` : "—"],
+    ["Barbershop", shopName],
+    ["Date & time", dateTime],
+    ["Barber", masterName],
+    ["Service", serviceShortName],
+    ["Duration", duration ? `~${duration} min` : "—"],
   ];
 
   return (
@@ -34,7 +34,7 @@ function BookingSummary({
         className="text-white"
         style={{ fontSize: "18px", fontWeight: 700, marginBottom: "16px" }}
       >
-        Сводка заказа
+        Order summary
       </h2>
 
       <div
@@ -80,7 +80,7 @@ function BookingSummary({
           className="text-white"
           style={{ fontSize: "16px", fontWeight: 600 }}
         >
-          Итого
+          Total
         </span>
         <span
           style={{
@@ -89,7 +89,7 @@ function BookingSummary({
             color: "#E94560",
           }}
         >
-          {price != null ? `${Number(price).toLocaleString("ru-RU")}₸` : "—"}
+          {price != null ? `${Number(price).toLocaleString("en-US")}₸` : "—"}
         </span>
       </div>
 
@@ -122,7 +122,7 @@ function BookingSummary({
           if (!isSubmitting) e.currentTarget.style.backgroundColor = "#E94560";
         }}
       >
-        {isSubmitting ? "Оформляем..." : "Подтвердить запись ✓"}
+        {isSubmitting ? "Booking..." : "Confirm booking ✓"}
       </button>
     </aside>
   );

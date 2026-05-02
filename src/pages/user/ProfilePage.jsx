@@ -47,16 +47,16 @@ function ProfilePage() {
       await refreshUser();
       setEditing(false);
     } catch (e) {
-      setSaveError(e?.response?.data?.message || "Не удалось сохранить");
+      setSaveError(e?.response?.data?.message || "Could not save changes");
     } finally {
       setSaving(false);
     }
   }
 
   const menuItems = [
-    { icon: "📅", label: "Мои записи", onClick: () => navigate("/appointments") },
-    { icon: "✂️", label: "Найти барбершоп", onClick: () => navigate("/search") },
-    { icon: "⭐", label: "Мои отзывы", onClick: () => navigate("/my-reviews") },
+    { icon: "📅", label: "My bookings", onClick: () => navigate("/appointments") },
+    { icon: "✂️", label: "Find a barbershop", onClick: () => navigate("/search") },
+    { icon: "⭐", label: "My reviews", onClick: () => navigate("/my-reviews") },
   ];
 
   function handleLogout() {
@@ -101,7 +101,7 @@ function ProfilePage() {
                 {name}
               </h1>
               <p style={{ color: "#A8B2C1", fontSize: "13px", marginTop: "4px" }}>
-                Пользователь
+                User
               </p>
             </div>
 
@@ -153,7 +153,7 @@ function ProfilePage() {
               }}
             >
               <span>→</span>
-              Выйти
+              Log out
             </button>
           </aside>
 
@@ -162,8 +162,8 @@ function ProfilePage() {
               className="grid"
               style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "16px" }}
             >
-              <StatCard value={allCount} label="Записей всего" />
-              <StatCard value={completedCount} label="Завершено" />
+              <StatCard value={allCount} label="Total bookings" />
+              <StatCard value={completedCount} label="Completed" />
             </div>
 
             <div
@@ -171,7 +171,7 @@ function ProfilePage() {
             >
               <div className="flex items-center justify-between" style={{ marginBottom: "20px" }}>
                 <h2 className="text-white" style={{ fontSize: "18px", fontWeight: 700 }}>
-                  Мои данные
+                  My details
                 </h2>
                 {!editing && (
                   <button
@@ -188,14 +188,14 @@ function ProfilePage() {
                       cursor: "pointer",
                     }}
                   >
-                    Изменить
+                    Edit
                   </button>
                 )}
               </div>
 
               {editing ? (
                 <div>
-                  <EditField label="Имя" value={editName} onChange={setEditName} />
+                  <EditField label="Name" value={editName} onChange={setEditName} />
                   <InfoRow label="Email" value={email} />
 
                   {saveError && (
@@ -220,7 +220,7 @@ function ProfilePage() {
                         opacity: saving ? 0.7 : 1,
                       }}
                     >
-                      {saving ? "Сохранение..." : "Сохранить"}
+                      {saving ? "Saving..." : "Save"}
                     </button>
                     <button
                       type="button"
@@ -238,16 +238,16 @@ function ProfilePage() {
                         cursor: "pointer",
                       }}
                     >
-                      Отмена
+                      Cancel
                     </button>
                   </div>
                 </div>
               ) : (
                 <>
-                  <InfoRow label="Имя" value={name} />
+                  <InfoRow label="Name" value={name} />
                   <InfoRow label="Email" value={email} />
                   <InfoRow
-                    label="Роль"
+                    label="Role"
                     value={
                       <span
                         style={{

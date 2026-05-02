@@ -9,7 +9,7 @@ function normalizeShop(s) {
     name: s.name,
     rating: s.rating ?? 0,
     reviews: s.reviews_count ?? 0,
-    distance: s.distance_km != null ? `${s.distance_km} км` : "",
+    distance: s.distance_km != null ? `${s.distance_km} km` : "",
     distanceKm: s.distance_km ?? null,
     price: s.price_from ?? s.min_price ?? 0,
     status: s.status ?? "closed",
@@ -45,7 +45,7 @@ function SearchPage() {
         setGeoLoading(false);
       },
       () => {
-        alert("Не удалось определить местоположение. Проверьте настройки браузера.");
+        alert("Could not get your location. Check your browser settings.");
         setGeoLoading(false);
       }
     );
@@ -86,38 +86,38 @@ function SearchPage() {
 
   const filtersContent = (
     <>
-      <FilterSection title="Сортировка">
+      <FilterSection title="Sort by">
         <select
           value={orderBy}
           onChange={(e) => setOrderBy(e.target.value)}
           style={{ width: "100%", backgroundColor: "#1E2A3A", border: "1px solid #2a3a4a", borderRadius: "8px", padding: "8px 10px", color: "#ffffff", fontSize: "13px", cursor: "pointer", outline: "none" }}
         >
-          <option value="">По умолчанию</option>
-          <option value="rating">По рейтингу</option>
-          {userCoords && <option value="distance">По расстоянию</option>}
+          <option value="">Default</option>
+          <option value="rating">Rating</option>
+          {userCoords && <option value="distance">Distance</option>}
         </select>
       </FilterSection>
 
-      <FilterSection title="Статус">
-        <FilterCheckbox icon="🟢" label="Только открытые" checked={onlyOpen} onChange={() => setOnlyOpen((v) => !v)} />
+      <FilterSection title="Status">
+        <FilterCheckbox icon="🟢" label="Open only" checked={onlyOpen} onChange={() => setOnlyOpen((v) => !v)} />
       </FilterSection>
 
-      <FilterSection title="Рейтинг">
-        <FilterCheckbox icon="⭐" label="Топ (4.8+)" checked={ratingFilter === "top"} onChange={() => setRatingFilter(ratingFilter === "top" ? null : "top")} />
-        <FilterCheckbox icon="⭐" label="Хороший (4.0+)" checked={ratingFilter === "good"} onChange={() => setRatingFilter(ratingFilter === "good" ? null : "good")} />
+      <FilterSection title="Rating">
+        <FilterCheckbox icon="⭐" label="Top (4.8+)" checked={ratingFilter === "top"} onChange={() => setRatingFilter(ratingFilter === "top" ? null : "top")} />
+        <FilterCheckbox icon="⭐" label="Good (4.0+)" checked={ratingFilter === "good"} onChange={() => setRatingFilter(ratingFilter === "good" ? null : "good")} />
       </FilterSection>
 
-      <FilterSection title="Моё местоположение">
+      <FilterSection title="My location">
         {userCoords ? (
           <div className="flex items-center" style={{ gap: "6px" }}>
-            <span style={{ color: "#48BB78", fontSize: "13px" }}>✓ Определено</span>
+            <span style={{ color: "#48BB78", fontSize: "13px" }}>✓ Located</span>
             <button type="button" onClick={requestLocation} style={{ color: "#A8B2C1", fontSize: "11px", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>
-              обновить
+              refresh
             </button>
           </div>
         ) : (
           <button type="button" onClick={requestLocation} disabled={geoLoading} style={{ width: "100%", backgroundColor: "#1E2A3A", border: "1px solid #2a3a4a", borderRadius: "8px", padding: "9px 12px", color: geoLoading ? "#A8B2C1" : "#ffffff", fontSize: "13px", fontWeight: 600, cursor: geoLoading ? "not-allowed" : "pointer", textAlign: "left" }}>
-            {geoLoading ? "Определяем..." : "📍 Определить местоположение"}
+            {geoLoading ? "Locating..." : "📍 Use my location"}
           </button>
         )}
       </FilterSection>
@@ -132,18 +132,18 @@ function SearchPage() {
       {/* Desktop sidebar */}
       <aside className="hidden md:block shrink-0" style={{ width: "260px", backgroundColor: "#000000", padding: "24px" }}>
         <h1 className="text-white" style={{ fontSize: "24px", fontWeight: 700, marginBottom: "16px" }}>
-          Поиск
+          Search
         </h1>
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="барбершоп"
+          placeholder="Barbershop"
           className="w-full text-white focus:outline-none"
           style={{ border: "2px solid #E94560", backgroundColor: "transparent", borderRadius: "10px", padding: "10px 14px", fontSize: "14px" }}
         />
         <h2 className="text-white" style={{ fontWeight: 700, marginTop: "24px", marginBottom: "12px" }}>
-          Фильтры
+          Filters
         </h2>
         {filtersContent}
       </aside>
@@ -155,7 +155,7 @@ function SearchPage() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Поиск барбершопа..."
+            placeholder="Search barbershops..."
             className="flex-1 text-white focus:outline-none"
             style={{ border: "2px solid #E94560", backgroundColor: "#1E2A3A", borderRadius: "10px", padding: "10px 14px", fontSize: "14px" }}
           />
@@ -174,7 +174,7 @@ function SearchPage() {
               whiteSpace: "nowrap",
             }}
           >
-            ⚙️ Фильтры
+            ⚙️ Filters
           </button>
         </div>
 
@@ -187,25 +187,25 @@ function SearchPage() {
               onClick={() => setShowMobileFilters(false)}
               style={{ width: "100%", marginTop: "16px", backgroundColor: "#E94560", border: "none", borderRadius: "10px", padding: "10px", color: "#fff", fontSize: "14px", fontWeight: 700, cursor: "pointer" }}
             >
-              Применить
+              Apply
             </button>
           </div>
         )}
 
         <div className="flex items-center" style={{ marginBottom: "16px" }}>
           <p style={{ marginLeft: "auto", color: "#A8B2C1", fontSize: "14px" }}>
-            {loading ? "Поиск..." : `Найдено: ${filteredShops.length}`}
+            {loading ? "Searching..." : `Found: ${filteredShops.length}`}
           </p>
         </div>
 
         {loading ? (
           <div className="flex items-center justify-center rounded-2xl" style={{ backgroundColor: "#1E2A3A", padding: "60px 20px" }}>
-            <p style={{ color: "#A8B2C1", fontSize: "14px" }}>Загрузка...</p>
+            <p style={{ color: "#A8B2C1", fontSize: "14px" }}>Loading...</p>
           </div>
         ) : filteredShops.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-2xl" style={{ backgroundColor: "#1E2A3A", padding: "60px 20px" }}>
-            <p className="text-white" style={{ fontSize: "16px", fontWeight: 600 }}>Ничего не найдено</p>
-            <p style={{ color: "#A8B2C1", fontSize: "14px", marginTop: "6px" }}>Попробуйте изменить фильтры</p>
+            <p className="text-white" style={{ fontSize: "16px", fontWeight: 600 }}>Nothing found</p>
+            <p style={{ color: "#A8B2C1", fontSize: "14px", marginTop: "6px" }}>Try adjusting your filters</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: "16px" }}>

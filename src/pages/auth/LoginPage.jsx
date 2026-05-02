@@ -1,10 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthBrandPanel from "../../components/auth/AuthBrandPanel";
-import { login as apiLogin, loginWithGoogle } from "../../api/authApi";
+import { login as apiLogin } from "../../api/authApi";
 import useAuth from "../../hooks/useAuth";
-
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
 const pageStyle = { backgroundColor: "#171A33" };
 
@@ -38,15 +36,13 @@ function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const googleInitRef = useRef(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
     setErrorMessage("");
 
     if (!email || !password) {
-      setErrorMessage("Заполните все поля");
+      setErrorMessage("Please fill in all fields");
       return;
     }
 
@@ -58,67 +54,10 @@ function LoginPage() {
       if (user.role === "Barbershop") navigate("/barbershop/dashboard");
       else navigate("/home");
     } catch (error) {
-      setErrorMessage(error.message || "Неверный логин или пароль");
+      setErrorMessage(error.message || "Invalid email or password");
     } finally {
       setIsLoading(false);
     }
-  }
-
-  async function handleGoogleCredential(credentialResponse) {
-    const idToken = credentialResponse?.credential;
-    if (!idToken) {
-      setErrorMessage("Не удалось получить токен Google");
-      return;
-    }
-    setIsGoogleLoading(true);
-    setErrorMessage("");
-    try {
-      const { access_token, user } = await loginWithGoogle(idToken);
-      login(user, access_token);
-      if (user.role === "Barbershop") navigate("/barbershop/dashboard");
-      else navigate("/home");
-    } catch (error) {
-      setErrorMessage(error?.response?.data?.message || "Не удалось войти через Google");
-    } finally {
-      setIsGoogleLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    if (!GOOGLE_CLIENT_ID) return;
-    if (googleInitRef.current) return;
-
-    function init() {
-      const google = window.google;
-      if (!google?.accounts?.id) return false;
-      google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        callback: handleGoogleCredential,
-      });
-      googleInitRef.current = true;
-      return true;
-    }
-
-    if (init()) return;
-
-    const interval = setInterval(() => {
-      if (init()) clearInterval(interval);
-    }, 200);
-    return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  function handleGoogleClick() {
-    if (!GOOGLE_CLIENT_ID) {
-      setErrorMessage("Google вход не настроен (нет VITE_GOOGLE_CLIENT_ID)");
-      return;
-    }
-    const google = window.google;
-    if (!google?.accounts?.id) {
-      setErrorMessage("Google SDK ещё не загружен, попробуйте через секунду");
-      return;
-    }
-    google.accounts.id.prompt();
   }
 
   return (
@@ -173,7 +112,7 @@ function LoginPage() {
               textAlign: "center",
             }}
           >
-            Добро пожаловать 👋
+            Welcome 👋
           </h1>
           <p
             style={{
@@ -184,7 +123,7 @@ function LoginPage() {
               marginBottom: "24px",
             }}
           >
-            Войдите в свой аккаунт
+            Sign in to your account
           </p>
 
           <div
@@ -206,7 +145,7 @@ function LoginPage() {
                 marginBottom: "-1px",
               }}
             >
-              Войти
+              Sign in
             </div>
             <div
               role="button"
@@ -225,7 +164,7 @@ function LoginPage() {
                 color: "#A8B2C1",
               }}
             >
-              Регистрация
+              Sign up
             </div>
           </div>
 
@@ -247,7 +186,7 @@ function LoginPage() {
 
             <div style={{ marginBottom: "10px" }}>
               <label htmlFor="login-password" style={labelStyle}>
-                Пароль
+                Password
               </label>
               <div style={{ position: "relative" }}>
                 <input
@@ -274,7 +213,7 @@ function LoginPage() {
                     cursor: "pointer",
                     padding: "4px",
                   }}
-                  aria-label={showPassword ? "Скрыть пароль" : "Показать пароль"}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   👁
                 </button>
@@ -286,8 +225,7 @@ function LoginPage() {
               tabIndex={0}
               onClick={() => navigate("/forgot-password")}
               onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ")
-                  navigate("/forgot-password");
+                if (e.key === "Enter" || e.key === " ") navigate("/forgot-password");
               }}
               style={{
                 textAlign: "right",
@@ -298,7 +236,7 @@ function LoginPage() {
                 marginBottom: "20px",
               }}
             >
-              Забыли пароль?
+              Forgot password?
             </div>
 
             {errorMessage && (
@@ -331,62 +269,9 @@ function LoginPage() {
                 marginBottom: "16px",
               }}
             >
-              {isLoading ? "Входим..." : "Войти"}
+              {isLoading ? "Signing in..." : "Sign in"}
             </button>
           </form>
-
-          <div
-            className="flex items-center"
-            style={{ marginBottom: "16px" }}
-          >
-            <div
-              style={{
-                flex: 1,
-                height: "1px",
-                backgroundColor: "rgba(255,255,255,0.08)",
-              }}
-            />
-            <span
-              style={{
-                color: "#A8B2C1",
-                fontSize: "12px",
-                padding: "0 10px",
-              }}
-            >
-              или
-            </span>
-            <div
-              style={{
-                flex: 1,
-                height: "1px",
-                backgroundColor: "rgba(255,255,255,0.08)",
-              }}
-            />
-          </div>
-
-          <button
-            type="button"
-            onClick={handleGoogleClick}
-            disabled={isGoogleLoading}
-            className="flex items-center justify-center"
-            style={{
-              width: "100%",
-              gap: "10px",
-              background: "transparent",
-              border: "1px solid rgba(255,255,255,0.12)",
-              borderRadius: "10px",
-              padding: "13px",
-              color: "#ffffff",
-              fontSize: "14px",
-              fontWeight: 600,
-              cursor: isGoogleLoading ? "default" : "pointer",
-              opacity: isGoogleLoading ? 0.7 : 1,
-              marginBottom: "20px",
-            }}
-          >
-            <span>🌐</span>
-            {isGoogleLoading ? "Входим через Google..." : "Войти через Google"}
-          </button>
 
           <div
             style={{
@@ -395,7 +280,7 @@ function LoginPage() {
               fontSize: "13px",
             }}
           >
-            Нет аккаунта?{" "}
+            {"Don't have an account? "}
             <span
               role="button"
               tabIndex={0}
@@ -409,7 +294,7 @@ function LoginPage() {
                 cursor: "pointer",
               }}
             >
-              Зарегистрироваться
+              Create account
             </span>
           </div>
         </div>

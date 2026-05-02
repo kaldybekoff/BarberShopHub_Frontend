@@ -1,23 +1,23 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import SuccessCard from "../../components/booking/SuccessCard";
 
-const dayNamesShort = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
-const weekdayAccusative = [
-  "воскресенье",
-  "понедельник",
-  "вторник",
-  "среду",
-  "четверг",
-  "пятницу",
-  "субботу",
+const dayNamesShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const dayNamesLong = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
 ];
 const monthsShort = [
-  "янв", "фев", "мар", "апр", "мая", "июн",
-  "июл", "авг", "сен", "окт", "ноя", "дек",
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ];
-const monthsGenitive = [
-  "января", "февраля", "марта", "апреля", "мая", "июня",
-  "июля", "августа", "сентября", "октября", "ноября", "декабря",
+const monthsLong = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
 ];
 
 function parseDate(dateInput) {
@@ -35,15 +35,15 @@ function formatDateShort(dateInput) {
   return `${dayNamesShort[d.getDay()]}, ${d.getDate()} ${monthsShort[d.getMonth()]}`;
 }
 
-function formatDateAccusative(dateInput) {
+function formatDateLongPhrase(dateInput) {
   const d = parseDate(dateInput);
-  if (!d) return dateInput || "";
-  return `в ${weekdayAccusative[d.getDay()]}, ${d.getDate()} ${monthsGenitive[d.getMonth()]}`;
+  if (!d) return "";
+  return `on ${dayNamesLong[d.getDay()]}, ${monthsLong[d.getMonth()]} ${d.getDate()}`;
 }
 
 function formatPrice(value) {
   if (value == null) return "";
-  return `${Number(value).toLocaleString("ru-RU")}₸`;
+  return `${Number(value).toLocaleString("en-US")}₸`;
 }
 
 function BookingSuccessPage() {
@@ -58,7 +58,7 @@ function BookingSuccessPage() {
         style={{ backgroundColor: "#1A1A2E" }}
       >
         <p className="text-white mb-4" style={{ fontSize: "16px" }}>
-          Данные записи не найдены
+          Booking details not found
         </p>
         <button
           onClick={() => navigate("/home")}
@@ -73,7 +73,7 @@ function BookingSuccessPage() {
             cursor: "pointer",
           }}
         >
-          На главную
+          Back to home
         </button>
       </div>
     );
@@ -90,12 +90,17 @@ function BookingSuccessPage() {
   const price = bookingData.price ?? bookingData.service?.price ?? 0;
 
   const dateShort = formatDateShort(rawDate);
-  const dateAccusative = formatDateAccusative(rawDate);
+  const dateLongPhrase = formatDateLongPhrase(rawDate);
   const dateTime = time ? `${dateShort} · ${time}` : dateShort;
 
-  const subtitle = dateAccusative
-    ? `Ждём тебя ${dateAccusative} в ${time} в ${shopName}`
-    : `Ждём тебя ${shopName ? `в ${shopName}` : ""}`.trim();
+  const subtitle =
+    dateLongPhrase && time && shopName
+      ? `We look forward to seeing you ${dateLongPhrase} at ${time} at ${shopName}.`
+      : dateLongPhrase && time
+        ? `We look forward to seeing you ${dateLongPhrase} at ${time}.`
+        : shopName
+          ? `We look forward to seeing you at ${shopName}.`
+          : "";
 
   return (
     <div
@@ -147,7 +152,7 @@ function BookingSuccessPage() {
             marginBottom: "8px",
           }}
         >
-          Запись подтверждена! 🎉
+          Booking confirmed! 🎉
         </h1>
 
         <p
@@ -192,7 +197,7 @@ function BookingSuccessPage() {
             e.currentTarget.style.backgroundColor = "#E94560";
           }}
         >
-          На главную
+          Back to home
         </button>
       </div>
     </div>

@@ -1,11 +1,11 @@
 const STATUS_BADGES = {
   confirmed: {
-    label: "✓ Подтв.",
+    label: "✓ Conf.",
     color: "#48BB78",
     background: "rgba(72, 187, 120, 0.15)",
   },
   pending: {
-    label: "⏳ Ожидает",
+    label: "⏳ Pending",
     color: "#F6AD55",
     background: "rgba(246, 173, 85, 0.15)",
   },
@@ -19,7 +19,7 @@ function DashboardAppointments({ appointments, onShowAll }) {
           className="text-white"
           style={{ fontSize: "18px", fontWeight: 700 }}
         >
-          Ближайшие записи
+          Upcoming bookings
         </h3>
         <button
           type="button"
@@ -33,7 +33,7 @@ function DashboardAppointments({ appointments, onShowAll }) {
             cursor: "pointer",
           }}
         >
-          Все →
+          All →
         </button>
       </div>
 
@@ -82,7 +82,7 @@ function AppointmentRow({ item }) {
           className="text-white"
           style={{ fontSize: "14px", fontWeight: 500 }}
         >
-          сегодня&nbsp;&nbsp;{item.clientName}
+          today&nbsp;&nbsp;{item.clientName}
         </div>
         <div
           style={{

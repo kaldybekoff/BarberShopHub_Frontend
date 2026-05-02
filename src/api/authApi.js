@@ -4,8 +4,7 @@ function roleFromUser(user) {
   return user?.barbershop_id ? "Barbershop" : "User";
 }
 
-// /auth/me теперь возвращает barbershop_id + barbershop_slug для owner'ов.
-// Используем это как источник правды для роли — без лишнего вызова /owner/dashboard.
+
 async function fetchFullProfile(token) {
   const res = await axiosInstance.get("/auth/me", {
     headers: token ? { Authorization: `Bearer ${token}` } : undefined,

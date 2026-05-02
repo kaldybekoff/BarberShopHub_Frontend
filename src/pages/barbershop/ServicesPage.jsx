@@ -3,7 +3,7 @@ import { getOwnerServices, deleteOwnerService, createOwnerService, updateOwnerSe
 import useIsMobile from "../../hooks/useIsMobile";
 
 function formatPrice(price) {
-  return `${Number(price).toLocaleString("ru-RU")}₸`;
+  return `${Number(price).toLocaleString("en-US")}₸`;
 }
 
 function mapService(s) {
@@ -12,7 +12,7 @@ function mapService(s) {
     name: s.name,
     duration: s.duration_minutes ?? s.duration ?? 0,
     price: s.price,
-    category: s.category?.name ?? s.category ?? "Прочее",
+    category: s.category?.name ?? s.category ?? "Other",
     icon: "✂️",
   };
 }
@@ -87,10 +87,10 @@ function ServicesPage() {
       >
         <div>
           <h1 className="text-white" style={{ fontSize: "22px", fontWeight: 700 }}>
-            Услуги
+            Services
           </h1>
           <p style={{ color: "#A8B2C1", fontSize: "13px", marginTop: "3px" }}>
-            Услуги вашего барбершопа
+            Your barbershop services
           </p>
         </div>
 
@@ -111,7 +111,7 @@ function ServicesPage() {
           onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#c73652"; }}
           onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#E94560"; }}
         >
-          + Добавить услугу
+          + Add service
         </button>
       </div>
 
@@ -120,14 +120,14 @@ function ServicesPage() {
           className="text-center"
           style={{ backgroundColor: "#1E2A3A", borderRadius: "12px", padding: "40px 20px", color: "#A8B2C1", fontSize: "14px" }}
         >
-          Загрузка...
+          Loading...
         </div>
       ) : services.length === 0 ? (
         <div
           className="text-center"
           style={{ backgroundColor: "#1E2A3A", borderRadius: "12px", padding: "40px 20px", color: "#A8B2C1", fontSize: "14px" }}
         >
-          Услуг пока нет
+          No services yet
         </div>
       ) : (
         categories.map((category) => {
@@ -199,14 +199,14 @@ function ServiceModal({ initial, onClose, onSubmit }) {
   async function handleSubmit(e) {
     e.preventDefault();
     if (!form.name.trim() || !form.price || !form.duration) {
-      setError("Заполните все обязательные поля");
+      setError("Please fill in all required fields");
       return;
     }
     setSaving(true);
     setError("");
     await onSubmit({
       name: form.name.trim(),
-      category_name: form.category.trim() || "Прочее",
+      category_name: form.category.trim() || "Other",
       price: Number(form.price),
       duration_minutes: Number(form.duration),
     });
@@ -239,7 +239,7 @@ function ServiceModal({ initial, onClose, onSubmit }) {
       >
         <div className="flex items-center justify-between" style={{ marginBottom: "24px" }}>
           <h2 className="text-white" style={{ fontSize: "18px", fontWeight: 700 }}>
-            {isEdit ? "Редактировать услугу" : "Новая услуга"}
+            {isEdit ? "Edit service" : "New service"}
           </h2>
           <button type="button" onClick={onClose} style={{ background: "none", border: "none", color: "#A8B2C1", fontSize: "20px", cursor: "pointer", lineHeight: 1 }}>
             ✕
@@ -247,24 +247,24 @@ function ServiceModal({ initial, onClose, onSubmit }) {
         </div>
 
         <form onSubmit={handleSubmit}>
-          <Field label="Название *">
+          <Field label="Name *">
             <input
               type="text"
               value={form.name}
               onChange={(e) => set("name", e.target.value)}
-              placeholder="Классическая стрижка"
+              placeholder="Classic haircut"
               style={inputStyle}
               onFocus={(e) => { e.target.style.borderColor = "#E94560"; }}
               onBlur={(e) => { e.target.style.borderColor = "#2a3a4a"; }}
             />
           </Field>
 
-          <Field label="Категория">
+          <Field label="Category">
             <input
               type="text"
               value={form.category}
               onChange={(e) => set("category", e.target.value)}
-              placeholder="Стрижка"
+              placeholder="Haircut"
               style={inputStyle}
               onFocus={(e) => { e.target.style.borderColor = "#E94560"; }}
               onBlur={(e) => { e.target.style.borderColor = "#2a3a4a"; }}
@@ -272,7 +272,7 @@ function ServiceModal({ initial, onClose, onSubmit }) {
           </Field>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-            <Field label="Цена (₸) *">
+            <Field label="Price (₸) *">
               <input
                 type="number"
                 value={form.price}
@@ -284,7 +284,7 @@ function ServiceModal({ initial, onClose, onSubmit }) {
                 onBlur={(e) => { e.target.style.borderColor = "#2a3a4a"; }}
               />
             </Field>
-            <Field label="Длительность (мин) *">
+            <Field label="Duration (min) *">
               <input
                 type="number"
                 value={form.duration}
@@ -318,7 +318,7 @@ function ServiceModal({ initial, onClose, onSubmit }) {
                 cursor: "pointer",
               }}
             >
-              Отмена
+              Cancel
             </button>
             <button
               type="submit"
@@ -336,7 +336,7 @@ function ServiceModal({ initial, onClose, onSubmit }) {
                 opacity: saving ? 0.7 : 1,
               }}
             >
-              {saving ? "Сохранение..." : isEdit ? "Сохранить" : "Добавить"}
+              {saving ? "Saving..." : isEdit ? "Save" : "Add"}
             </button>
           </div>
         </form>
@@ -407,7 +407,7 @@ function ServiceCard({ service, onEdit, onDelete, isMobile }) {
             {service.name}
           </div>
           <div style={{ color: "#A8B2C1", fontSize: "12px", marginTop: "3px" }}>
-            ⏱ {service.duration} мин
+            ⏱ {service.duration} min
           </div>
         </div>
 
@@ -453,7 +453,7 @@ function ServiceCard({ service, onEdit, onDelete, isMobile }) {
           onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.12)"; }}
           onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.06)"; }}
         >
-          Редактировать
+          Edit
         </button>
         <button
           type="button"
@@ -473,7 +473,7 @@ function ServiceCard({ service, onEdit, onDelete, isMobile }) {
           onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(233, 69, 96, 0.18)"; }}
           onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(233, 69, 96, 0.1)"; }}
         >
-          Удалить
+          Delete
         </button>
       </div>
     </div>

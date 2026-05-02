@@ -26,7 +26,7 @@ function ShopDetailsPage() {
         className="min-h-full flex items-center justify-center"
         style={{ backgroundColor: "#1A1A2E" }}
       >
-        <p style={{ color: "#A8B2C1" }}>Загрузка...</p>
+        <p style={{ color: "#A8B2C1" }}>Loading...</p>
       </div>
     );
   }
@@ -37,7 +37,7 @@ function ShopDetailsPage() {
         className="min-h-full flex items-center justify-center"
         style={{ backgroundColor: "#1A1A2E" }}
       >
-        <p className="text-white">Барбершоп не найден</p>
+        <p className="text-white">Barbershop not found</p>
       </div>
     );
   }
@@ -75,7 +75,7 @@ function ShopDetailsPage() {
           className="text-white w-full"
           style={{ backgroundColor: "#E94560", borderRadius: "12px", padding: "14px", fontSize: "16px", fontWeight: 700, border: "none", cursor: "pointer" }}
         >
-          Записаться
+          Book now
         </button>
       </div>
 
@@ -94,7 +94,7 @@ function ShopDetailsPage() {
               <span className="text-white" style={{ fontWeight: 700 }}>
                 {shop.rating}
               </span>
-              <span style={{ color: "#A8B2C1" }}>({reviewsCount} отзывов)</span>
+              <span style={{ color: "#A8B2C1" }}>({reviewsCount} reviews)</span>
             </div>
 
             <div
@@ -123,7 +123,7 @@ function ShopDetailsPage() {
                     display: "inline-block",
                   }}
                 />
-                {isOpen ? `Открыто${closeTime ? ` · до ${closeTime}` : ""}` : "Закрыто"}
+                {isOpen ? `Open${closeTime ? ` · until ${closeTime}` : ""}` : "Closed"}
               </span>
             </div>
 
@@ -158,7 +158,7 @@ function ShopDetailsPage() {
             {activeTab === "masters" && (
               <div style={{ marginTop: "8px" }}>
                 {(shop.barbers ?? []).length === 0 ? (
-                  <p style={{ color: "#A8B2C1", textAlign: "center", padding: "40px" }}>Мастера не добавлены</p>
+                  <p style={{ color: "#A8B2C1", textAlign: "center", padding: "40px" }}>No barbers added yet</p>
                 ) : (shop.barbers ?? []).map((barber) => (
                   <div key={barber.id} className="flex items-center" style={{ backgroundColor: "#1E2A3A", borderRadius: "12px", padding: "16px", gap: "14px", marginBottom: "10px" }}>
                     <div className="flex items-center justify-center shrink-0" style={{ width: "48px", height: "48px", borderRadius: "50%", backgroundColor: "#16213E", fontSize: "20px", overflow: "hidden" }}>
@@ -167,7 +167,7 @@ function ShopDetailsPage() {
                     <div style={{ flex: 1 }}>
                       <p className="text-white" style={{ fontSize: "15px", fontWeight: 700 }}>{barber.name}</p>
                       {barber.specialization && <p style={{ fontSize: "13px", color: "#A8B2C1", marginTop: "2px" }}>{barber.specialization}</p>}
-                      {barber.experience_years != null && <p style={{ fontSize: "12px", color: "#A8B2C1", marginTop: "2px" }}>Опыт: {barber.experience_years} лет</p>}
+                      {barber.experience_years != null && <p style={{ fontSize: "12px", color: "#A8B2C1", marginTop: "2px" }}>Experience: {barber.experience_years} yrs</p>}
                     </div>
                     {barber.rating != null && (
                       <div className="flex items-center" style={{ gap: "4px" }}>
@@ -185,7 +185,7 @@ function ShopDetailsPage() {
             )}
 
             {activeTab === "photos" && (
-              <div style={{ textAlign: "center", padding: "40px", color: "#A8B2C1" }}>Раздел в разработке</div>
+              <div style={{ textAlign: "center", padding: "40px", color: "#A8B2C1" }}>Coming soon</div>
             )}
           </div>
 
@@ -195,7 +195,7 @@ function ShopDetailsPage() {
             style={{ backgroundColor: "#000000", borderRadius: "16px", padding: "24px", position: "sticky", top: "24px" }}
           >
             <h2 className="text-white" style={{ fontSize: "18px", fontWeight: 700, marginBottom: "20px" }}>
-              📅 Записаться
+              📅 Book now
             </h2>
             <button
               type="button"
@@ -205,7 +205,7 @@ function ShopDetailsPage() {
               onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#c73652"; }}
               onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#E94560"; }}
             >
-              Записаться
+              Book now
             </button>
           </aside>
         </div>
@@ -225,7 +225,7 @@ function ReviewsTab({ slug, reviews: initialReviews }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!rating) { setError("Выберите оценку"); return; }
+    if (!rating) { setError("Please select a rating"); return; }
     setLoading(true);
     setError("");
     try {
@@ -235,7 +235,7 @@ function ReviewsTab({ slug, reviews: initialReviews }) {
       setRating(0);
       setComment("");
     } catch {
-      setError("Не удалось отправить отзыв");
+      setError("Could not submit review");
     } finally {
       setLoading(false);
     }
@@ -249,11 +249,11 @@ function ReviewsTab({ slug, reviews: initialReviews }) {
           onClick={() => setShowForm(true)}
           style={{ width: "100%", backgroundColor: "#E94560", color: "#fff", border: "none", borderRadius: "12px", padding: "13px", fontSize: "15px", fontWeight: 700, cursor: "pointer", marginBottom: "16px" }}
         >
-          + Оставить отзыв
+          + Write a review
         </button>
       ) : (
         <form onSubmit={handleSubmit} style={{ backgroundColor: "#1E2A3A", borderRadius: "12px", padding: "16px", marginBottom: "16px" }}>
-          <p className="text-white" style={{ fontWeight: 700, marginBottom: "12px" }}>Ваш отзыв</p>
+          <p className="text-white" style={{ fontWeight: 700, marginBottom: "12px" }}>Your review</p>
 
           <div className="flex" style={{ gap: "6px", marginBottom: "12px" }}>
             {[1, 2, 3, 4, 5].map((star) => (
@@ -272,7 +272,7 @@ function ReviewsTab({ slug, reviews: initialReviews }) {
           <textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            placeholder="Расскажите о вашем опыте..."
+            placeholder="Tell us about your experience..."
             style={{ width: "100%", minHeight: "80px", backgroundColor: "#16213E", border: "1px solid #2a3a4a", borderRadius: "10px", padding: "12px", color: "#fff", fontSize: "14px", resize: "vertical", outline: "none", fontFamily: "inherit", marginBottom: "12px" }}
             onFocus={(e) => { e.target.style.borderColor = "#E94560"; }}
             onBlur={(e) => { e.target.style.borderColor = "#2a3a4a"; }}
@@ -282,23 +282,23 @@ function ReviewsTab({ slug, reviews: initialReviews }) {
 
           <div className="flex" style={{ gap: "8px" }}>
             <button type="button" onClick={() => { setShowForm(false); setError(""); }} style={{ flex: 1, backgroundColor: "transparent", border: "1px solid #2a3a4a", color: "#A8B2C1", borderRadius: "10px", padding: "10px", fontSize: "14px", fontWeight: 600, cursor: "pointer" }}>
-              Отмена
+              Cancel
             </button>
             <button type="submit" disabled={loading} style={{ flex: 2, backgroundColor: "#E94560", border: "none", color: "#fff", borderRadius: "10px", padding: "10px", fontSize: "14px", fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1 }}>
-              {loading ? "Отправка..." : "Отправить"}
+              {loading ? "Sending..." : "Submit"}
             </button>
           </div>
         </form>
       )}
 
       {reviews.length === 0 ? (
-        <p style={{ color: "#A8B2C1", textAlign: "center", padding: "40px" }}>Отзывов пока нет</p>
+        <p style={{ color: "#A8B2C1", textAlign: "center", padding: "40px" }}>No reviews yet</p>
       ) : reviews.map((review) => (
         <div key={review.id} style={{ backgroundColor: "#1E2A3A", borderRadius: "12px", padding: "16px", marginBottom: "10px" }}>
           <div className="flex items-center justify-between" style={{ marginBottom: "6px" }}>
             <span className="text-white" style={{ fontSize: "15px", fontWeight: 600 }}>{review.user_name}</span>
             <span style={{ fontSize: "12px", color: "#A8B2C1" }}>
-              {review.created_at ? new Date(review.created_at).toLocaleDateString("ru-RU") : ""}
+              {review.created_at ? new Date(review.created_at).toLocaleDateString("en-US") : ""}
             </span>
           </div>
           <div style={{ marginBottom: "6px" }}>

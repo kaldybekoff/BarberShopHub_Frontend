@@ -17,8 +17,8 @@ function mapBooking(b) {
     master: barberName,
     masterInitials: initials,
     service: b.service_name ?? b.services?.[0]?.name ?? "—",
-    date: dt.toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" }),
-    time: dt.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }),
+    date: dt.toLocaleDateString("en-US", { day: "2-digit", month: "2-digit", year: "numeric" }),
+    time: dt.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
     price: b.total_price ?? 0,
     status: b.status,
   };
@@ -95,8 +95,8 @@ function MyAppointmentsPage() {
         const dt = new Date(isoDateTime);
         return {
           ...a,
-          date: dt.toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" }),
-          time: dt.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }),
+          date: dt.toLocaleDateString("en-US", { day: "2-digit", month: "2-digit", year: "numeric" }),
+          time: dt.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
           status: "pending",
         };
       })
@@ -107,7 +107,7 @@ function MyAppointmentsPage() {
     <div className="min-h-full font-['Plus_Jakarta_Sans',system-ui]" style={{ backgroundColor: "#1A1A2E" }}>
       <div className="mx-auto" style={{ maxWidth: "980px", padding: "28px 24px 48px" }}>
         <h1 className="text-white" style={{ fontSize: "26px", fontWeight: 700, marginBottom: "24px" }}>
-          Мои записи
+          My bookings
         </h1>
 
         <div
@@ -120,13 +120,13 @@ function MyAppointmentsPage() {
             marginBottom: "20px",
           }}
         >
-          <TabButton label="Предстоящие" active={activeTab === "upcoming"} onClick={() => setActiveTab("upcoming")} />
-          <TabButton label="Прошедшие" active={activeTab === "past"} onClick={() => setActiveTab("past")} />
+          <TabButton label="Upcoming" active={activeTab === "upcoming"} onClick={() => setActiveTab("upcoming")} />
+          <TabButton label="Past" active={activeTab === "past"} onClick={() => setActiveTab("past")} />
         </div>
 
         {initialLoading ? (
           <div className="flex items-center justify-center" style={{ backgroundColor: "#1E2A3A", borderRadius: "16px", padding: "40px 20px", color: "#A8B2C1", fontSize: "14px" }}>
-            Загрузка...
+            Loading...
           </div>
         ) : activeTab === "upcoming" ? (
           <UpcomingSection
@@ -197,7 +197,7 @@ function LoadMoreButton({ onClick, loading }) {
           cursor: loading ? "not-allowed" : "pointer",
         }}
       >
-        {loading ? "Загрузка..." : "Загрузить ещё"}
+        {loading ? "Loading..." : "Load more"}
       </button>
     </div>
   );
@@ -207,15 +207,15 @@ function UpcomingSection({ items, hasMore, loading, onLoadMore, onCancelled, onR
   if (items.length === 0) {
     return (
       <>
-        <SectionLabel title="Предстоящие" count={0} />
-        <EmptyState text="Предстоящих записей нет" />
+        <SectionLabel title="Upcoming" count={0} />
+        <EmptyState text="No upcoming bookings" />
       </>
     );
   }
 
   return (
     <>
-      <SectionLabel title="Предстоящие" count={items.length} />
+      <SectionLabel title="Upcoming" count={items.length} />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ gap: "16px" }}>
         {items.map((appointment) => (
           <AppointmentCard
@@ -235,15 +235,15 @@ function PastSection({ items, hasMore, loading, onLoadMore }) {
   if (items.length === 0) {
     return (
       <>
-        <SectionLabel title="Прошедшие" count={0} />
-        <EmptyState text="История записей пуста" />
+        <SectionLabel title="Past" count={0} />
+        <EmptyState text="No past bookings yet" />
       </>
     );
   }
 
   return (
     <>
-      <SectionLabel title="Прошедшие" count={items.length} />
+      <SectionLabel title="Past" count={items.length} />
       <div>
         {items.map((appointment) => (
           <PastAppointmentRow key={appointment.id} appointment={appointment} />
@@ -278,7 +278,7 @@ function PastAppointmentRow({ appointment }) {
       </div>
 
       <span style={{ color: "#A8B2C1", fontWeight: 700, fontSize: "14px" }}>
-        {Number(appointment.price).toLocaleString("ru-RU")}₸
+        {Number(appointment.price).toLocaleString("en-US")}₸
       </span>
     </div>
   );

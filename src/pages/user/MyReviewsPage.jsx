@@ -20,7 +20,7 @@ function StarRating({ rating }) {
 function ReviewCard({ review }) {
   const navigate = useNavigate();
   const date = review.created_at
-    ? new Date(review.created_at).toLocaleDateString("ru-RU", {
+    ? new Date(review.created_at).toLocaleDateString("en-US", {
         day: "2-digit",
         month: "long",
         year: "numeric",
@@ -112,11 +112,11 @@ function MyReviewsPage() {
           </button>
           <div>
             <h1 className="text-white" style={{ fontSize: "22px", fontWeight: 700 }}>
-              Мои отзывы
+              My reviews
             </h1>
             {!loading && !unavailable && (
               <p style={{ color: "#A8B2C1", fontSize: "13px", marginTop: "2px" }}>
-                {reviews.length} {plural(reviews.length, "отзыв", "отзыва", "отзывов")}
+                {reviews.length} {reviews.length === 1 ? "review" : "reviews"}
               </p>
             )}
           </div>
@@ -134,7 +134,7 @@ function MyReviewsPage() {
               fontSize: "14px",
             }}
           >
-            Загрузка...
+            Loading...
           </div>
         ) : unavailable ? (
           <div
@@ -147,10 +147,10 @@ function MyReviewsPage() {
           >
             <p style={{ fontSize: "32px", marginBottom: "12px" }}>🔧</p>
             <p className="text-white" style={{ fontSize: "16px", fontWeight: 600, marginBottom: "6px" }}>
-              Раздел в разработке
+              Under construction
             </p>
             <p style={{ color: "#A8B2C1", fontSize: "13px" }}>
-              История отзывов появится в ближайшем обновлении
+              Review history will appear in a future update
             </p>
           </div>
         ) : reviews.length === 0 ? (
@@ -164,10 +164,10 @@ function MyReviewsPage() {
           >
             <p style={{ fontSize: "32px", marginBottom: "12px" }}>⭐</p>
             <p className="text-white" style={{ fontSize: "16px", fontWeight: 600, marginBottom: "6px" }}>
-              Отзывов пока нет
+              No reviews yet
             </p>
             <p style={{ color: "#A8B2C1", fontSize: "13px", marginBottom: "20px" }}>
-              После посещения барбершопа вы сможете оставить отзыв
+              After a visit you can leave a review for the barbershop
             </p>
             <button
               type="button"
@@ -183,7 +183,7 @@ function MyReviewsPage() {
                 cursor: "pointer",
               }}
             >
-              Найти барбершоп
+              Find a barbershop
             </button>
           </div>
         ) : (
@@ -196,14 +196,6 @@ function MyReviewsPage() {
       </div>
     </div>
   );
-}
-
-function plural(n, one, few, many) {
-  const mod10 = n % 10;
-  const mod100 = n % 100;
-  if (mod10 === 1 && mod100 !== 11) return one;
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return few;
-  return many;
 }
 
 export default MyReviewsPage;

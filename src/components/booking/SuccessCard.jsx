@@ -1,9 +1,9 @@
 function SuccessCard({ shopName, dateTime, serviceName, price }) {
   const rows = [
-    ["Барбершоп", shopName],
-    ["Дата и время", dateTime],
-    ["Услуга", serviceName],
-    ["Стоимость", price],
+    ["Barbershop", shopName],
+    ["Date & time", dateTime],
+    ["Service", serviceName],
+    ["Price", price],
   ];
 
   return (

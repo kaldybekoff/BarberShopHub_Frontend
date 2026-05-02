@@ -6,7 +6,7 @@ export async function getDashboardStats() {
 }
 
 export async function getCalendar(from, to) {
-  if (!from || !to) throw new Error("Параметры from и to обязательны для /owner/calendar");
+  if (!from || !to) throw new Error("Parameters from and to are required for /owner/calendar");
   const res = await axiosInstance.get("/owner/calendar", { params: { from, to } });
   return res.data.data;
 }
@@ -45,7 +45,7 @@ export async function getOwnerServices() {
     name: item.name,
     duration_minutes: item.duration_minutes,
     price: item.price,
-    category: { name: item.category_name ?? "Прочее" },
+    category: { name: item.category_name ?? "Other" },
   }));
 }
 
