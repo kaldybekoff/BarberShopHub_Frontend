@@ -150,7 +150,7 @@ function WelcomePage() {
             Начать
           </button>
 
-          <div style={{ color: "#A8B2C1", fontSize: "14px", marginBottom: "14px" }}>
+          <div style={{ color: "#A8B2C1", fontSize: "14px" }}>
             Уже есть аккаунт?{" "}
             <span
               role="button"
@@ -160,19 +160,6 @@ function WelcomePage() {
               style={{ color: "#ffffff", fontWeight: 700, cursor: "pointer" }}
             >
               Войти
-            </span>
-          </div>
-
-          <div style={{ fontSize: "14px" }}>
-            <span style={{ color: "#A8B2C1" }}>Вы барбер? </span>
-            <span
-              role="button"
-              tabIndex={0}
-              onClick={() => navigate("/login?role=barbershop")}
-              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") navigate("/login?role=barbershop"); }}
-              style={{ color: "#E94560", fontWeight: 700, cursor: "pointer" }}
-            >
-              Войти как бизнес →
             </span>
           </div>
         </div>

@@ -46,65 +46,6 @@ function formatPrice(value) {
   return `${Number(value).toLocaleString("ru-RU")}₸`;
 }
 
-function pad2(n) {
-  return n.toString().padStart(2, "0");
-}
-
-function buildIcs({
-  title,
-  description,
-  location,
-  startDate,
-  startTime,
-  durationMin,
-}) {
-  const d = parseDate(startDate);
-  if (!d || !/^\d{2}:\d{2}$/.test(startTime)) return null;
-  const [hh, mm] = startTime.split(":").map(Number);
-  d.setHours(hh, mm, 0, 0);
-  const end = new Date(d.getTime() + durationMin * 60 * 1000);
-
-  const fmt = (date) =>
-    `${date.getUTCFullYear()}${pad2(date.getUTCMonth() + 1)}${pad2(
-      date.getUTCDate()
-    )}T${pad2(date.getUTCHours())}${pad2(date.getUTCMinutes())}00Z`;
-
-  const escape = (s) =>
-    String(s || "")
-      .replace(/\\/g, "\\\\")
-      .replace(/\n/g, "\\n")
-      .replace(/,/g, "\\,")
-      .replace(/;/g, "\\;");
-
-  return [
-    "BEGIN:VCALENDAR",
-    "VERSION:2.0",
-    "PRODID:-//BarberHub//RU",
-    "BEGIN:VEVENT",
-    `UID:${Date.now()}@barberhub`,
-    `DTSTAMP:${fmt(new Date())}`,
-    `DTSTART:${fmt(d)}`,
-    `DTEND:${fmt(end)}`,
-    `SUMMARY:${escape(title)}`,
-    `DESCRIPTION:${escape(description)}`,
-    `LOCATION:${escape(location)}`,
-    "END:VEVENT",
-    "END:VCALENDAR",
-  ].join("\r\n");
-}
-
-function downloadFile(filename, content, mime) {
-  const blob = new Blob([content], { type: mime });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
 function BookingSuccessPage() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -139,7 +80,6 @@ function BookingSuccessPage() {
   }
 
   const shopName = bookingData.shopName || "";
-  const shopAddress = bookingData.shopAddress || "";
   const serviceName =
     bookingData.serviceName ||
     bookingData.service?.shortName ||
@@ -147,8 +87,6 @@ function BookingSuccessPage() {
     "";
   const rawDate = bookingData.date || "";
   const time = bookingData.time || "";
-  const duration =
-    bookingData.duration ?? bookingData.service?.duration ?? 30;
   const price = bookingData.price ?? bookingData.service?.price ?? 0;
 
   const dateShort = formatDateShort(rawDate);
@@ -158,24 +96,6 @@ function BookingSuccessPage() {
   const subtitle = dateAccusative
     ? `Ждём тебя ${dateAccusative} в ${time} в ${shopName}`
     : `Ждём тебя ${shopName ? `в ${shopName}` : ""}`.trim();
-
-  async function handleAddToCalendar() {
-    const ics = buildIcs({
-      title: `Запись: ${serviceName}`,
-      description: `Барбершоп: ${shopName}. Услуга: ${serviceName}.`,
-      location: shopAddress || shopName,
-      startDate: rawDate,
-      startTime: time,
-      durationMin: duration,
-    });
-
-    if (!ics) {
-      alert("Не удалось сформировать файл календаря");
-      return;
-    }
-
-    downloadFile("booking.ics", ics, "text/calendar;charset=utf-8");
-  }
 
   return (
     <div
@@ -252,7 +172,7 @@ function BookingSuccessPage() {
 
         <button
           type="button"
-          onClick={handleAddToCalendar}
+          onClick={() => navigate("/home")}
           className="text-white"
           style={{
             width: "100%",
@@ -263,7 +183,6 @@ function BookingSuccessPage() {
             fontWeight: 700,
             border: "none",
             cursor: "pointer",
-            marginBottom: "12px",
             transition: "background-color 0.2s",
           }}
           onMouseEnter={(e) => {
@@ -271,24 +190,6 @@ function BookingSuccessPage() {
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.backgroundColor = "#E94560";
-          }}
-        >
-          📅 Добавить в календарь
-        </button>
-
-        <button
-          type="button"
-          onClick={() => navigate("/home")}
-          className="text-white"
-          style={{
-            width: "100%",
-            backgroundColor: "#16213E",
-            borderRadius: "12px",
-            padding: "14px",
-            fontSize: "14px",
-            fontWeight: 600,
-            border: "none",
-            cursor: "pointer",
           }}
         >
           На главную
