@@ -4,6 +4,7 @@ import StatsCard from "../../components/barbershop/StatsCard";
 import RevenueChart from "../../components/barbershop/RevenueChart";
 import DashboardAppointments from "../../components/barbershop/DashboardAppointments";
 import { getDashboardStats } from "../../api/dashboardApi";
+import useIsMobile from "../../hooks/useIsMobile";
 
 const DAY_LABELS = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
 
@@ -92,6 +93,7 @@ function mapRevenueData(revenueByDay) {
 
 function BarbershopDashboardPage() {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [dashData, setDashData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -108,10 +110,12 @@ function BarbershopDashboardPage() {
   const shopName = dashData?.barbershop?.name ?? "";
   const weeklyRevenue = formatPrice(dashData?.week_revenue?.amount);
 
+  const pad = isMobile ? "16px" : "32px";
+
   if (loading) {
     return (
       <div
-        style={{ backgroundColor: "#1A1A2E", padding: "32px", minHeight: "100%" }}
+        style={{ backgroundColor: "#1A1A2E", padding: pad, minHeight: "100%" }}
         className="flex items-center justify-center"
       >
         <p style={{ color: "#A8B2C1" }}>Загрузка...</p>
@@ -123,7 +127,7 @@ function BarbershopDashboardPage() {
     <div
       style={{
         backgroundColor: "#1A1A2E",
-        padding: "32px",
+        padding: pad,
         minHeight: "100%",
         overflowY: "auto",
       }}
@@ -135,7 +139,7 @@ function BarbershopDashboardPage() {
         <div>
           <h1
             className="text-white"
-            style={{ fontSize: "28px", fontWeight: 700, lineHeight: 1.2 }}
+            style={{ fontSize: isMobile ? "22px" : "28px", fontWeight: 700, lineHeight: 1.2 }}
           >
             Добрый день 👋
           </h1>
@@ -149,8 +153,8 @@ function BarbershopDashboardPage() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
-          gap: "16px",
+          gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)",
+          gap: isMobile ? "12px" : "16px",
         }}
       >
         {stats.map((stat) => (

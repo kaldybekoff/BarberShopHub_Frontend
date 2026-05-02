@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { getOwnerServices, deleteOwnerService, createOwnerService, updateOwnerService } from "../../api/dashboardApi";
+import useIsMobile from "../../hooks/useIsMobile";
 
 function formatPrice(price) {
   return `${Number(price).toLocaleString("ru-RU")}₸`;
@@ -17,6 +18,7 @@ function mapService(s) {
 }
 
 function ServicesPage() {
+  const isMobile = useIsMobile();
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -75,8 +77,10 @@ function ServicesPage() {
     }
   }
 
+  const pad = isMobile ? "16px" : "28px 32px";
+
   return (
-    <div style={{ backgroundColor: "#1A1A2E", padding: "28px 32px", minHeight: "100vh" }}>
+    <div style={{ backgroundColor: "#1A1A2E", padding: pad, minHeight: "100vh" }}>
       <div
         className="flex items-center justify-between"
         style={{ marginBottom: "24px", gap: "16px", flexWrap: "wrap" }}
@@ -156,6 +160,7 @@ function ServicesPage() {
                     service={service}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
+                    isMobile={isMobile}
                   />
                 ))}
               </div>
@@ -365,21 +370,24 @@ function Field({ label, children }) {
   );
 }
 
-function ServiceCard({ service, onEdit, onDelete }) {
+function ServiceCard({ service, onEdit, onDelete, isMobile }) {
   return (
     <div
-      className="flex items-center justify-between"
       style={{
         backgroundColor: "#1E2A3A",
         borderRadius: "12px",
         padding: "16px 20px",
-        gap: "16px",
-        flex: "1 1 440px",
+        gap: "12px",
+        flex: isMobile ? "1 1 100%" : "1 1 440px",
         minWidth: 0,
         border: "1px solid rgba(255,255,255,0.04)",
+        display: "flex",
+        flexDirection: isMobile ? "column" : "row",
+        alignItems: isMobile ? "flex-start" : "center",
+        justifyContent: isMobile ? "flex-start" : "space-between",
       }}
     >
-      <div className="flex items-center" style={{ gap: "14px", flex: 1, minWidth: 0 }}>
+      <div className="flex items-center" style={{ gap: "14px", flex: 1, minWidth: 0, width: "100%" }}>
         <div
           className="flex items-center justify-center"
           style={{
@@ -394,7 +402,7 @@ function ServiceCard({ service, onEdit, onDelete }) {
           {service.icon}
         </div>
 
-        <div style={{ minWidth: 0 }}>
+        <div style={{ minWidth: 0, flex: 1 }}>
           <div className="text-white truncate" style={{ fontSize: "15px", fontWeight: 600 }}>
             {service.name}
           </div>
@@ -402,55 +410,71 @@ function ServiceCard({ service, onEdit, onDelete }) {
             ⏱ {service.duration} мин
           </div>
         </div>
+
+        {isMobile && (
+          <span className="text-white" style={{ fontSize: "16px", fontWeight: 700, whiteSpace: "nowrap", flexShrink: 0 }}>
+            {formatPrice(service.price)}
+          </span>
+        )}
       </div>
 
-      <div className="flex items-center" style={{ gap: "16px", flexShrink: 0 }}>
-        <span className="text-white" style={{ fontSize: "16px", fontWeight: 700, whiteSpace: "nowrap" }}>
-          {formatPrice(service.price)}
-        </span>
+      <div
+        className="flex items-center"
+        style={{
+          gap: "8px",
+          flexShrink: 0,
+          width: isMobile ? "100%" : "auto",
+        }}
+      >
+        {!isMobile && (
+          <>
+            <span className="text-white" style={{ fontSize: "16px", fontWeight: 700, whiteSpace: "nowrap" }}>
+              {formatPrice(service.price)}
+            </span>
+            <div style={{ width: "1px", height: "28px", backgroundColor: "rgba(255,255,255,0.08)" }} />
+          </>
+        )}
 
-        <div style={{ width: "1px", height: "28px", backgroundColor: "rgba(255,255,255,0.08)" }} />
-
-        <div className="flex items-center" style={{ gap: "8px" }}>
-          <button
-            type="button"
-            onClick={() => onEdit(service.id)}
-            style={{
-              backgroundColor: "rgba(255,255,255,0.06)",
-              color: "#C8D0DC",
-              border: "1px solid rgba(255,255,255,0.1)",
-              borderRadius: "8px",
-              padding: "8px 14px",
-              fontSize: "12px",
-              fontWeight: 600,
-              cursor: "pointer",
-              transition: "background-color 0.15s",
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.12)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.06)"; }}
-          >
-            Редактировать
-          </button>
-          <button
-            type="button"
-            onClick={() => onDelete(service.id)}
-            style={{
-              backgroundColor: "rgba(233, 69, 96, 0.1)",
-              color: "#E94560",
-              border: "1px solid rgba(233, 69, 96, 0.2)",
-              borderRadius: "8px",
-              padding: "8px 14px",
-              fontSize: "12px",
-              fontWeight: 600,
-              cursor: "pointer",
-              transition: "background-color 0.15s",
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(233, 69, 96, 0.18)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(233, 69, 96, 0.1)"; }}
-          >
-            Удалить
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => onEdit(service.id)}
+          style={{
+            backgroundColor: "rgba(255,255,255,0.06)",
+            color: "#C8D0DC",
+            border: "1px solid rgba(255,255,255,0.1)",
+            borderRadius: "8px",
+            padding: "8px 14px",
+            fontSize: "12px",
+            fontWeight: 600,
+            cursor: "pointer",
+            transition: "background-color 0.15s",
+            flex: isMobile ? 1 : "unset",
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.12)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.06)"; }}
+        >
+          Редактировать
+        </button>
+        <button
+          type="button"
+          onClick={() => onDelete(service.id)}
+          style={{
+            backgroundColor: "rgba(233, 69, 96, 0.1)",
+            color: "#E94560",
+            border: "1px solid rgba(233, 69, 96, 0.2)",
+            borderRadius: "8px",
+            padding: "8px 14px",
+            fontSize: "12px",
+            fontWeight: 600,
+            cursor: "pointer",
+            transition: "background-color 0.15s",
+            flex: isMobile ? 1 : "unset",
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(233, 69, 96, 0.18)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(233, 69, 96, 0.1)"; }}
+        >
+          Удалить
+        </button>
       </div>
     </div>
   );
