@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { getOwnerBookings, cancelOwnerBooking, completeOwnerBooking } from "../../api/dashboardApi";
+import { getOwnerBookings, cancelOwnerBooking, completeOwnerBooking, confirmOwnerBooking } from "../../api/dashboardApi";
 import useIsMobile from "../../hooks/useIsMobile";
 
 const filters = [
@@ -40,6 +40,7 @@ function mapBooking(b) {
   return {
     id: b.id,
     clientName: b.client_name ?? b.barbershop_name ?? "—",
+    clientPhone: b.client_phone ?? null,
     service: serviceLabel,
     master: b.barber_name ?? "—",
     date,
@@ -70,6 +71,17 @@ function BookingsPage() {
   useEffect(() => {
     loadBookings(activeFilter);
   }, [activeFilter, loadBookings]);
+
+  async function handleConfirm(id) {
+    try {
+      await confirmOwnerBooking(id);
+      setBookings((prev) =>
+        prev.map((b) => (b.id === id ? { ...b, status: "confirmed" } : b))
+      );
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
   async function handleComplete(id) {
     try {
@@ -146,6 +158,7 @@ function BookingsPage() {
             <BookingCard
               key={booking.id}
               booking={booking}
+              onConfirm={handleConfirm}
               onComplete={handleComplete}
               onCancel={handleCancel}
             />
@@ -156,7 +169,7 @@ function BookingsPage() {
   );
 }
 
-function BookingCard({ booking, onComplete, onCancel }) {
+function BookingCard({ booking, onConfirm, onComplete, onCancel }) {
   const badge = statusBadges[booking.status] ?? statusBadges.confirmed;
   const isCancelled = booking.status === "cancelled";
   const isPending = booking.status === "pending";
@@ -178,13 +191,18 @@ function BookingCard({ booking, onComplete, onCancel }) {
           <div className="text-white" style={{ fontSize: "15px", fontWeight: 600 }}>
             {booking.clientName}
           </div>
-          <div className="flex flex-wrap" style={{ marginTop: "4px", gap: "20px", fontSize: "13px", color: "#A8B2C1" }}>
+          <div className="flex flex-wrap" style={{ marginTop: "4px", gap: "12px 20px", fontSize: "13px", color: "#A8B2C1" }}>
             <span>
               Услуга: <span style={{ color: "#C8D0DC" }}>{booking.service}</span>
             </span>
             <span>
               Мастер: <span style={{ color: "#C8D0DC" }}>{booking.master}</span>
             </span>
+            {booking.clientPhone && (
+              <span>
+                Тел: <a href={`tel:${booking.clientPhone}`} style={{ color: "#C8D0DC", textDecoration: "none" }}>{booking.clientPhone}</a>
+              </span>
+            )}
           </div>
         </div>
 
@@ -217,12 +235,29 @@ function BookingCard({ booking, onComplete, onCancel }) {
       </div>
 
       {isPending && (
-        <div style={{ marginTop: "12px" }}>
+        <div style={{ display: "flex", gap: "8px", marginTop: "12px" }}>
+          <button
+            type="button"
+            onClick={() => onConfirm(booking.id)}
+            style={{
+              flex: 1,
+              background: "rgba(72, 187, 120, 0.15)",
+              color: "#48BB78",
+              border: "1px solid rgba(72, 187, 120, 0.3)",
+              borderRadius: "8px",
+              padding: "9px",
+              fontSize: "13px",
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            ✓ Подтвердить
+          </button>
           <button
             type="button"
             onClick={() => onCancel(booking.id)}
             style={{
-              width: "100%",
+              flex: 1,
               background: "rgba(233, 69, 96, 0.1)",
               color: "#E94560",
               border: "1px solid rgba(233, 69, 96, 0.25)",
