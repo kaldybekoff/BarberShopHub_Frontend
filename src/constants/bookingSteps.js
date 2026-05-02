@@ -1,7 +1,7 @@
 const bookingSteps = [
-  { step: 1, label: "Услуга" },
-  { step: 2, label: "Мастер и время" },
-  { step: 3, label: "Подтверждение" },
+  { step: 1, label: "Service" },
+  { step: 2, label: "Barber & time" },
+  { step: 3, label: "Confirmation" },
 ];
 
 export default bookingSteps;

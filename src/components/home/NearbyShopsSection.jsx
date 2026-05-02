@@ -12,7 +12,7 @@ function NearbyShopsSection({ shops }) {
           className="text-white"
           style={{ fontSize: "20px", fontWeight: 700 }}
         >
-          Рядом с тобой
+          Near you
         </h2>
         <Link
           to="/search"
@@ -25,7 +25,7 @@ function NearbyShopsSection({ shops }) {
             textDecoration: "none",
           }}
         >
-          Все →
+          See all →
         </Link>
       </div>
 

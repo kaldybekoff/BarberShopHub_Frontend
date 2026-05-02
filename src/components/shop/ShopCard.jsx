@@ -5,7 +5,7 @@ function ShopCard({ shop, variant = "search" }) {
 
   const price = shop.price_from ?? shop.min_price ?? shop.price ?? shop.priceFrom;
   const reviewsCount = shop.reviews_count ?? shop.reviews ?? shop.reviewCount ?? 0;
-  const rawDistance = shop.distance_km != null ? `${shop.distance_km} км` : (shop.distance ?? "");
+  const rawDistance = shop.distance_km != null ? `${shop.distance_km} km` : (shop.distance ?? "");
   const status = shop.status ?? "closed";
   const isOpen = status === "open";
 
@@ -40,7 +40,7 @@ function ShopCard({ shop, variant = "search" }) {
               fontWeight: 600,
             }}
           >
-            ● {isOpen ? "Открыто" : "Скоро"}
+            ● {isOpen ? "Open" : "Soon"}
           </span>
         )}
       </div>
@@ -78,7 +78,7 @@ function ShopCard({ shop, variant = "search" }) {
               marginBottom: "14px",
             }}
           >
-            от {price}₸
+            from {price}₸
           </p>
 
           <button
@@ -102,7 +102,7 @@ function ShopCard({ shop, variant = "search" }) {
               e.currentTarget.style.backgroundColor = "#E94560";
             }}
           >
-            Записаться
+            Book now
           </button>
         </div>
       ) : (
@@ -139,7 +139,7 @@ function ShopCard({ shop, variant = "search" }) {
                 fontWeight: 700,
               }}
             >
-              от {price}₸
+              from {price}₸
             </span>
 
             <button
@@ -157,7 +157,7 @@ function ShopCard({ shop, variant = "search" }) {
                 cursor: "pointer",
               }}
             >
-              Посмотреть
+              View
             </button>
           </div>
         </div>

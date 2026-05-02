@@ -14,7 +14,7 @@ function RevenueChart({ data, total }) {
           className="text-white"
           style={{ fontSize: "18px", fontWeight: 700 }}
         >
-          Выручка за 7 дней
+          Revenue (7 days)
         </h3>
         <span
           style={{

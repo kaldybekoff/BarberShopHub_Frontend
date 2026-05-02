@@ -1,7 +1,7 @@
 const steps = [
-  { num: 1, label: "1. Услуга" },
-  { num: 2, label: "2. Время" },
-  { num: 3, label: "3. Подтверждение" },
+  { num: 1, label: "1. Service" },
+  { num: 2, label: "2. Time" },
+  { num: 3, label: "3. Confirm" },
 ];
 
 function BookingSteps({ currentStep }) {

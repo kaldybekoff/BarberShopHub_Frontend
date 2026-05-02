@@ -29,7 +29,7 @@ Barbershop owners get a dashboard with daily stats, a calendar view of bookings 
 | Styling   | Tailwind CSS                                     |
 | Routing   | React Router                                     |
 | HTTP      | Axios                                            |
-| Auth      | JWT in `localStorage` + Google Identity Services |
+| Auth      | JWT in `localStorage`                            |
 | Language  | JavaScript                                       |
 | Backend   | PHP / Laravel (separate repo, hosted on Railway) |
 
@@ -49,10 +49,9 @@ npm run dev
 
 Open `http://localhost:5173`.
 
-Copy `.env.example` to `.env.local` and fill in the values:
+Copy `.env.example` to `.env.local` and set the API base URL if needed:
 
 ```
-VITE_GOOGLE_CLIENT_ID=your-google-oauth-client-id
 VITE_API_BASE_URL=https://your-backend-host/api/v1
 ```
 

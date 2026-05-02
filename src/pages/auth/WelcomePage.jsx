@@ -52,7 +52,7 @@ function WelcomePage() {
           </div>
 
           <p style={{ marginTop: "10px", color: "#A8B2C1", fontSize: "15px", letterSpacing: "0.02em" }}>
-            Твой барбер в один клик
+            Your barber, one tap away
           </p>
         </div>
 
@@ -103,7 +103,7 @@ function WelcomePage() {
             Barber<span style={{ color: "#E94560" }}>Hub</span>
           </div>
           <p style={{ marginTop: "6px", color: "#A8B2C1", fontSize: "13px" }}>
-            Твой барбер в один клик
+            Your barber, one tap away
           </p>
         </div>
 
@@ -117,7 +117,7 @@ function WelcomePage() {
               marginBottom: "16px",
             }}
           >
-            Найди лучший барбершоп рядом
+            Find the best barbershop near you
           </h1>
 
           <p
@@ -128,7 +128,7 @@ function WelcomePage() {
               marginBottom: "40px",
             }}
           >
-            Сотни проверенных барбершопов с реальными отзывами и ценами
+            Hundreds of trusted barbershops with real reviews and clear prices
           </p>
 
           <button
@@ -147,11 +147,11 @@ function WelcomePage() {
               marginBottom: "20px",
             }}
           >
-            Начать
+            Get started
           </button>
 
           <div style={{ color: "#A8B2C1", fontSize: "14px" }}>
-            Уже есть аккаунт?{" "}
+            Already have an account?{" "}
             <span
               role="button"
               tabIndex={0}
@@ -159,7 +159,7 @@ function WelcomePage() {
               onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") navigate("/login"); }}
               style={{ color: "#ffffff", fontWeight: 700, cursor: "pointer" }}
             >
-              Войти
+              Sign in
             </span>
           </div>
         </div>

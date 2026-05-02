@@ -10,16 +10,17 @@ import DateSelector from "../../components/booking/DateSelector";
 import TimeSlotGrid from "../../components/booking/TimeSlotGrid";
 import BookingSummary from "../../components/booking/BookingSummary";
 import ReminderToggle from "../../components/booking/ReminderToggle";
+import { formatLocalDateKey } from "../../utils/formatDate";
 
-const dayNames = ["ВС", "ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"];
-const dayNamesShort = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
+const dayNames = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+const dayNamesShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const monthNames = [
-  "января", "февраля", "марта", "апреля", "мая", "июня",
-  "июля", "августа", "сентября", "октября", "ноября", "декабря",
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
 ];
 const monthNamesShort = [
-  "янв", "фев", "мар", "апр", "мая", "июн",
-  "июл", "авг", "сен", "окт", "ноя", "дек",
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ];
 
 function buildDays(count) {
@@ -35,17 +36,17 @@ function buildDays(count) {
       number: date,
       display: `${dayNamesShort[dow]}, ${date} ${monthNames[month]}`,
       summaryDisplay: `${dayNamesShort[dow]}, ${date} ${monthNamesShort[month]}`,
-      key: d.toISOString().slice(0, 10),
+      key: formatLocalDateKey(d),
     };
   });
 }
 
-const stepTitles = ["Выбор услуги", "Мастер и время", "Подтверждение"];
+const stepTitles = ["Choose service", "Barber & time", "Confirmation"];
 
 function normalizeService(s, categoryName) {
   return {
     id: s.id,
-    category: categoryName ?? s.category?.name ?? s.category ?? "Прочее",
+    category: categoryName ?? s.category?.name ?? s.category ?? "Other",
     icon: "✂️",
     name: s.name,
     shortName: s.short_name ?? s.name,
@@ -55,7 +56,7 @@ function normalizeService(s, categoryName) {
 }
 
 function normalizeMaster(b, index) {
-  const name = b.name ?? b.barber_name ?? `Мастер ${index + 1}`;
+  const name = b.name ?? b.barber_name ?? `Barber ${index + 1}`;
   const initials = name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
   return {
     id: b.id,
@@ -99,7 +100,7 @@ function BookingPage() {
         setServices(svcList);
         if (svcList.length > 0) setSelectedService(svcList[0]);
 
-        const anyMaster = { id: 0, initials: "⚡", name: "Любой", rating: null };
+        const anyMaster = { id: 0, initials: "⚡", name: "Any", rating: null };
         const barbers = (data.barbers ?? data.masters ?? []).map(normalizeMaster);
         const masterList = [anyMaster, ...barbers];
         setMasters(masterList);
@@ -139,7 +140,7 @@ function BookingPage() {
         className="min-h-screen flex items-center justify-center"
         style={{ backgroundColor: colors.primary }}
       >
-        <p style={{ color: "#A8B2C1" }}>Загрузка...</p>
+        <p style={{ color: "#A8B2C1" }}>Loading...</p>
       </div>
     );
   }
@@ -150,7 +151,7 @@ function BookingPage() {
         className="min-h-screen flex items-center justify-center"
         style={{ backgroundColor: colors.primary }}
       >
-        <p className="text-white">Барбершоп не найден</p>
+        <p className="text-white">Barbershop not found</p>
       </div>
     );
   }
@@ -162,8 +163,8 @@ function BookingPage() {
 
   async function handleConfirm() {
     setBookingError("");
-    if (!selectedTime) { setBookingError("Выберите время записи"); return; }
-    if (!selectedService) { setBookingError("Выберите услугу"); return; }
+    if (!selectedTime) { setBookingError("Please select a time slot"); return; }
+    if (!selectedService) { setBookingError("Please select a service"); return; }
 
     const timeStr = selectedTime.split(":").length === 2 ? `${selectedTime}:00` : selectedTime;
     const bookingData = {
@@ -183,7 +184,7 @@ function BookingPage() {
           shopName: shop.name,
           shopAddress: shop.address,
           serviceName: selectedService?.shortName || selectedService?.name || "",
-          masterName: selectedMaster?.name || "Любой доступный",
+          masterName: selectedMaster?.name || "Any available",
           date: selectedDay?.key || null,
           time: selectedTime,
           duration: selectedService?.duration || 30,
@@ -191,13 +192,13 @@ function BookingPage() {
         },
       });
     } catch (error) {
-      console.error("Ошибка при создании записи:", error);
+      console.error("Error creating booking:", error);
       const msg =
         error?.response?.data?.message ||
         (error?.response?.data?.errors
           ? Object.values(error.response.data.errors).flat().join(", ")
           : null) ||
-        "Не удалось создать запись. Попробуйте снова.";
+        "Could not create booking. Please try again.";
       setBookingError(msg);
     } finally {
       setIsSubmitting(false);
@@ -244,7 +245,7 @@ function BookingPage() {
             color: "#A8B2C1",
           }}
         >
-          шаг {currentStep} из 3
+          step {currentStep} of 3
         </span>
       </div>
 
@@ -275,7 +276,7 @@ function BookingPage() {
                 className="text-white"
                 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "16px" }}
               >
-                Выберите мастера
+                Choose a barber
               </h2>
               <div style={{ marginBottom: "32px" }}>
                 <MasterSelector
@@ -289,7 +290,7 @@ function BookingPage() {
                 className="text-white"
                 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "16px" }}
               >
-                Выберите дату
+                Choose a date
               </h2>
               <div style={{ marginBottom: "32px" }}>
                 <DateSelector
@@ -303,12 +304,12 @@ function BookingPage() {
                 className="text-white"
                 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "16px" }}
               >
-                Выберите время
+                Choose a time
               </h2>
               {loadingSlots ? (
-                <p style={{ color: "#A8B2C1", fontSize: "14px" }}>Загрузка слотов...</p>
+                <p style={{ color: "#A8B2C1", fontSize: "14px" }}>Loading slots...</p>
               ) : timeSlots.length === 0 ? (
-                <p style={{ color: "#A8B2C1", fontSize: "14px" }}>Нет свободных слотов</p>
+                <p style={{ color: "#A8B2C1", fontSize: "14px" }}>No available slots</p>
               ) : (
                 <TimeSlotGrid
                   slots={timeSlots}
@@ -322,7 +323,7 @@ function BookingPage() {
           {currentStep === 3 && (
             <Step3Details
               shop={shop}
-              masterName={selectedMaster ? selectedMaster.name : "Любой доступный"}
+              masterName={selectedMaster ? selectedMaster.name : "Any available"}
               serviceName={selectedService?.name}
               dateDisplay={selectedDate}
               time={selectedTime}
@@ -367,7 +368,7 @@ function BookingPage() {
                   ? `${selectedDay.summaryDisplay} · ${selectedTime}`
                   : "—"
               }
-              masterName={selectedMaster ? selectedMaster.name : "Любой доступный"}
+              masterName={selectedMaster ? selectedMaster.name : "Any available"}
               serviceShortName={selectedService?.shortName || selectedService?.name || "—"}
               duration={selectedService?.duration}
               price={selectedService?.price}
@@ -397,7 +398,7 @@ function OrderWidget({ service, onNext }) {
       }}
     >
       <h2 className="text-white" style={{ fontSize: "18px", fontWeight: 700, marginBottom: "20px" }}>
-        Ваш заказ
+        Your order
       </h2>
 
       {hasService ? (
@@ -405,33 +406,33 @@ function OrderWidget({ service, onNext }) {
           className="grid"
           style={{ gridTemplateColumns: "1fr 1fr", rowGap: "12px", marginBottom: "20px" }}
         >
-          <span style={{ fontSize: "14px", color: "#A8B2C1" }}>Услуга</span>
+          <span style={{ fontSize: "14px", color: "#A8B2C1" }}>Service</span>
           <span className="text-white" style={{ fontSize: "14px", fontWeight: 600, textAlign: "right" }}>
             {service.shortName || service.name}
           </span>
 
-          <span style={{ fontSize: "14px", color: "#A8B2C1" }}>Длительность</span>
+          <span style={{ fontSize: "14px", color: "#A8B2C1" }}>Duration</span>
           <span className="text-white" style={{ fontSize: "14px", fontWeight: 600, textAlign: "right" }}>
-            {service.duration} мин
+            {service.duration} min
           </span>
 
-          <span style={{ fontSize: "14px", color: "#A8B2C1" }}>Стоимость</span>
+          <span style={{ fontSize: "14px", color: "#A8B2C1" }}>Price</span>
           <span className="text-white" style={{ fontSize: "14px", fontWeight: 600, textAlign: "right" }}>
-            {Number(service.price).toLocaleString("ru-RU")}₸
+            {Number(service.price).toLocaleString("en-US")}₸
           </span>
         </div>
       ) : (
         <p style={{ textAlign: "center", color: "#A8B2C1", padding: "20px 0", marginBottom: "20px" }}>
-          Выберите услугу
+          Select a service
         </p>
       )}
 
       <div style={{ height: "1px", backgroundColor: "#2a3a4a", marginBottom: "16px" }} />
 
       <div className="flex items-center justify-between" style={{ marginBottom: "20px" }}>
-        <span className="text-white" style={{ fontSize: "16px", fontWeight: 600 }}>Итого</span>
+        <span className="text-white" style={{ fontSize: "16px", fontWeight: 600 }}>Total</span>
         <span style={{ fontSize: "20px", fontWeight: 700, color: "#E94560" }}>
-          {hasService ? `${Number(service.price).toLocaleString("ru-RU")}₸` : "0₸"}
+          {hasService ? `${Number(service.price).toLocaleString("en-US")}₸` : "0₸"}
         </span>
       </div>
 
@@ -452,7 +453,7 @@ function OrderWidget({ service, onNext }) {
           opacity: hasService ? 1 : 0.5,
         }}
       >
-        Далее →
+        Next →
       </button>
     </aside>
   );
@@ -460,11 +461,11 @@ function OrderWidget({ service, onNext }) {
 
 function Step2OrderWidget({ master, service, date, time, canProceed, onNext }) {
   const rows = [
-    ["Мастер", master?.name || "—"],
-    ["Услуга", service?.shortName || service?.name || "—"],
-    ["Дата", date || "—"],
-    ["Время", time || "—"],
-    ["Стоимость", service ? `${Number(service.price).toLocaleString("ru-RU")}₸` : "—"],
+    ["Barber", master?.name || "—"],
+    ["Service", service?.shortName || service?.name || "—"],
+    ["Date", date || "—"],
+    ["Time", time || "—"],
+    ["Price", service ? `${Number(service.price).toLocaleString("en-US")}₸` : "—"],
   ];
 
   return (
@@ -479,7 +480,7 @@ function Step2OrderWidget({ master, service, date, time, canProceed, onNext }) {
       }}
     >
       <h2 className="text-white" style={{ fontSize: "18px", fontWeight: 700, marginBottom: "16px" }}>
-        Ваш заказ
+        Your order
       </h2>
 
       <div
@@ -494,9 +495,9 @@ function Step2OrderWidget({ master, service, date, time, canProceed, onNext }) {
       <div style={{ height: "1px", backgroundColor: "#2a3a4a", marginBottom: "16px" }} />
 
       <div className="flex items-center justify-between" style={{ marginBottom: "20px" }}>
-        <span className="text-white" style={{ fontSize: "16px", fontWeight: 600 }}>Итого</span>
+        <span className="text-white" style={{ fontSize: "16px", fontWeight: 600 }}>Total</span>
         <span style={{ fontSize: "20px", fontWeight: 700, color: "#E94560" }}>
-          {service ? `${Number(service.price).toLocaleString("ru-RU")}₸` : "0₸"}
+          {service ? `${Number(service.price).toLocaleString("en-US")}₸` : "0₸"}
         </span>
       </div>
 
@@ -517,7 +518,7 @@ function Step2OrderWidget({ master, service, date, time, canProceed, onNext }) {
           opacity: canProceed ? 1 : 0.5,
         }}
       >
-        Далее →
+        Next →
       </button>
     </aside>
   );
@@ -539,17 +540,17 @@ function Step3Details({
   duration, price, comment, onCommentChange, reminder, onReminderChange,
 }) {
   const rows = [
-    ["Мастер", masterName || "—"],
-    ["Услуга", serviceName || "—"],
-    ["Дата", dateDisplay || "—"],
-    ["Время", time || "—"],
-    ["Длительность", duration ? `~${duration} минут` : "—"],
+    ["Barber", masterName || "—"],
+    ["Service", serviceName || "—"],
+    ["Date", dateDisplay || "—"],
+    ["Time", time || "—"],
+    ["Duration", duration ? `~${duration} min` : "—"],
   ];
 
   return (
     <div>
       <h2 className="text-white" style={{ fontSize: "20px", fontWeight: 700, marginBottom: "16px" }}>
-        Детали записи
+        Booking details
       </h2>
 
       <div
@@ -602,21 +603,21 @@ function Step3Details({
         ))}
 
         <div className="flex items-center justify-between" style={{ padding: "14px 0", marginTop: "4px" }}>
-          <span className="text-white" style={{ fontSize: "16px", fontWeight: 600 }}>Итого</span>
+          <span className="text-white" style={{ fontSize: "16px", fontWeight: 600 }}>Total</span>
           <span style={{ fontSize: "20px", fontWeight: 700, color: "#E94560" }}>
-            {price ? `${Number(price).toLocaleString("ru-RU")}₸` : "—"}
+            {price ? `${Number(price).toLocaleString("en-US")}₸` : "—"}
           </span>
         </div>
       </div>
 
       <div style={{ marginBottom: "16px" }}>
         <label style={{ display: "block", fontSize: "14px", color: "#A8B2C1", marginBottom: "8px" }}>
-          Комментарий для мастера
+          Note for your barber
         </label>
         <textarea
           value={comment}
           onChange={(e) => onCommentChange(e.target.value)}
-          placeholder="Например: хочу фейд с переходом..."
+          placeholder="e.g. low fade with a blend..."
           className="booking-comment-textarea"
           style={{
             width: "100%",
@@ -641,7 +642,7 @@ function Step3Details({
       </div>
 
       <p style={{ fontSize: "13px", color: "#A8B2C1" }}>
-        ℹ️ Бесплатная отмена до 2 часов до записи
+        ℹ️ Free cancellation up to 2 hours before your appointment
       </p>
     </div>
   );

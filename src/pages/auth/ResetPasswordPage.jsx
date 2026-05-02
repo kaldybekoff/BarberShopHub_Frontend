@@ -92,17 +92,17 @@ function ResetPasswordPage() {
     setError("");
 
     const code = codeDigits.join("");
-    if (!email) { setError("Введите email"); return; }
-    if (code.length !== 4) { setError("Введите все 4 цифры кода"); return; }
-    if (password.length < 8) { setError("Пароль должен быть не менее 8 символов"); return; }
-    if (password !== confirmPassword) { setError("Пароли не совпадают"); return; }
+    if (!email) { setError("Enter your email"); return; }
+    if (code.length !== 4) { setError("Enter all 4 digits of the code"); return; }
+    if (password.length < 8) { setError("Password must be at least 8 characters"); return; }
+    if (password !== confirmPassword) { setError("Passwords do not match"); return; }
 
     setLoading(true);
     try {
       await resetPassword(email, code, password);
       setSuccess(true);
     } catch (err) {
-      setError(err?.response?.data?.message || "Ошибка сброса пароля. Попробуйте снова.");
+      setError(err?.response?.data?.message || "Password reset failed. Try again.");
     } finally {
       setLoading(false);
     }
@@ -160,10 +160,10 @@ function ResetPasswordPage() {
                 ✅
               </div>
               <h1 style={{ color: "#ffffff", fontSize: "22px", fontWeight: 800, marginBottom: "10px" }}>
-                Пароль изменён!
+                Password updated!
               </h1>
               <p style={{ color: "#A8B2C1", fontSize: "13px", lineHeight: 1.6, marginBottom: "28px" }}>
-                Ваш пароль успешно обновлён. Перенаправление через{" "}
+                Your password has been updated. Redirecting in{" "}
                 <span style={{ color: "#ffffff", fontWeight: 700 }}>{countdown}</span>...
               </p>
               <button
@@ -181,16 +181,16 @@ function ResetPasswordPage() {
                   cursor: "pointer",
                 }}
               >
-                Войти сейчас
+                Sign in now
               </button>
             </div>
           ) : (
             <>
               <h1 style={{ color: "#ffffff", fontSize: "24px", fontWeight: 800, textAlign: "center" }}>
-                Новый пароль
+                New password
               </h1>
               <p style={{ color: "#A8B2C1", fontSize: "13px", textAlign: "center", marginTop: "8px", marginBottom: "28px" }}>
-                Введите код из письма и придумайте новый пароль
+                Enter the code from your email and choose a new password
               </p>
 
               <form onSubmit={handleSubmit}>
@@ -212,12 +212,12 @@ function ResetPasswordPage() {
 
                 {emailFromState && (
                   <p style={{ color: "#A8B2C1", fontSize: "13px", marginBottom: "16px", textAlign: "center" }}>
-                    Код отправлен на <span style={{ color: "#fff", fontWeight: 600 }}>{email}</span>
+                    {"Code sent to "}<span style={{ color: "#fff", fontWeight: 600 }}>{email}</span>
                   </p>
                 )}
 
                 <div style={{ marginBottom: "20px" }}>
-                  <label style={labelStyle}>Код из письма</label>
+                  <label style={labelStyle}>Email code</label>
                   <div className="flex justify-center" style={{ gap: "12px", marginTop: "8px" }}>
                     {codeDigits.map((digit, i) => (
                       <input
@@ -271,15 +271,15 @@ function ResetPasswordPage() {
 
                 <PasswordInput
                   id="new-password"
-                  label="Новый пароль"
+                  label="New password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Минимум 8 символов"
+                  placeholder="At least 8 characters"
                 />
 
                 <PasswordInput
                   id="confirm-password"
-                  label="Повторите пароль"
+                  label="Confirm password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
@@ -299,7 +299,7 @@ function ResetPasswordPage() {
                       />
                     </div>
                     <p style={{ color: "#A8B2C1", fontSize: "11px", marginTop: "4px" }}>
-                      {password.length < 6 ? "Слабый" : password.length < 8 ? "Средний" : password.length < 12 ? "Хороший" : "Отличный"} пароль
+                      {password.length < 6 ? "Weak" : password.length < 8 ? "Fair" : password.length < 12 ? "Good" : "Strong"} password
                     </p>
                   </div>
                 )}
@@ -325,7 +325,7 @@ function ResetPasswordPage() {
                     marginBottom: "16px",
                   }}
                 >
-                  {loading ? "Сохранение..." : "Сохранить пароль"}
+                  {loading ? "Saving..." : "Save password"}
                 </button>
               </form>
 
@@ -335,7 +335,7 @@ function ResetPasswordPage() {
                   onClick={() => navigate("/forgot-password")}
                   style={{ background: "none", border: "none", color: "#A8B2C1", fontSize: "13px", cursor: "pointer" }}
                 >
-                  ← Запросить новый код
+                  ← Request a new code
                 </button>
               </div>
             </>

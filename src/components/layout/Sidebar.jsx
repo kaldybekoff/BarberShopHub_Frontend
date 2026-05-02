@@ -143,7 +143,7 @@ function Sidebar() {
                 marginTop: "2px",
               }}
             >
-              Управление
+              Management
             </div>
           </div>
         </div>
@@ -172,7 +172,7 @@ function Sidebar() {
           }}
         >
           <LogOut size={15} />
-          Выйти
+          Log out
         </button>
       </div>
     </aside>

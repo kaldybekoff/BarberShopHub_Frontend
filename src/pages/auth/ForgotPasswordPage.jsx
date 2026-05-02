@@ -35,7 +35,7 @@ function ForgotPasswordPage() {
     e.preventDefault();
     setError("");
     if (!email) {
-      setError("Введите email");
+      setError("Enter your email");
       return;
     }
     setLoading(true);
@@ -43,7 +43,7 @@ function ForgotPasswordPage() {
       await forgotPassword(email);
       setSent(true);
     } catch (err) {
-      setError(err?.response?.data?.message || "Ошибка отправки. Попробуйте снова.");
+      setError(err?.response?.data?.message || "Could not send email. Try again.");
     } finally {
       setLoading(false);
     }
@@ -103,12 +103,12 @@ function ForgotPasswordPage() {
                 ✉️
               </div>
               <h1 style={{ color: "#ffffff", fontSize: "22px", fontWeight: 800, marginBottom: "10px" }}>
-                Письмо отправлено!
+                Email sent!
               </h1>
               <p style={{ color: "#A8B2C1", fontSize: "13px", lineHeight: 1.6, marginBottom: "28px" }}>
-                Мы отправили код подтверждения на{" "}
+                We sent a verification code to{" "}
                 <span style={{ color: "#ffffff", fontWeight: 600 }}>{email}</span>.
-                Проверьте папку «Спам», если письмо не пришло.
+                {"Check your spam folder if you don't see it."}
               </p>
               <button
                 type="button"
@@ -126,7 +126,7 @@ function ForgotPasswordPage() {
                   marginBottom: "12px",
                 }}
               >
-                Ввести код →
+                Enter code →
               </button>
               <button
                 type="button"
@@ -139,17 +139,17 @@ function ForgotPasswordPage() {
                   cursor: "pointer",
                 }}
               >
-                Отправить снова
+                Send again
               </button>
             </div>
           ) : (
             /* Form state */
             <>
               <h1 style={{ color: "#ffffff", fontSize: "24px", fontWeight: 800, textAlign: "center" }}>
-                Забыли пароль?
+                Forgot password?
               </h1>
               <p style={{ color: "#A8B2C1", fontSize: "13px", textAlign: "center", marginTop: "8px", marginBottom: "28px", lineHeight: 1.5 }}>
-                Введите email — мы отправим ссылку для сброса пароля
+                {"Enter your email and we'll send reset instructions"}
               </p>
 
               <form onSubmit={handleSubmit}>
@@ -194,7 +194,7 @@ function ForgotPasswordPage() {
                     marginBottom: "16px",
                   }}
                 >
-                  {loading ? "Отправка..." : "Отправить инструкцию"}
+                  {loading ? "Sending..." : "Send instructions"}
                 </button>
               </form>
 
@@ -210,7 +210,7 @@ function ForgotPasswordPage() {
                     cursor: "pointer",
                   }}
                 >
-                  ← Вернуться к входу
+                  ← Back to sign in
                 </button>
               </div>
             </>

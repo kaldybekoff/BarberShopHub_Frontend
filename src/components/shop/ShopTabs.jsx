@@ -1,8 +1,8 @@
 const tabs = [
-  { key: "services", label: "Услуги" },
-  { key: "masters", label: "Мастера" },
-  { key: "reviews", label: "Отзывы" },
-  { key: "photos", label: "Фото" },
+  { key: "services", label: "Services" },
+  { key: "masters", label: "Barbers" },
+  { key: "reviews", label: "Reviews" },
+  { key: "photos", label: "Photos" },
 ];
 
 function ShopTabs({ activeTab, onChange }) {

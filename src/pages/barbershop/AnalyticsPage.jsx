@@ -3,16 +3,16 @@ import { getAnalytics } from "../../api/dashboardApi";
 import useIsMobile from "../../hooks/useIsMobile";
 
 const periods = [
-  { id: "week", label: "Неделя" },
-  { id: "month", label: "Месяц" },
-  { id: "year", label: "Год" },
+  { id: "week", label: "Week" },
+  { id: "month", label: "Month" },
+  { id: "year", label: "Year" },
 ];
 
 const SERVICE_COLORS = ["#E94560", "#48BB78", "#F6AD55", "#A8B2C1", "#9F7AEA"];
-const DAY_LABELS = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
+const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 function formatPrice(value) {
-  return `${Number(value ?? 0).toLocaleString("ru-RU")}₸`;
+  return `${Number(value ?? 0).toLocaleString("en-US")}₸`;
 }
 
 function formatDelta(pct, label) {
@@ -23,33 +23,33 @@ function formatDelta(pct, label) {
 
 function mapAnalytics(data, period) {
   const periodLabel =
-    period === "week" ? "прошлая неделя" : period === "month" ? "прошлый месяц" : "прошлый год";
+    period === "week" ? "last week" : period === "month" ? "last month" : "last year";
 
   const stats = [
     {
       icon: "💰",
-      label: "ВЫРУЧКА",
+      label: "REVENUE",
       value: formatPrice(data.stats.revenue_total),
       delta: formatDelta(data.stats.revenue_change_percent, periodLabel),
       up: (data.stats.revenue_change_percent ?? 0) >= 0,
     },
     {
       icon: "📅",
-      label: "ЗАПИСИ",
+      label: "BOOKINGS",
       value: String(data.stats.bookings_count),
       delta: formatDelta(data.stats.bookings_change_percent, periodLabel),
       up: (data.stats.bookings_change_percent ?? 0) >= 0,
     },
     {
       icon: "👥",
-      label: "НОВЫЕ КЛИЕНТЫ",
+      label: "NEW CLIENTS",
       value: String(data.stats.new_clients),
       delta: formatDelta(data.stats.new_clients_change_percent, periodLabel),
       up: (data.stats.new_clients_change_percent ?? 0) >= 0,
     },
     {
       icon: "💳",
-      label: "СРЕДНИЙ ЧЕК",
+      label: "AVG. CHECK",
       value: data.stats.average_check != null ? formatPrice(data.stats.average_check) : "—",
       delta: formatDelta(data.stats.average_check_change_percent, periodLabel),
       up: (data.stats.average_check_change_percent ?? 0) >= 0,
@@ -98,10 +98,10 @@ function AnalyticsPage() {
     <div style={{ backgroundColor: "#1A1A2E", padding: pad, minHeight: "100vh" }}>
       <div style={{ marginBottom: "20px" }}>
         <h1 className="text-white" style={{ fontSize: "22px", fontWeight: 700 }}>
-          Аналитика
+          Analytics
         </h1>
         <p style={{ color: "#A8B2C1", fontSize: "13px", marginTop: "3px" }}>
-          Статистика вашего барбершопа
+          Your barbershop statistics
         </p>
       </div>
 
@@ -133,7 +133,7 @@ function AnalyticsPage() {
 
       {loading ? (
         <div className="flex items-center justify-center" style={{ paddingTop: "60px" }}>
-          <p style={{ color: "#A8B2C1" }}>Загрузка...</p>
+          <p style={{ color: "#A8B2C1" }}>Loading...</p>
         </div>
       ) : analytics ? (
         <>
@@ -198,7 +198,7 @@ function RevenueChart({ data, total }) {
     <div style={{ backgroundColor: "#1E2A3A", borderRadius: "12px", padding: "20px 22px" }}>
       <div className="flex items-center justify-between">
         <h3 className="text-white" style={{ fontSize: "15px", fontWeight: 700 }}>
-          Выручка по дням
+          Revenue by day
         </h3>
         <span style={{ color: "#E94560", fontSize: "15px", fontWeight: 700 }}>
           {total}
@@ -240,7 +240,7 @@ function RevenueChart({ data, total }) {
         </div>
       ) : (
         <p style={{ color: "#A8B2C1", fontSize: "13px", marginTop: "20px", textAlign: "center" }}>
-          Нет данных за этот период
+          No data for this period
         </p>
       )}
     </div>
@@ -251,11 +251,11 @@ function PopularServices({ items }) {
   return (
     <div style={{ backgroundColor: "#1E2A3A", borderRadius: "12px", padding: "20px 22px" }}>
       <h3 className="text-white" style={{ fontSize: "15px", fontWeight: 700, marginBottom: "16px" }}>
-        Популярные услуги
+        Popular services
       </h3>
 
       {!items || items.length === 0 ? (
-        <p style={{ color: "#A8B2C1", fontSize: "13px" }}>Нет данных</p>
+        <p style={{ color: "#A8B2C1", fontSize: "13px" }}>No data</p>
       ) : (
         <div>
           {items.map((item, i) => (
@@ -286,10 +286,10 @@ function ServiceRow({ item, isLast }) {
 
         <div style={{ textAlign: "right", flexShrink: 0 }}>
           <div className="text-white" style={{ fontSize: "13px", fontWeight: 600 }}>
-            {Number(item.revenue).toLocaleString("ru-RU")}₸
+            {Number(item.revenue).toLocaleString("en-US")}₸
           </div>
           <div style={{ color: "#A8B2C1", fontSize: "12px", marginTop: "2px" }}>
-            {item.count} раз
+            {item.count} {item.count === 1 ? "time" : "times"}
           </div>
         </div>
       </div>

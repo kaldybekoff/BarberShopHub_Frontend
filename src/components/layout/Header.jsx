@@ -2,10 +2,10 @@ import { Link, useLocation } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 
 const navLinks = [
-  { path: "/home", label: "Главная" },
-  { path: "/search", label: "Поиск" },
-  { path: "/appointments", label: "Записи" },
-  { path: "/profile", label: "Профиль" },
+  { path: "/home", label: "Home" },
+  { path: "/search", label: "Search" },
+  { path: "/appointments", label: "Bookings" },
+  { path: "/profile", label: "Profile" },
 ];
 
 function Header() {
@@ -87,7 +87,7 @@ function Header() {
           style={{ color: "#A8B2C1", fontSize: "13px", gap: "4px" }}
         >
           <span>📍</span>
-          Алматы
+          Almaty
         </div>
 
         <Link

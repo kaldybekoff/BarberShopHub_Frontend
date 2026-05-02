@@ -36,7 +36,7 @@ function SearchBar() {
         type="text"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
-        placeholder="Найти барбершоп или мастера..."
+        placeholder="Find a barbershop or barber..."
         className="text-white focus:outline-none"
         style={{
           backgroundColor: "transparent",

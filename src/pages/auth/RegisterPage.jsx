@@ -43,11 +43,11 @@ function RegisterPage() {
     setError("");
 
     if (password !== confirmPassword) {
-      setError("Пароли не совпадают");
+      setError("Passwords do not match");
       return;
     }
     if (password.length < 8) {
-      setError("Пароль должен быть не менее 8 символов");
+      setError("Password must be at least 8 characters");
       return;
     }
 
@@ -56,7 +56,7 @@ function RegisterPage() {
       await register(name, email, password);
       navigate("/verify", { state: { email } });
     } catch (err) {
-      const msg = err?.response?.data?.message || "Ошибка регистрации";
+      const msg = err?.response?.data?.message || "Registration failed";
       setError(msg);
     } finally {
       setLoading(false);
@@ -115,7 +115,7 @@ function RegisterPage() {
               textAlign: "center",
             }}
           >
-            Создайте аккаунт
+            Create your account
           </h1>
           <p
             style={{
@@ -126,7 +126,7 @@ function RegisterPage() {
               marginBottom: "24px",
             }}
           >
-            Заполните данные и начните пользоваться BarberHub
+            Fill in your details and start using BarberHub
           </p>
 
           <div
@@ -153,7 +153,7 @@ function RegisterPage() {
                 color: "#A8B2C1",
               }}
             >
-              Войти
+              Sign in
             </div>
             <div
               style={{
@@ -167,21 +167,21 @@ function RegisterPage() {
                 marginBottom: "-1px",
               }}
             >
-              Регистрация
+              Sign up
             </div>
           </div>
 
           <form onSubmit={handleSubmit}>
             <div style={{ marginBottom: "16px" }}>
               <label htmlFor="register-name" style={labelStyle}>
-                Имя
+                Name
               </label>
               <input
                 id="register-name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Ваше имя"
+                placeholder="Your name"
                 className="placeholder:text-[#4A5568]"
                 style={inputStyle}
               />
@@ -208,7 +208,7 @@ function RegisterPage() {
             >
               <div>
                 <label htmlFor="register-password" style={labelStyle}>
-                  Пароль
+                  Password
                 </label>
                 <div style={{ position: "relative" }}>
                   <input
@@ -235,7 +235,7 @@ function RegisterPage() {
                       cursor: "pointer",
                       padding: "4px",
                     }}
-                    aria-label={showPassword ? "Скрыть пароль" : "Показать пароль"}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     👁
                   </button>
@@ -244,7 +244,7 @@ function RegisterPage() {
 
               <div>
                 <label htmlFor="register-confirm" style={labelStyle}>
-                  Повторите пароль
+                  Confirm password
                 </label>
                 <div style={{ position: "relative" }}>
                   <input
@@ -271,7 +271,7 @@ function RegisterPage() {
                       cursor: "pointer",
                       padding: "4px",
                     }}
-                    aria-label={showConfirm ? "Скрыть пароль" : "Показать пароль"}
+                    aria-label={showConfirm ? "Hide password" : "Show password"}
                   >
                     👁
                   </button>
@@ -310,7 +310,7 @@ function RegisterPage() {
                 marginBottom: "16px",
               }}
             >
-              {loading ? "Отправка..." : "Зарегистрироваться"}
+              {loading ? "Sending..." : "Sign up"}
             </button>
           </form>
 
@@ -332,7 +332,7 @@ function RegisterPage() {
                 padding: "0 10px",
               }}
             >
-              или
+              or
             </span>
             <div
               style={{
@@ -350,7 +350,7 @@ function RegisterPage() {
               fontSize: "13px",
             }}
           >
-            Уже есть аккаунт?{" "}
+            Already have an account?{" "}
             <span
               role="button"
               tabIndex={0}
@@ -364,7 +364,7 @@ function RegisterPage() {
                 cursor: "pointer",
               }}
             >
-              Войти
+              Sign in
             </span>
           </div>
 
@@ -381,7 +381,7 @@ function RegisterPage() {
               textAlign: "center",
             }}
           >
-            Владельцам барбершопов: для регистрации бизнеса свяжитесь с нами —{" "}
+            Barbershop owners: to register a business, contact us at{" "}
             <a
               href="mailto:business@barberhub.app"
               style={{ color: "#E94560", fontWeight: 600 }}

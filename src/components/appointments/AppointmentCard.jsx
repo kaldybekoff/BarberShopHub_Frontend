@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { cancelAppointment, rescheduleAppointment } from "../../api/appointmentApi";
+import { formatLocalDateKey } from "../../utils/formatDate";
 
 function extractError(e, fallback) {
   const data = e?.response?.data;
@@ -12,7 +13,7 @@ function extractError(e, fallback) {
 }
 
 function AppointmentCard({ appointment, onCancelled, onRescheduled }) {
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayStr = formatLocalDateKey(new Date());
   const [showReschedule, setShowReschedule] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
   const [newDate, setNewDate] = useState("");
@@ -21,7 +22,7 @@ function AppointmentCard({ appointment, onCancelled, onRescheduled }) {
   const [error, setError] = useState("");
 
   const isConfirmed = appointment.status === "confirmed";
-  const statusLabel = isConfirmed ? "Подтверждено" : "Ожидает";
+  const statusLabel = isConfirmed ? "Confirmed" : "Pending";
   const statusColor = isConfirmed ? "#48BB78" : "#F6AD55";
   const statusBg = isConfirmed ? "rgba(72, 187, 120, 0.15)" : "rgba(246, 173, 85, 0.15)";
 
@@ -32,7 +33,7 @@ function AppointmentCard({ appointment, onCancelled, onRescheduled }) {
       await cancelAppointment(appointment.id);
       onCancelled?.(appointment.id);
     } catch (e) {
-      const msg = extractError(e, "Не удалось отменить запись");
+      const msg = extractError(e, "Could not cancel booking");
       setError(msg);
       setConfirmCancel(false);
     } finally {
@@ -44,7 +45,7 @@ function AppointmentCard({ appointment, onCancelled, onRescheduled }) {
     if (!newDate || !newTime) return;
     const localDt = new Date(`${newDate}T${newTime}:00`);
     if (Number.isNaN(localDt.getTime())) {
-      setError("Некорректная дата или время");
+      setError("Invalid date or time");
       return;
     }
     const scheduledAtUtc = localDt.toISOString();
@@ -57,7 +58,7 @@ function AppointmentCard({ appointment, onCancelled, onRescheduled }) {
       setNewTime("");
       onRescheduled?.(appointment.id, localDt.toISOString());
     } catch (e) {
-      const msg = extractError(e, "Не удалось перенести запись");
+      const msg = extractError(e, "Could not reschedule booking");
       setError(msg);
     } finally {
       setLoading(false);
@@ -123,13 +124,13 @@ function AppointmentCard({ appointment, onCancelled, onRescheduled }) {
           </span>
         </div>
         <span style={{ color: "#E94560", fontWeight: 700, fontSize: "16px" }}>
-          {Number(appointment.price).toLocaleString("ru-RU")}₸
+          {Number(appointment.price).toLocaleString("en-US")}₸
         </span>
       </div>
 
       {showReschedule && (
         <div style={{ padding: "12px 16px", borderTop: "1px solid #2a3a4a", backgroundColor: "#16213E" }}>
-          <p style={{ color: "#A8B2C1", fontSize: "12px", marginBottom: "8px" }}>Новая дата и время</p>
+          <p style={{ color: "#A8B2C1", fontSize: "12px", marginBottom: "8px" }}>New date and time</p>
           {error && (
             <p style={{ color: "#E94560", fontSize: "12px", marginBottom: "8px" }}>{error}</p>
           )}
@@ -182,7 +183,7 @@ function AppointmentCard({ appointment, onCancelled, onRescheduled }) {
                 cursor: "pointer",
               }}
             >
-              Отмена
+              Cancel
             </button>
             <button
               type="button"
@@ -200,7 +201,7 @@ function AppointmentCard({ appointment, onCancelled, onRescheduled }) {
                 cursor: newDate && newTime ? "pointer" : "not-allowed",
               }}
             >
-              {loading ? "..." : "Подтвердить"}
+              {loading ? "..." : "Confirm"}
             </button>
           </div>
         </div>
@@ -209,7 +210,7 @@ function AppointmentCard({ appointment, onCancelled, onRescheduled }) {
       {confirmCancel ? (
         <div style={{ borderTop: "1px solid #2a3a4a", padding: "12px 16px", backgroundColor: "rgba(233,69,96,0.05)" }}>
           <p style={{ color: "#ffffff", fontSize: "13px", fontWeight: 600, marginBottom: "10px", textAlign: "center" }}>
-            Отменить запись?
+            Cancel this booking?
           </p>
           {error && (
             <p style={{ color: "#E94560", fontSize: "12px", marginBottom: "8px", textAlign: "center" }}>{error}</p>
@@ -231,7 +232,7 @@ function AppointmentCard({ appointment, onCancelled, onRescheduled }) {
                 cursor: "pointer",
               }}
             >
-              Нет
+              No
             </button>
             <button
               type="button"
@@ -250,7 +251,7 @@ function AppointmentCard({ appointment, onCancelled, onRescheduled }) {
                 opacity: loading ? 0.7 : 1,
               }}
             >
-              {loading ? "..." : "Да, отменить"}
+              {loading ? "..." : "Yes, cancel"}
             </button>
           </div>
         </div>
@@ -273,7 +274,7 @@ function AppointmentCard({ appointment, onCancelled, onRescheduled }) {
               borderRight: "1px solid #2a3a4a",
             }}
           >
-            Перенести
+            Reschedule
           </button>
           <button
             type="button"
@@ -291,7 +292,7 @@ function AppointmentCard({ appointment, onCancelled, onRescheduled }) {
               border: "none",
             }}
           >
-            Отменить
+            Cancel
           </button>
         </div>
       )}

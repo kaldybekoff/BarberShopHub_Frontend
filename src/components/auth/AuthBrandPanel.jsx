@@ -42,7 +42,7 @@ function AuthLogoLockup({ compact = false }) {
         className={`${compact ? "mt-3 text-sm" : "mt-3 text-[1.02rem]"} font-medium`}
         style={{ color: "rgba(255,255,255,0.56)" }}
       >
-        Твой барбер в один клик
+        Your barber, one tap away
       </p>
     </div>
   );

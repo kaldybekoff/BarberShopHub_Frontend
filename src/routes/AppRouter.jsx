@@ -33,7 +33,7 @@ import RoleRoute from "./RoleRoute";
 function AppRouter() {
   return (
     <Routes>
-      {/* auth — без навигации */}
+      {/* auth — no app navigation */}
       <Route element={<AuthLayout />}>
         <Route path="/" element={<WelcomePage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -68,7 +68,7 @@ function AppRouter() {
         </Route>
       </Route>
 
-      {/* catch-all — любой неизвестный путь → WelcomePage */}
+      {/* catch-all — unknown paths → WelcomePage */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

@@ -3,11 +3,15 @@ import ScheduleCalendar from "../../components/barbershop/ScheduleCalendar";
 import ScheduleSlot from "../../components/barbershop/ScheduleSlot";
 import { getCalendar } from "../../api/dashboardApi";
 import useIsMobile from "../../hooks/useIsMobile";
+import { formatLocalDateKey } from "../../utils/formatDate";
 
-const views = ["День", "Неделя", "Месяц"];
-const weekdayLabels = ["ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ", "ВС"];
-const MONTH_NAMES = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
-const DOW_SHORT = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
+const views = ["Day", "Week", "Month"];
+const weekdayLabels = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
+const MONTH_NAMES = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+const DOW_SHORT = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 function getMondayOfWeek(d) {
   const date = new Date(d);
@@ -26,7 +30,7 @@ function buildWeekDays(referenceDate) {
     return {
       label,
       number: date.getDate(),
-      key: date.toISOString().slice(0, 10),
+      key: formatLocalDateKey(date),
     };
   });
 }
@@ -39,7 +43,7 @@ function formatTime(isoString) {
 }
 
 function formatPrice(value) {
-  return value != null ? `${Number(value).toLocaleString("ru-RU")}₸` : "";
+  return value != null ? `${Number(value).toLocaleString("en-US")}₸` : "";
 }
 
 function mapBookingToSlot(b) {
@@ -57,7 +61,7 @@ function mapBookingToSlot(b) {
 
 // ─── DAY VIEW ───────────────────────────────────────────────────────────────
 function DayView({ initialDay }) {
-  const todayKey = new Date().toISOString().slice(0, 10);
+  const todayKey = formatLocalDateKey(new Date());
   const [days, setDays] = useState(() => buildWeekDays(initialDay?.key ? new Date(initialDay.key) : new Date()));
   const [selectedDate, setSelectedDate] = useState(() => {
     if (initialDay) return initialDay;
@@ -88,9 +92,9 @@ function DayView({ initialDay }) {
       <ScheduleCalendar days={days} selectedKey={selectedDate.key} onSelect={handleSelect} />
       <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "24px" }}>
         {loading ? (
-          <p style={{ color: "#A8B2C1", fontSize: "14px" }}>Загрузка...</p>
+          <p style={{ color: "#A8B2C1", fontSize: "14px" }}>Loading...</p>
         ) : slots.length === 0 ? (
-          <p style={{ color: "#A8B2C1", fontSize: "14px" }}>Нет записей на этот день</p>
+          <p style={{ color: "#A8B2C1", fontSize: "14px" }}>No bookings this day</p>
         ) : (
           slots.map((slot, i) => <ScheduleSlot key={i} slot={slot} />)
         )}
@@ -121,9 +125,9 @@ function WeekView() {
       .finally(() => setLoading(false));
   }, [days]);
 
-  const todayKey = new Date().toISOString().slice(0, 10);
+  const todayKey = formatLocalDateKey(new Date());
 
-  if (loading) return <p style={{ color: "#A8B2C1", fontSize: "14px", marginTop: "24px" }}>Загрузка...</p>;
+  if (loading) return <p style={{ color: "#A8B2C1", fontSize: "14px", marginTop: "24px" }}>Loading...</p>;
 
   return (
     <div style={{ marginTop: "24px", overflowX: "auto" }}>
@@ -199,7 +203,7 @@ function buildMonthGrid(year, month) {
   for (let i = 0; i < startDow; i++) cells.push(null);
   for (let d = 1; d <= lastDay.getDate(); d++) {
     const date = new Date(year, month, d);
-    cells.push({ date, key: date.toISOString().slice(0, 10), number: d });
+    cells.push({ date, key: formatLocalDateKey(date), number: d });
   }
   // Pad to complete last row
   while (cells.length % 7 !== 0) cells.push(null);
@@ -214,11 +218,11 @@ function MonthView({ onSelectDay }) {
   const [loading, setLoading] = useState(true);
 
   const cells = buildMonthGrid(year, month);
-  const todayKey = today.toISOString().slice(0, 10);
+  const todayKey = formatLocalDateKey(today);
 
   useEffect(() => {
-    const firstDay = new Date(year, month, 1).toISOString().slice(0, 10);
-    const lastDay = new Date(year, month + 1, 0).toISOString().slice(0, 10);
+    const firstDay = formatLocalDateKey(new Date(year, month, 1));
+    const lastDay = formatLocalDateKey(new Date(year, month + 1, 0));
     setLoading(true);
     getCalendar(firstDay, lastDay)
       .then((data) => {
@@ -248,7 +252,7 @@ function MonthView({ onSelectDay }) {
       </div>
 
       {loading ? (
-        <p style={{ color: "#A8B2C1", fontSize: "14px" }}>Загрузка...</p>
+        <p style={{ color: "#A8B2C1", fontSize: "14px" }}>Loading...</p>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "6px" }}>
           {cells.map((cell, i) => {
@@ -304,14 +308,14 @@ function MonthView({ onSelectDay }) {
 // ─── MAIN ────────────────────────────────────────────────────────────────────
 function SchedulePage() {
   const isMobile = useIsMobile();
-  const [activeView, setActiveView] = useState("День");
+  const [activeView, setActiveView] = useState("Day");
   const [jumpToDay, setJumpToDay] = useState(null);
 
   function handleMonthDaySelect(cell) {
     const dow = cell.date.getDay();
-    const label = ["ВС", "ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"][dow];
+    const label = weekdayLabels[dow === 0 ? 6 : dow - 1];
     setJumpToDay({ label, number: cell.number, key: cell.key });
-    setActiveView("День");
+    setActiveView("Day");
   }
 
   const pad = isMobile ? "16px" : "32px";
@@ -323,7 +327,7 @@ function SchedulePage() {
         style={{ marginBottom: "24px", gap: "16px", flexWrap: "wrap" }}
       >
         <h1 className="text-white" style={{ fontSize: isMobile ? "20px" : "26px", fontWeight: 700 }}>
-          Расписание
+          Schedule
         </h1>
 
         <div className="flex items-center" style={{ gap: "8px" }}>
@@ -353,9 +357,9 @@ function SchedulePage() {
         </div>
       </div>
 
-      {activeView === "День" && <DayView key={jumpToDay?.key ?? "default"} initialDay={jumpToDay} />}
-      {activeView === "Неделя" && <WeekView />}
-      {activeView === "Месяц" && <MonthView onSelectDay={handleMonthDaySelect} />}
+      {activeView === "Day" && <DayView key={jumpToDay?.key ?? "default"} initialDay={jumpToDay} />}
+      {activeView === "Week" && <WeekView />}
+      {activeView === "Month" && <MonthView onSelectDay={handleMonthDaySelect} />}
     </div>
   );
 }

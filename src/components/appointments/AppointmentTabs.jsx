@@ -1,8 +1,8 @@
 import colors from "../../constants/colors";
 
 const tabs = [
-  { key: "upcoming", label: "Предстоящие" },
-  { key: "past", label: "Прошедшие" },
+  { key: "upcoming", label: "Upcoming" },
+  { key: "past", label: "Past" },
 ];
 
 function AppointmentTabs({ activeTab, onTabChange }) {

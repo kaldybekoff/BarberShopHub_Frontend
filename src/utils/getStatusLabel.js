@@ -1,10 +1,10 @@
 import colors from "../constants/colors";
 
 const statusMap = {
-  confirmed: { label: "Подтверждено", color: colors.success },
-  pending:   { label: "Ожидает",      color: colors.warning },
-  cancelled: { label: "Отменено",     color: colors.accent },
-  completed: { label: "Завершено",    color: colors.gray },
+  confirmed: { label: "Confirmed", color: colors.success },
+  pending:   { label: "Pending",      color: colors.warning },
+  cancelled: { label: "Cancelled",     color: colors.accent },
+  completed: { label: "Completed",    color: colors.gray },
 };
 
 function getStatusLabel(status) {

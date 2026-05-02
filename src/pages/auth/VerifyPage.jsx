@@ -56,7 +56,7 @@ function VerifyPage() {
     setErrorMessage("");
     const code = codeDigits.join("");
     if (code.length < 4) {
-      setErrorMessage("Введите все 4 цифры кода");
+      setErrorMessage("Enter all 4 digits of the code");
       return;
     }
     setIsLoading(true);
@@ -65,7 +65,7 @@ function VerifyPage() {
       login(user, access_token);
       navigate(user.role === "Barbershop" ? "/barbershop/dashboard" : "/home");
     } catch {
-      setErrorMessage("Неверный или истёкший код");
+      setErrorMessage("Invalid or expired code");
     } finally {
       setIsLoading(false);
     }
@@ -81,7 +81,7 @@ function VerifyPage() {
       setCodeDigits(["", "", "", ""]);
       inputRefs.current[0]?.focus();
     } catch {
-      setErrorMessage("Не удалось отправить код повторно");
+      setErrorMessage("Could not resend the code");
     } finally {
       setResending(false);
     }
@@ -124,10 +124,10 @@ function VerifyPage() {
 
           {/* Header */}
           <h1 style={{ color: "#ffffff", fontSize: "24px", fontWeight: 800, textAlign: "center" }}>
-            Подтверждение email
+            Confirm your email
           </h1>
           <p style={{ color: "#A8B2C1", fontSize: "13px", textAlign: "center", marginTop: "8px", marginBottom: "32px" }}>
-            Код отправлен на{" "}
+            We sent a code to{" "}
             {email && (
               <span style={{ color: "#ffffff", fontWeight: 600 }}>{email}</span>
             )}
@@ -204,14 +204,14 @@ function VerifyPage() {
               marginBottom: "20px",
             }}
           >
-            {isLoading ? "Проверяем..." : "Подтвердить"}
+            {isLoading ? "Verifying..." : "Confirm"}
           </button>
 
           {/* Resend */}
           <p style={{ textAlign: "center", color: "#A8B2C1", fontSize: "13px" }}>
-            Не получили код?{" "}
+            {"Didn't get the code? "}
             {countdown > 0 ? (
-              <span>Отправить повторно через {countdown}с</span>
+              <span>Resend in {countdown}s</span>
             ) : (
               <button
                 type="button"
@@ -228,7 +228,7 @@ function VerifyPage() {
                   textDecoration: "underline",
                 }}
               >
-                {resending ? "Отправка..." : "Отправить повторно"}
+                {resending ? "Sending..." : "Resend code"}
               </button>
             )}
           </p>
@@ -246,7 +246,7 @@ function VerifyPage() {
                 cursor: "pointer",
               }}
             >
-              ← Назад
+              ← Back
             </button>
           </div>
         </div>

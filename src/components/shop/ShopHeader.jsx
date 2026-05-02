@@ -11,11 +11,11 @@ function ShopHeader({ shop }) {
         onClick={() => navigate(-1)}
         className="text-sm mb-5 flex items-center gap-1"
         style={{ color: colors.gray }}>
-        ← Назад
+        ← Back
       </button>
 
       <div className="flex gap-6 items-start">
-        {/* фото */}
+        {/* photo */}
         {shop.image ? (
           <img
             src={shop.image}
@@ -30,7 +30,7 @@ function ShopHeader({ shop }) {
           </div>
         )}
 
-        {/* инфо */}
+        {/* info */}
         <div className="flex flex-col gap-2 flex-1">
           <div className="flex items-start justify-between gap-3">
             <h1 className="text-xl font-bold text-white">{shop.name}</h1>
@@ -40,7 +40,7 @@ function ShopHeader({ shop }) {
                 backgroundColor: shop.isOpen ? `${colors.success}20` : `${colors.accent}20`,
                 color: shop.isOpen ? colors.success : colors.accent,
               }}>
-              {shop.isOpen ? "Открыто" : "Закрыто"}
+              {shop.isOpen ? "Open" : "Closed"}
             </span>
           </div>
 
@@ -50,7 +50,7 @@ function ShopHeader({ shop }) {
             <span style={{ color: colors.gold }}>★</span>
             <span className="text-sm font-medium text-white">{shop.rating}</span>
             <span className="text-xs" style={{ color: colors.gray }}>
-              ({shop.reviewCount} отзывов)
+              ({shop.reviewCount} reviews)
             </span>
           </div>
         </div>
