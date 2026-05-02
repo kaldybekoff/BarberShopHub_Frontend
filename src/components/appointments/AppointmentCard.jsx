@@ -11,10 +11,10 @@ function extractError(e, fallback) {
   return fallback;
 }
 
-const todayStr = new Date().toISOString().slice(0, 10);
-
 function AppointmentCard({ appointment, onCancelled, onRescheduled }) {
+  const todayStr = new Date().toISOString().slice(0, 10);
   const [showReschedule, setShowReschedule] = useState(false);
+  const [confirmCancel, setConfirmCancel] = useState(false);
   const [newDate, setNewDate] = useState("");
   const [newTime, setNewTime] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,7 +26,6 @@ function AppointmentCard({ appointment, onCancelled, onRescheduled }) {
   const statusBg = isConfirmed ? "rgba(72, 187, 120, 0.15)" : "rgba(246, 173, 85, 0.15)";
 
   async function handleCancel() {
-    if (!window.confirm("Отменить запись?")) return;
     setLoading(true);
     setError("");
     try {
@@ -35,7 +34,7 @@ function AppointmentCard({ appointment, onCancelled, onRescheduled }) {
     } catch (e) {
       const msg = extractError(e, "Не удалось отменить запись");
       setError(msg);
-      alert(msg);
+      setConfirmCancel(false);
     } finally {
       setLoading(false);
     }
@@ -207,45 +206,95 @@ function AppointmentCard({ appointment, onCancelled, onRescheduled }) {
         </div>
       )}
 
-      <div className="flex" style={{ borderTop: "1px solid #2a3a4a" }}>
-        <button
-          type="button"
-          disabled={loading}
-          onClick={() => setShowReschedule((v) => !v)}
-          style={{
-            flex: 1,
-            color: "#A8B2C1",
-            padding: "12px",
-            textAlign: "center",
-            fontSize: "13px",
-            fontWeight: 600,
-            cursor: "pointer",
-            backgroundColor: "transparent",
-            border: "none",
-            borderRight: "1px solid #2a3a4a",
-          }}
-        >
-          Перенести
-        </button>
-        <button
-          type="button"
-          disabled={loading}
-          onClick={handleCancel}
-          style={{
-            flex: 1,
-            color: "#E94560",
-            padding: "12px",
-            textAlign: "center",
-            fontSize: "13px",
-            fontWeight: 600,
-            cursor: "pointer",
-            backgroundColor: "transparent",
-            border: "none",
-          }}
-        >
-          {loading ? "..." : "Отменить"}
-        </button>
-      </div>
+      {confirmCancel ? (
+        <div style={{ borderTop: "1px solid #2a3a4a", padding: "12px 16px", backgroundColor: "rgba(233,69,96,0.05)" }}>
+          <p style={{ color: "#ffffff", fontSize: "13px", fontWeight: 600, marginBottom: "10px", textAlign: "center" }}>
+            Отменить запись?
+          </p>
+          {error && (
+            <p style={{ color: "#E94560", fontSize: "12px", marginBottom: "8px", textAlign: "center" }}>{error}</p>
+          )}
+          <div className="flex" style={{ gap: "8px" }}>
+            <button
+              type="button"
+              onClick={() => { setConfirmCancel(false); setError(""); }}
+              disabled={loading}
+              style={{
+                flex: 1,
+                backgroundColor: "transparent",
+                border: "1px solid #2a3a4a",
+                color: "#A8B2C1",
+                borderRadius: "8px",
+                padding: "9px",
+                fontSize: "13px",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Нет
+            </button>
+            <button
+              type="button"
+              onClick={handleCancel}
+              disabled={loading}
+              style={{
+                flex: 1,
+                backgroundColor: "rgba(233,69,96,0.15)",
+                border: "1px solid rgba(233,69,96,0.3)",
+                color: "#E94560",
+                borderRadius: "8px",
+                padding: "9px",
+                fontSize: "13px",
+                fontWeight: 600,
+                cursor: loading ? "not-allowed" : "pointer",
+                opacity: loading ? 0.7 : 1,
+              }}
+            >
+              {loading ? "..." : "Да, отменить"}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex" style={{ borderTop: "1px solid #2a3a4a" }}>
+          <button
+            type="button"
+            disabled={loading}
+            onClick={() => { setShowReschedule((v) => !v); setError(""); }}
+            style={{
+              flex: 1,
+              color: "#A8B2C1",
+              padding: "12px",
+              textAlign: "center",
+              fontSize: "13px",
+              fontWeight: 600,
+              cursor: "pointer",
+              backgroundColor: "transparent",
+              border: "none",
+              borderRight: "1px solid #2a3a4a",
+            }}
+          >
+            Перенести
+          </button>
+          <button
+            type="button"
+            disabled={loading}
+            onClick={() => { setConfirmCancel(true); setShowReschedule(false); setError(""); }}
+            style={{
+              flex: 1,
+              color: "#E94560",
+              padding: "12px",
+              textAlign: "center",
+              fontSize: "13px",
+              fontWeight: 600,
+              cursor: "pointer",
+              backgroundColor: "transparent",
+              border: "none",
+            }}
+          >
+            Отменить
+          </button>
+        </div>
+      )}
     </div>
   );
 }

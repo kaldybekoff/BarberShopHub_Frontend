@@ -10,8 +10,8 @@ export async function createReview({ slug, rating, comment }) {
   return res.data.data;
 }
 
-// Нужен бэк: GET /auth/me/reviews
 export async function getMyReviews() {
   const res = await axiosInstance.get("/auth/me/reviews");
-  return res.data.data ?? [];
+  const raw = res.data.data;
+  return Array.isArray(raw) ? raw : raw.data ?? [];
 }

@@ -4,21 +4,21 @@ import ScheduleSlot from "../../components/barbershop/ScheduleSlot";
 import { getCalendar } from "../../api/dashboardApi";
 
 const views = ["День", "Неделя", "Месяц"];
-const weekdayLabels = ["ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"];
+const weekdayLabels = ["ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ", "ВС"];
 const MONTH_NAMES = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
 const DOW_SHORT = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
 
-function getMondayOfCurrentWeek() {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  const dow = d.getDay();
+function getMondayOfWeek(d) {
+  const date = new Date(d);
+  date.setHours(0, 0, 0, 0);
+  const dow = date.getDay();
   const diff = dow === 0 ? -6 : 1 - dow;
-  d.setDate(d.getDate() + diff);
-  return d;
+  date.setDate(date.getDate() + diff);
+  return date;
 }
 
-function buildWeekDays() {
-  const monday = getMondayOfCurrentWeek();
+function buildWeekDays(referenceDate) {
+  const monday = getMondayOfWeek(referenceDate ?? new Date());
   return weekdayLabels.map((label, i) => {
     const date = new Date(monday);
     date.setDate(monday.getDate() + i);
@@ -55,12 +55,21 @@ function mapBookingToSlot(b) {
 }
 
 // ─── DAY VIEW ───────────────────────────────────────────────────────────────
-function DayView({ days }) {
+function DayView({ initialDay }) {
   const todayKey = new Date().toISOString().slice(0, 10);
-  const defaultDay = days.find((d) => d.key === todayKey) || days[days.length - 2] || days[0];
-  const [selectedDate, setSelectedDate] = useState(defaultDay);
+  const [days, setDays] = useState(() => buildWeekDays(initialDay?.key ? new Date(initialDay.key) : new Date()));
+  const [selectedDate, setSelectedDate] = useState(() => {
+    if (initialDay) return initialDay;
+    const weekDays = buildWeekDays(new Date());
+    return weekDays.find((d) => d.key === todayKey) ?? weekDays[0];
+  });
   const [slots, setSlots] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  function handleSelect(day) {
+    setSelectedDate(day);
+    setDays(buildWeekDays(new Date(day.key)));
+  }
 
   useEffect(() => {
     setLoading(true);
@@ -75,12 +84,12 @@ function DayView({ days }) {
 
   return (
     <>
-      <ScheduleCalendar days={days} selectedKey={selectedDate.key} onSelect={setSelectedDate} />
+      <ScheduleCalendar days={days} selectedKey={selectedDate.key} onSelect={handleSelect} />
       <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "24px" }}>
         {loading ? (
           <p style={{ color: "#A8B2C1", fontSize: "14px" }}>Загрузка...</p>
         ) : slots.length === 0 ? (
-          <p style={{ color: "#A8B2C1", fontSize: "14px" }}>Нет слотов на этот день</p>
+          <p style={{ color: "#A8B2C1", fontSize: "14px" }}>Нет записей на этот день</p>
         ) : (
           slots.map((slot, i) => <ScheduleSlot key={i} slot={slot} />)
         )}
@@ -90,7 +99,8 @@ function DayView({ days }) {
 }
 
 // ─── WEEK VIEW ───────────────────────────────────────────────────────────────
-function WeekView({ days }) {
+function WeekView() {
+  const [days] = useState(() => buildWeekDays(new Date()));
   const [weekData, setWeekData] = useState({});
   const [loading, setLoading] = useState(true);
 
@@ -116,7 +126,7 @@ function WeekView({ days }) {
 
   return (
     <div style={{ marginTop: "24px", overflowX: "auto" }}>
-      <div style={{ display: "grid", gridTemplateColumns: `repeat(${days.length}, minmax(140px, 1fr))`, gap: "10px", minWidth: "700px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: `repeat(${days.length}, minmax(120px, 1fr))`, gap: "10px", minWidth: "860px" }}>
         {days.map((day) => {
           const isToday = day.key === todayKey;
           const daySlots = weekData[day.key] ?? [];
@@ -292,12 +302,13 @@ function MonthView({ onSelectDay }) {
 
 // ─── MAIN ────────────────────────────────────────────────────────────────────
 function SchedulePage() {
-  const [days] = useState(buildWeekDays);
   const [activeView, setActiveView] = useState("День");
+  const [jumpToDay, setJumpToDay] = useState(null);
 
   function handleMonthDaySelect(cell) {
-    // When clicking a month day → switch to day view and highlight that day
-    // Find or create a day object matching the clicked date
+    const dow = cell.date.getDay();
+    const label = ["ВС", "ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"][dow];
+    setJumpToDay({ label, number: cell.number, key: cell.key });
     setActiveView("День");
   }
 
@@ -338,8 +349,8 @@ function SchedulePage() {
         </div>
       </div>
 
-      {activeView === "День" && <DayView days={days} />}
-      {activeView === "Неделя" && <WeekView days={days} />}
+      {activeView === "День" && <DayView key={jumpToDay?.key ?? "default"} initialDay={jumpToDay} />}
+      {activeView === "Неделя" && <WeekView />}
       {activeView === "Месяц" && <MonthView onSelectDay={handleMonthDaySelect} />}
     </div>
   );

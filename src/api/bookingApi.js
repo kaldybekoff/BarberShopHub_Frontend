@@ -10,12 +10,3 @@ export async function getBookingById(id) {
   return res.data.data;
 }
 
-export async function rescheduleBooking(id, scheduled_at) {
-  const res = await axiosInstance.post(`/bookings/${id}/reschedule`, { scheduled_at });
-  return res.data.data;
-}
-
-export async function cancelBooking(id) {
-  const res = await axiosInstance.post(`/bookings/${id}/cancel`);
-  return res.data;
-}
