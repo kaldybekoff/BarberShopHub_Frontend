@@ -1,7 +1,11 @@
 import axios from "axios";
 
+const baseURL =
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://bbs-production-6580.up.railway.app/api/v1";
+
 const axiosInstance = axios.create({
-  baseURL: "https://bbs-production-6580.up.railway.app/api/v1",
+  baseURL,
   headers: {
     "Content-Type": "application/json",
   },
