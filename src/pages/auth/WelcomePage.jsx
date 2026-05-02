@@ -5,24 +5,13 @@ function WelcomePage() {
   const navigate = useNavigate();
 
   return (
-    <div
-      style={{
-        display: "flex",
-        width: "100vw",
-        height: "100vh",
-        overflow: "hidden",
-      }}
-    >
+    <div className="flex flex-col md:flex-row w-screen h-screen overflow-hidden">
+      {/* Left panel — hidden on mobile, shown on desktop */}
       <div
+        className="hidden md:flex relative flex-col items-center justify-center gap-4"
         style={{
-          position: "relative",
           width: "42%",
           backgroundColor: "#070B17",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "16px",
           borderRight: "1px solid rgba(255,255,255,0.07)",
         }}
       >
@@ -37,17 +26,8 @@ function WelcomePage() {
           }}
         />
 
-        <div
-          style={{
-            position: "relative",
-            zIndex: 1,
-            textAlign: "center",
-          }}
-        >
-          <div
-            className="flex items-center justify-center"
-            style={{ marginBottom: "12px" }}
-          >
+        <div style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
+          <div className="flex items-center justify-center" style={{ marginBottom: "12px" }}>
             <Scissors
               size={72}
               strokeWidth={2}
@@ -71,14 +51,7 @@ function WelcomePage() {
             Barber<span style={{ color: "#E94560" }}>Hub</span>
           </div>
 
-          <p
-            style={{
-              marginTop: "10px",
-              color: "#A8B2C1",
-              fontSize: "15px",
-              letterSpacing: "0.02em",
-            }}
-          >
+          <p style={{ marginTop: "10px", color: "#A8B2C1", fontSize: "15px", letterSpacing: "0.02em" }}>
             Твой барбер в один клик
           </p>
         </div>
@@ -94,54 +67,51 @@ function WelcomePage() {
             zIndex: 1,
           }}
         >
-          <span
-            style={{
-              width: "22px",
-              height: "7px",
-              borderRadius: "4px",
-              backgroundColor: "#E94560",
-            }}
-          />
-          <span
-            style={{
-              width: "7px",
-              height: "7px",
-              borderRadius: "50%",
-              backgroundColor: "rgba(255,255,255,0.2)",
-            }}
-          />
-          <span
-            style={{
-              width: "7px",
-              height: "7px",
-              borderRadius: "50%",
-              backgroundColor: "rgba(255,255,255,0.2)",
-            }}
-          />
+          <span style={{ width: "22px", height: "7px", borderRadius: "4px", backgroundColor: "#E94560" }} />
+          <span style={{ width: "7px", height: "7px", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.2)" }} />
+          <span style={{ width: "7px", height: "7px", borderRadius: "50%", backgroundColor: "rgba(255,255,255,0.2)" }} />
         </div>
       </div>
 
+      {/* Right panel — full screen on mobile */}
       <div
-        style={{
-          flex: 1,
-          backgroundColor: "#1A1A2E",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
+        className="flex-1 flex flex-col items-center justify-center"
+        style={{ backgroundColor: "#1A1A2E" }}
       >
-        <div
-          style={{
-            maxWidth: "420px",
-            width: "100%",
-            padding: "0 32px",
-            textAlign: "center",
-          }}
-        >
+        {/* Logo shown only on mobile */}
+        <div className="flex md:hidden flex-col items-center mb-8">
+          <div
+            aria-hidden
+            style={{
+              position: "absolute",
+              inset: 0,
+              background:
+                "radial-gradient(ellipse at 30% 20%, rgba(233,69,96,0.18) 0%, transparent 55%)",
+              pointerEvents: "none",
+            }}
+          />
+          <Scissors
+            size={48}
+            strokeWidth={2}
+            style={{
+              color: "#E94560",
+              filter: "drop-shadow(0 0 12px rgba(233,69,96,0.5))",
+              marginBottom: "8px",
+            }}
+          />
+          <div style={{ fontSize: "36px", fontWeight: 800, color: "#ffffff", lineHeight: 1 }}>
+            Barber<span style={{ color: "#E94560" }}>Hub</span>
+          </div>
+          <p style={{ marginTop: "6px", color: "#A8B2C1", fontSize: "13px" }}>
+            Твой барбер в один клик
+          </p>
+        </div>
+
+        <div style={{ maxWidth: "420px", width: "100%", padding: "0 32px", textAlign: "center" }}>
           <h1
             style={{
               color: "#ffffff",
-              fontSize: "38px",
+              fontSize: "clamp(26px, 6vw, 38px)",
               fontWeight: 800,
               lineHeight: 1.2,
               marginBottom: "16px",
@@ -180,26 +150,14 @@ function WelcomePage() {
             Начать
           </button>
 
-          <div
-            style={{
-              color: "#A8B2C1",
-              fontSize: "14px",
-              marginBottom: "14px",
-            }}
-          >
+          <div style={{ color: "#A8B2C1", fontSize: "14px", marginBottom: "14px" }}>
             Уже есть аккаунт?{" "}
             <span
               role="button"
               tabIndex={0}
               onClick={() => navigate("/login")}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") navigate("/login");
-              }}
-              style={{
-                color: "#ffffff",
-                fontWeight: 700,
-                cursor: "pointer",
-              }}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") navigate("/login"); }}
+              style={{ color: "#ffffff", fontWeight: 700, cursor: "pointer" }}
             >
               Войти
             </span>
@@ -211,15 +169,8 @@ function WelcomePage() {
               role="button"
               tabIndex={0}
               onClick={() => navigate("/login?role=barbershop")}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ")
-                  navigate("/login?role=barbershop");
-              }}
-              style={{
-                color: "#E94560",
-                fontWeight: 700,
-                cursor: "pointer",
-              }}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") navigate("/login?role=barbershop"); }}
+              style={{ color: "#E94560", fontWeight: 700, cursor: "pointer" }}
             >
               Войти как бизнес →
             </span>

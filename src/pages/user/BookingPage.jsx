@@ -40,7 +40,6 @@ function buildDays(count) {
   });
 }
 
-const initialDays = buildDays(6);
 const stepTitles = ["Выбор услуги", "Мастер и время", "Подтверждение"];
 
 function normalizeService(s, categoryName) {
@@ -79,7 +78,8 @@ function BookingPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedService, setSelectedService] = useState(null);
   const [selectedMaster, setSelectedMaster] = useState(null);
-  const [selectedDay, setSelectedDay] = useState(initialDays[1]);
+  const [days] = useState(() => buildDays(14));
+  const [selectedDay, setSelectedDay] = useState(() => days[1]);
   const [selectedTime, setSelectedTime] = useState(null);
   const [timeSlots, setTimeSlots] = useState([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
@@ -87,8 +87,6 @@ function BookingPage() {
   const [reminder, setReminder] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingError, setBookingError] = useState("");
-
-  const days = initialDays;
   const selectedDate = selectedDay?.display || null;
 
   useEffect(() => {
@@ -174,9 +172,8 @@ function BookingPage() {
       barber_id: selectedMaster?.id !== 0 ? selectedMaster?.id : null,
       scheduled_at: `${selectedDay.key} ${timeStr}`,
       comment: comment || undefined,
+      reminder_enabled: reminder,
     };
-
-    console.log("Sending booking:", bookingData);
 
     setIsSubmitting(true);
     try {

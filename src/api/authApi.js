@@ -80,6 +80,11 @@ export async function forgotPassword(email) {
   return res.data;
 }
 
+export async function updateProfile({ name }) {
+  const res = await axiosInstance.put("/auth/me", { name });
+  return res.data.data;
+}
+
 export async function resetPassword(email, code, password) {
   const res = await axiosInstance.post("/auth/reset-password", {
     email,

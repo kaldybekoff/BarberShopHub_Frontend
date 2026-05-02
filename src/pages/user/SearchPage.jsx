@@ -11,7 +11,7 @@ function normalizeShop(s) {
     reviews: s.reviews_count ?? 0,
     distance: s.distance_km != null ? `${s.distance_km} км` : "",
     distanceKm: s.distance_km ?? null,
-    price: s.price_from ?? 0,
+    price: s.price_from ?? s.min_price ?? 0,
     status: s.status ?? "closed",
   };
 }

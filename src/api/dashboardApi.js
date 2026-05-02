@@ -58,29 +58,30 @@ export async function deleteOwnerService(id) {
   await axiosInstance.delete(`/owner/services/${id}`);
 }
 
-// /owner/analytics ещё не добавлен — маппим из /owner/dashboard
-export async function getAnalytics(_period) {
-  const dash = await getDashboardStats();
+export async function getAnalytics(period = "week") {
+  const res = await axiosInstance.get("/owner/analytics", { params: { period } });
+  const d = res.data.data;
   return {
     stats: {
-      revenue_total: dash.week_revenue?.amount ?? 0,
-      revenue_change_percent: dash.week_revenue?.delta_pct_vs_prev ?? null,
-      bookings_count: dash.today_bookings?.count ?? 0,
-      bookings_change_percent: null,
-      new_clients: dash.new_clients_this_week ?? 0,
-      new_clients_change_percent: null,
+      revenue_total: d.total_revenue ?? 0,
+      revenue_change_percent: d.revenue_change_percent ?? null,
+      bookings_count: d.total_bookings ?? 0,
+      bookings_change_percent: d.bookings_change_percent ?? null,
+      new_clients: d.new_clients ?? 0,
+      new_clients_change_percent: d.new_clients_change_percent ?? null,
+      avg_rating: d.avg_rating ?? null,
+      average_check: d.average_check ?? null,
+      average_check_change_percent: d.average_check_change_percent ?? null,
     },
-    revenue_by_day: (dash.revenue_last_7_days ?? []).map((d) => ({
-      date: d.date,
-      amount: d.revenue,
+    revenue_by_day: (d.revenue_chart ?? []).map((item) => ({
+      date: item.date ?? item.label,
+      amount: item.amount ?? item.revenue ?? 0,
+    })),
+    popular_services: (d.top_services ?? []).map((s) => ({
+      name: s.name,
+      revenue: s.revenue ?? 0,
+      count: s.count ?? s.bookings_count ?? 0,
     })),
   };
 }
 
-export async function getBookings(filter) {
-  const params = {};
-  if (filter) params.filter = filter;
-  const res = await axiosInstance.get("/bookings", { params });
-  const raw = res.data.data;
-  return Array.isArray(raw) ? raw : raw.data ?? [];
-}

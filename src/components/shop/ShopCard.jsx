@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 function ShopCard({ shop, variant = "search" }) {
   const navigate = useNavigate();
 
-  const price = shop.price_from ?? shop.price ?? shop.priceFrom;
+  const price = shop.price_from ?? shop.min_price ?? shop.price ?? shop.priceFrom;
   const reviewsCount = shop.reviews_count ?? shop.reviews ?? shop.reviewCount ?? 0;
   const rawDistance = shop.distance_km != null ? `${shop.distance_km} км` : (shop.distance ?? "");
   const status = shop.status ?? "closed";
