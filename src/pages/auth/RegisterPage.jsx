@@ -204,7 +204,7 @@ function RegisterPage() {
             </div>
 
             <div
-              className="grid grid-cols-2"
+              className="grid grid-cols-1 min-[480px]:grid-cols-2"
               style={{ gap: "12px", marginBottom: "16px" }}
             >
               <div>

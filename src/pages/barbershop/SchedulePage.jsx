@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import ScheduleCalendar from "../../components/barbershop/ScheduleCalendar";
 import ScheduleSlot from "../../components/barbershop/ScheduleSlot";
 import { getCalendar } from "../../api/dashboardApi";
+import useIsMobile from "../../hooks/useIsMobile";
 
 const views = ["День", "Неделя", "Месяц"];
 const weekdayLabels = ["ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ", "ВС"];
@@ -302,6 +303,7 @@ function MonthView({ onSelectDay }) {
 
 // ─── MAIN ────────────────────────────────────────────────────────────────────
 function SchedulePage() {
+  const isMobile = useIsMobile();
   const [activeView, setActiveView] = useState("День");
   const [jumpToDay, setJumpToDay] = useState(null);
 
@@ -312,13 +314,15 @@ function SchedulePage() {
     setActiveView("День");
   }
 
+  const pad = isMobile ? "16px" : "32px";
+
   return (
-    <div style={{ backgroundColor: "#1A1A2E", padding: "32px", minHeight: "100vh" }}>
+    <div style={{ backgroundColor: "#1A1A2E", padding: pad, minHeight: "100vh" }}>
       <div
         className="flex items-center justify-between"
         style={{ marginBottom: "24px", gap: "16px", flexWrap: "wrap" }}
       >
-        <h1 className="text-white" style={{ fontSize: "26px", fontWeight: 700 }}>
+        <h1 className="text-white" style={{ fontSize: isMobile ? "20px" : "26px", fontWeight: 700 }}>
           Расписание
         </h1>
 

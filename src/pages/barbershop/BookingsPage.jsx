@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { getOwnerBookings, cancelOwnerBooking, completeOwnerBooking } from "../../api/dashboardApi";
+import useIsMobile from "../../hooks/useIsMobile";
 
 const filters = [
   { id: "all", label: "Все" },
@@ -49,6 +50,7 @@ function mapBooking(b) {
 }
 
 function BookingsPage() {
+  const isMobile = useIsMobile();
   const [activeFilter, setActiveFilter] = useState("all");
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -91,8 +93,10 @@ function BookingsPage() {
     }
   }
 
+  const pad = isMobile ? "16px" : "28px 32px";
+
   return (
-    <div style={{ backgroundColor: "#1A1A2E", padding: "28px 32px", minHeight: "100vh" }}>
+    <div style={{ backgroundColor: "#1A1A2E", padding: pad, minHeight: "100vh" }}>
       <div>
         <h1 className="text-white" style={{ fontSize: "22px", fontWeight: 700 }}>
           Записи

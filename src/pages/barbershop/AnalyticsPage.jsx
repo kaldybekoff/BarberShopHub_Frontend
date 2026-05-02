@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { getAnalytics } from "../../api/dashboardApi";
+import useIsMobile from "../../hooks/useIsMobile";
 
 const periods = [
   { id: "week", label: "Неделя" },
@@ -78,6 +79,7 @@ function mapAnalytics(data, period) {
 }
 
 function AnalyticsPage() {
+  const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState("week");
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -90,8 +92,10 @@ function AnalyticsPage() {
       .finally(() => setLoading(false));
   }, [activeTab]);
 
+  const pad = isMobile ? "16px" : "28px 32px";
+
   return (
-    <div style={{ backgroundColor: "#1A1A2E", padding: "28px 32px", minHeight: "100vh" }}>
+    <div style={{ backgroundColor: "#1A1A2E", padding: pad, minHeight: "100vh" }}>
       <div style={{ marginBottom: "20px" }}>
         <h1 className="text-white" style={{ fontSize: "22px", fontWeight: 700 }}>
           Аналитика
@@ -136,8 +140,8 @@ function AnalyticsPage() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
-              gap: "12px",
+              gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, minmax(0, 1fr))",
+              gap: isMobile ? "10px" : "12px",
               marginBottom: "16px",
             }}
           >
@@ -146,7 +150,7 @@ function AnalyticsPage() {
             ))}
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: "16px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1.6fr 1fr", gap: "16px" }}>
             <RevenueChart data={analytics.revenueData} total={analytics.total} />
             <PopularServices items={analytics.popularServices} />
           </div>
