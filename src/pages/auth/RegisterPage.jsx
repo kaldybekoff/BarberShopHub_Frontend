@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthBrandPanel from "../../components/auth/AuthBrandPanel";
 import { register } from "../../api/authApi";
+import useAuth from "../../hooks/useAuth";
 
 const pageStyle = { backgroundColor: "#171A33" };
 
@@ -28,6 +29,7 @@ const inputStyle = {
 
 function RegisterPage() {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -53,8 +55,9 @@ function RegisterPage() {
 
     setLoading(true);
     try {
-      await register(name, email, password);
-      navigate("/verify", { state: { email } });
+      const { access_token, user } = await register(name, email, password);
+      login(user, access_token);
+      navigate(user.role === "Barbershop" ? "/barbershop/dashboard" : "/home");
     } catch (err) {
       const msg = err?.response?.data?.message || "Registration failed";
       setError(msg);
@@ -310,7 +313,7 @@ function RegisterPage() {
                 marginBottom: "16px",
               }}
             >
-              {loading ? "Sending..." : "Sign up"}
+              {loading ? "Creating account..." : "Sign up"}
             </button>
           </form>
 
