@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import AuthBrandPanel from "../../components/auth/AuthBrandPanel";
 import { resetPassword } from "../../api/authApi";
@@ -71,8 +71,6 @@ function ResetPasswordPage() {
   const emailFromState = location.state?.email || "";
 
   const [email, setEmail] = useState(emailFromState);
-  const [codeDigits, setCodeDigits] = useState(["", "", "", ""]);
-  const inputRefs = useRef([]);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -91,15 +89,13 @@ function ResetPasswordPage() {
     e.preventDefault();
     setError("");
 
-    const code = codeDigits.join("");
     if (!email) { setError("Enter your email"); return; }
-    if (code.length !== 4) { setError("Enter all 4 digits of the code"); return; }
     if (password.length < 8) { setError("Password must be at least 8 characters"); return; }
     if (password !== confirmPassword) { setError("Passwords do not match"); return; }
 
     setLoading(true);
     try {
-      await resetPassword(email, code, password);
+      await resetPassword(email, password);
       setSuccess(true);
     } catch (err) {
       setError(err?.response?.data?.message || "Password reset failed. Try again.");
@@ -189,15 +185,16 @@ function ResetPasswordPage() {
               <h1 style={{ color: "#ffffff", fontSize: "24px", fontWeight: 800, textAlign: "center" }}>
                 New password
               </h1>
-              <p style={{ color: "#A8B2C1", fontSize: "13px", textAlign: "center", marginTop: "8px", marginBottom: "28px" }}>
-                Enter the code from your email and choose a new password
+              <p style={{ color: "#A8B2C1", fontSize: "13px", textAlign: "center", marginTop: "8px", marginBottom: "28px", lineHeight: 1.5 }}>
+                Choose a new password for your account. No verification code is required right now.
               </p>
 
               <form onSubmit={handleSubmit}>
                 {!emailFromState && (
                   <div style={{ marginBottom: "16px" }}>
-                    <label style={labelStyle}>Email</label>
+                    <label htmlFor="reset-email" style={labelStyle}>Email</label>
                     <input
+                      id="reset-email"
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -212,62 +209,10 @@ function ResetPasswordPage() {
 
                 {emailFromState && (
                   <p style={{ color: "#A8B2C1", fontSize: "13px", marginBottom: "16px", textAlign: "center" }}>
-                    {"Code sent to "}<span style={{ color: "#fff", fontWeight: 600 }}>{email}</span>
+                    Resetting password for{" "}
+                    <span style={{ color: "#fff", fontWeight: 600 }}>{email}</span>
                   </p>
                 )}
-
-                <div style={{ marginBottom: "20px" }}>
-                  <label style={labelStyle}>Email code</label>
-                  <div className="flex justify-center" style={{ gap: "12px", marginTop: "8px" }}>
-                    {codeDigits.map((digit, i) => (
-                      <input
-                        key={i}
-                        ref={(el) => (inputRefs.current[i] = el)}
-                        type="text"
-                        inputMode="numeric"
-                        maxLength={1}
-                        value={digit}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/\D/g, "");
-                          if (!val && e.target.value !== "") return;
-                          const updated = [...codeDigits];
-                          updated[i] = val;
-                          setCodeDigits(updated);
-                          if (val && i < 3) inputRefs.current[i + 1]?.focus();
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === "Backspace" && !codeDigits[i] && i > 0) {
-                            inputRefs.current[i - 1]?.focus();
-                          }
-                        }}
-                        onPaste={(e) => {
-                          e.preventDefault();
-                          const text = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 4);
-                          if (!text) return;
-                          const updated = ["", "", "", ""];
-                          text.split("").forEach((ch, idx) => { updated[idx] = ch; });
-                          setCodeDigits(updated);
-                          inputRefs.current[Math.min(text.length, 3)]?.focus();
-                        }}
-                        style={{
-                          width: "56px",
-                          height: "56px",
-                          textAlign: "center",
-                          fontSize: "22px",
-                          fontWeight: 700,
-                          color: "#ffffff",
-                          backgroundColor: "#1E2A3A",
-                          border: `2px solid ${digit ? "#E94560" : "rgba(255,255,255,0.08)"}`,
-                          borderRadius: "12px",
-                          outline: "none",
-                          transition: "border-color 0.2s",
-                        }}
-                        onFocus={(e) => { e.target.style.borderColor = "#E94560"; }}
-                        onBlur={(e) => { e.target.style.borderColor = digit ? "#E94560" : "rgba(255,255,255,0.08)"; }}
-                      />
-                    ))}
-                  </div>
-                </div>
 
                 <PasswordInput
                   id="new-password"
@@ -335,7 +280,7 @@ function ResetPasswordPage() {
                   onClick={() => navigate("/forgot-password")}
                   style={{ background: "none", border: "none", color: "#A8B2C1", fontSize: "13px", cursor: "pointer" }}
                 >
-                  ← Request a new code
+                  ← Start over
                 </button>
               </div>
             </>

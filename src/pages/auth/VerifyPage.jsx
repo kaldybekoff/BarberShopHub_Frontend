@@ -1,9 +1,14 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { verifyEmail, resendCode } from "../../api/authApi";
+import { verifyEmail } from "../../api/authApi";
 import useAuth from "../../hooks/useAuth";
 import AuthBrandPanel from "../../components/auth/AuthBrandPanel";
 
+/**
+ * OTP is disabled on the API for now. This page remains for old links:
+ * completes sign-in via /auth/verify-email with email only.
+ * When OTP is re-enabled, restore the code UI here and pass the code to verifyEmail.
+ */
 function VerifyPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -11,80 +16,31 @@ function VerifyPage() {
 
   const email = location.state?.email || "";
 
-  const [codeDigits, setCodeDigits] = useState(["", "", "", ""]);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [countdown, setCountdown] = useState(60);
-  const [resending, setResending] = useState(false);
-  const inputRefs = useRef([]);
 
   useEffect(() => {
-    inputRefs.current[0]?.focus();
-  }, []);
-
-  useEffect(() => {
-    if (countdown <= 0) return;
-    const timer = setInterval(() => setCountdown((p) => p - 1), 1000);
-    return () => clearInterval(timer);
-  }, [countdown]);
-
-  function handleDigitChange(index, value) {
-    if (!/^\d?$/.test(value)) return;
-    const updated = [...codeDigits];
-    updated[index] = value;
-    setCodeDigits(updated);
-    if (value && index < 3) inputRefs.current[index + 1]?.focus();
-  }
-
-  function handleKeyDown(index, e) {
-    if (e.key === "Backspace" && !codeDigits[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
+    if (!email) {
+      navigate("/login", { replace: true });
     }
-  }
+  }, [email, navigate]);
 
-  function handlePaste(e) {
-    e.preventDefault();
-    const text = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 4);
-    if (!text) return;
-    const updated = ["", "", "", ""];
-    text.split("").forEach((ch, i) => { updated[i] = ch; });
-    setCodeDigits(updated);
-    inputRefs.current[Math.min(text.length, 3)]?.focus();
-  }
-
-  async function handleConfirm() {
+  async function handleContinue() {
     setErrorMessage("");
-    const code = codeDigits.join("");
-    if (code.length < 4) {
-      setErrorMessage("Enter all 4 digits of the code");
-      return;
-    }
     setIsLoading(true);
     try {
-      const { access_token, user } = await verifyEmail(email, code);
+      const { access_token, user } = await verifyEmail(email);
       login(user, access_token);
       navigate(user.role === "Barbershop" ? "/barbershop/dashboard" : "/home");
     } catch {
-      setErrorMessage("Invalid or expired code");
+      setErrorMessage("Could not complete sign-in. Try registering again or sign in.");
     } finally {
       setIsLoading(false);
     }
   }
 
-  async function handleResend() {
-    if (resending || countdown > 0) return;
-    setResending(true);
-    setErrorMessage("");
-    try {
-      await resendCode(email);
-      setCountdown(60);
-      setCodeDigits(["", "", "", ""]);
-      inputRefs.current[0]?.focus();
-    } catch {
-      setErrorMessage("Could not resend the code");
-    } finally {
-      setResending(false);
-    }
+  if (!email) {
+    return null;
   }
 
   return (
@@ -114,7 +70,6 @@ function VerifyPage() {
             border: "1px solid rgba(255,255,255,0.07)",
           }}
         >
-          {/* Logo */}
           <div className="flex items-center justify-center" style={{ gap: "8px", marginBottom: "28px" }}>
             <span style={{ fontSize: "20px", color: "#E94560" }}>✂️</span>
             <span style={{ fontSize: "20px", fontWeight: 800, color: "#ffffff" }}>
@@ -122,73 +77,24 @@ function VerifyPage() {
             </span>
           </div>
 
-          {/* Header */}
           <h1 style={{ color: "#ffffff", fontSize: "24px", fontWeight: 800, textAlign: "center" }}>
-            Confirm your email
+            Almost there
           </h1>
-          <p style={{ color: "#A8B2C1", fontSize: "13px", textAlign: "center", marginTop: "8px", marginBottom: "32px" }}>
-            We sent a code to{" "}
-            {email && (
-              <span style={{ color: "#ffffff", fontWeight: 600 }}>{email}</span>
-            )}
+          <p style={{ color: "#A8B2C1", fontSize: "13px", textAlign: "center", marginTop: "8px", marginBottom: "24px", lineHeight: 1.55 }}>
+            Email confirmation codes are turned off for now. If you came from an older link for{" "}
+            <span style={{ color: "#ffffff", fontWeight: 600 }}>{email}</span>, tap below to finish
+            signing in.
           </p>
 
-          {/* OTP inputs */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              gap: "12px",
-              marginBottom: "24px",
-            }}
-          >
-            {codeDigits.map((digit, index) => (
-              <input
-                key={index}
-                ref={(el) => (inputRefs.current[index] = el)}
-                type="text"
-                inputMode="numeric"
-                maxLength={1}
-                value={digit}
-                onChange={(e) => handleDigitChange(index, e.target.value)}
-                onKeyDown={(e) => handleKeyDown(index, e)}
-                onPaste={handlePaste}
-                style={{
-                  width: "68px",
-                  height: "72px",
-                  backgroundColor: "#1E2A3A",
-                  border: digit
-                    ? "2px solid #E94560"
-                    : "2px solid rgba(255,255,255,0.12)",
-                  borderRadius: "14px",
-                  color: "#ffffff",
-                  fontSize: "28px",
-                  fontWeight: 700,
-                  textAlign: "center",
-                  outline: "none",
-                  transition: "border-color 0.2s",
-                }}
-                onFocus={(e) => {
-                  if (!digit) e.target.style.borderColor = "rgba(233,69,96,0.5)";
-                }}
-                onBlur={(e) => {
-                  if (!digit) e.target.style.borderColor = "rgba(255,255,255,0.12)";
-                }}
-              />
-            ))}
-          </div>
-
-          {/* Error */}
           {errorMessage && (
             <p style={{ color: "#E94560", fontSize: "13px", textAlign: "center", marginBottom: "16px" }}>
               {errorMessage}
             </p>
           )}
 
-          {/* Confirm button */}
           <button
             type="button"
-            onClick={handleConfirm}
+            onClick={handleContinue}
             disabled={isLoading}
             style={{
               width: "100%",
@@ -201,43 +107,16 @@ function VerifyPage() {
               fontWeight: 700,
               cursor: isLoading ? "not-allowed" : "pointer",
               opacity: isLoading ? 0.7 : 1,
-              marginBottom: "20px",
+              marginBottom: "16px",
             }}
           >
-            {isLoading ? "Verifying..." : "Confirm"}
+            {isLoading ? "Signing in..." : "Continue to BarberHub"}
           </button>
 
-          {/* Resend */}
-          <p style={{ textAlign: "center", color: "#A8B2C1", fontSize: "13px" }}>
-            {"Didn't get the code? "}
-            {countdown > 0 ? (
-              <span>Resend in {countdown}s</span>
-            ) : (
-              <button
-                type="button"
-                onClick={handleResend}
-                disabled={resending}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "#E94560",
-                  fontWeight: 600,
-                  fontSize: "13px",
-                  cursor: "pointer",
-                  padding: 0,
-                  textDecoration: "underline",
-                }}
-              >
-                {resending ? "Sending..." : "Resend code"}
-              </button>
-            )}
-          </p>
-
-          {/* Back */}
-          <div style={{ textAlign: "center", marginTop: "20px" }}>
+          <div style={{ textAlign: "center" }}>
             <button
               type="button"
-              onClick={() => navigate(-1)}
+              onClick={() => navigate("/login")}
               style={{
                 background: "none",
                 border: "none",
@@ -246,7 +125,7 @@ function VerifyPage() {
                 cursor: "pointer",
               }}
             >
-              ← Back
+              ← Back to sign in
             </button>
           </div>
         </div>

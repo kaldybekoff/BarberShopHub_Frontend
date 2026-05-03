@@ -103,12 +103,12 @@ function ForgotPasswordPage() {
                 ✉️
               </div>
               <h1 style={{ color: "#ffffff", fontSize: "22px", fontWeight: 800, marginBottom: "10px" }}>
-                Email sent!
+                Account found
               </h1>
               <p style={{ color: "#A8B2C1", fontSize: "13px", lineHeight: 1.6, marginBottom: "28px" }}>
-                We sent a verification code to{" "}
-                <span style={{ color: "#ffffff", fontWeight: 600 }}>{email}</span>.
-                {"Check your spam folder if you don't see it."}
+                You can set a new password for{" "}
+                <span style={{ color: "#ffffff", fontWeight: 600 }}>{email}</span>
+                {" — no email code is required right now."}
               </p>
               <button
                 type="button"
@@ -126,7 +126,7 @@ function ForgotPasswordPage() {
                   marginBottom: "12px",
                 }}
               >
-                Enter code →
+                Set new password →
               </button>
               <button
                 type="button"
@@ -149,7 +149,7 @@ function ForgotPasswordPage() {
                 Forgot password?
               </h1>
               <p style={{ color: "#A8B2C1", fontSize: "13px", textAlign: "center", marginTop: "8px", marginBottom: "28px", lineHeight: 1.5 }}>
-                {"Enter your email and we'll send reset instructions"}
+                Enter your email to continue — we will check that the account exists, then you can choose a new password.
               </p>
 
               <form onSubmit={handleSubmit}>
@@ -194,7 +194,7 @@ function ForgotPasswordPage() {
                     marginBottom: "16px",
                   }}
                 >
-                  {loading ? "Sending..." : "Send instructions"}
+                  {loading ? "Checking..." : "Continue"}
                 </button>
               </form>
 

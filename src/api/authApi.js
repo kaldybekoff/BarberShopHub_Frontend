@@ -42,11 +42,19 @@ export async function register(name, email, password) {
     password,
     password_confirmation: password,
   });
-  return res.data;
+  const { user, token } = res.data.data;
+  try {
+    const fresh = await fetchFullProfile(token);
+    return { access_token: token, user: fresh };
+  } catch {
+    return { access_token: token, user: { ...user, role: roleFromUser(user) } };
+  }
 }
 
+/** Email-only while OTP is off; when OTP returns, pass `code` as second argument. */
 export async function verifyEmail(email, code) {
-  const res = await axiosInstance.post("/auth/verify-email", { email, code });
+  const body = code ? { email, code } : { email };
+  const res = await axiosInstance.post("/auth/verify-email", body);
   const { user, token } = res.data.data;
   try {
     const fresh = await fetchFullProfile(token);
@@ -84,10 +92,9 @@ export async function updateProfile({ name }) {
   return res.data.data;
 }
 
-export async function resetPassword(email, code, password) {
+export async function resetPassword(email, password) {
   const res = await axiosInstance.post("/auth/reset-password", {
     email,
-    code,
     password,
     password_confirmation: password,
   });

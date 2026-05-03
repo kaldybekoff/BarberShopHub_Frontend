@@ -32,7 +32,8 @@ function SearchPage() {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
       (pos) => setUserCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      () => {}
+      (err) => console.warn("Geolocation denied or unavailable:", err.message),
+      { timeout: 8000, maximumAge: 60000 }
     );
   }, []);
 
